@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Iniciar sesión · Pali</title>
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div class="login">
+
+  <aside class="login-side">
+    <div>
+      <p class="login-brand">Pali</p>
+      <p class="login-sub">Backoffice</p>
+    </div>
+    <div class="login-intro">
+      <p class="kicker">Administración</p>
+      <h1>Iniciar sesión</h1>
+      <p class="lede">Accedé con tu email y contraseña para gestionar turnos, personas y cobros del club.</p>
+    </div>
+    <p class="login-foot">Pali · Administración del club</p>
+  </aside>
+
+  <main class="login-main">
+    <form class="login-card stack--form" id="loginForm" novalidate>
+      <div class="field">
+        <label class="label" for="email">Email <span class="req">*</span></label>
+        <input id="email" class="input" type="email" placeholder="nombre@tuclub.com" autocomplete="off">
+      </div>
+      <div class="field">
+        <label class="label" for="pass">Contraseña <span class="req">*</span></label>
+        <input id="pass" class="input" type="password" placeholder="Ingresá tu contraseña" autocomplete="off">
+      </div>
+      <button type="button" class="login-link" data-act="forgot" style="margin-top:-6px">¿Olvidaste tu contraseña?</button>
+
+      <p id="formErr" class="field-error" hidden></p>
+
+      <div class="stack" style="gap:14px">
+        <button type="button" class="btn btn--lg btn--block" data-act="microsoft"><span class="ms-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Ingresar con Microsoft</button>
+        <div class="login-sep" aria-hidden="true"></div>
+        <button type="submit" class="btn btn--dark btn--lg btn--block" id="submitBtn">Ingresar con email</button>
+        <p class="btn-note">Inicio de sesión simulado: todavía no hay autenticación real.</p>
+      </div>
+    </form>
+  </main>
+
+  <div id="toast" class="toast" hidden></div>
+</div>
+
+<script>
+/* Pantalla Login (simulada). No valida contra ningún servicio: con email y contraseña completos "inicia sesión". */
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var TARGET = 'cobros.html';   // primera pestaña del menú; hoy no depende de ningún rol
+
+  function say(msg) { var t = $('#toast'); t.textContent = msg; t.hidden = false; setTimeout(function () { t.hidden = true; }, 2200); }
+
+  /* Campos obligatorios: se marcan y se avisa cuáles faltan */
+  function validate() {
+    var req = [['email', 'Email'], ['pass', 'Contraseña']], missing = [], first = null, badFormat = false;
+    req.forEach(function (r) {
+      var el = $('#' + r[0]), empty = !el.value.trim(), f = el.closest('.field'), m = f.querySelector('.field-error');
+      var msg = '';
+      if (empty) msg = 'Falta completar el campo ' + r[1] + ': es obligatorio.';
+      else if (r[0] === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim())) { msg = 'El Email no tiene un formato válido.'; badFormat = true; }
+      f.classList.toggle('field--error', !!msg);
+      if (msg) {
+        if (!m) { m = document.createElement('p'); m.className = 'field-error'; f.appendChild(m); }
+        m.textContent = msg; if (empty) missing.push(r[1]); if (!first) first = el;
+      } else if (m) m.remove();
+    });
+    var err = $('#formErr');
+    err.hidden = !(missing.length || badFormat);
+    if (missing.length) err.textContent = 'No se puede continuar: ' + (missing.length > 1 ? 'faltan los campos obligatorios ' : 'falta el campo obligatorio ') + missing.join(', ') + '.';
+    else if (badFormat) err.textContent = 'No se puede continuar: revisá el formato del Email.';
+    if (first) first.focus();
+    return !(missing.length || badFormat);
+  }
+
+  function enter(label) {
+    var b = $('#submitBtn'); b.disabled = true; b.textContent = 'Ingresando…';
+    try { sessionStorage.setItem('pali-session', label); } catch (e) {}
+    setTimeout(function () { location.href = TARGET; }, 700);
+  }
+
+  $('#loginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (validate()) enter($('#email').value.trim());
+  });
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('[data-act]'); if (!el) return;
+    if (el.dataset.act === 'forgot') say('Recuperar contraseña: función simulada');
+    if (el.dataset.act === 'microsoft') { say('Ingresando con Microsoft (simulado)…'); setTimeout(function () { location.href = TARGET; }, 700); }
+  });
+})();
+</script>
+</body>
+</html>

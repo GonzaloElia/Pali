@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roadmap 2026 · Pali</title>
+<link rel="stylesheet" href="../mockup/css/main.css">
+<link rel="stylesheet" href="css/roadmap.css">
+<script src="js/roadmap-store.js"></script>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Ocultar barra lateral" title="Pantalla completa">‹</button>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <p class="brand">Pali <em>· roadmap</em></p>
+    <p class="brand-sub">línea de tiempo 2026</p>
+    <a class="nav-item is-active" href="index.html"><span class="n">00</span>Roadmap</a>
+    <a class="nav-item" href="leyenda.html"><span class="n">01</span>Leyenda</a>
+    <div class="foot">Se guarda solo en tu navegador. <a href="../mockup/index.html">Volver al prototipo</a></div>
+  </aside>
+
+  <main class="main">
+    <header class="page-header page-header--compact">
+      <!-- Botón de memoria: fijo en la esquina de arriba a la derecha de esta cajita -->
+      <div class="storage-widget" id="storageWidget">
+        <button type="button" class="storage-pill" id="storagePill" aria-expanded="false" aria-controls="storagePanel" title="Ver la memoria usada">Memoria</button>
+        <div class="storage-panel" id="storagePanel" role="status" hidden></div>
+      </div>
+      <p class="kicker">Pali · Roadmap 2026 · MVP</p>
+      <h1>Qué viene, <em>y cuándo</em>.</h1>
+      <p class="lede">Arrastrá las cajitas para moverlas en el tiempo o estirá sus bordes para cambiar las fechas. Tocá un espacio vacío de una fila para crear una cajita en ese día.</p>
+    </header>
+
+    <div class="toolbar">
+      <div class="row">
+        <button class="btn btn--sm" data-act="edit-legend">Editar leyenda</button>
+        <button class="btn btn--sm" data-act="edit-kinds">Tipos de fila</button>
+        <button class="btn btn--sm btn--ghost" data-act="export">Exportar</button>
+        <button class="btn btn--sm btn--ghost" data-act="import">Importar</button>
+        <button class="btn btn--sm btn--ghost" data-act="reset">Restablecer</button>
+        <input type="file" id="importFile" accept="application/json" hidden>
+      </div>
+      <div class="year-progress">
+        <span class="today-chip" id="todayChip"></span>
+        <div class="bar" title="Avance del año"><span id="yearFill"></span></div>
+      </div>
+      <div class="row">
+        <div class="seg" id="viewSeg" role="group" aria-label="Vista">
+          <button data-view="month">Meses</button>
+          <button data-view="week">Semanas</button>
+          <button data-view="day">Días</button>
+        </div>
+        <button class="btn btn--sm" data-act="go-today">Ir a hoy</button>
+      </div>
+    </div>
+
+    <div class="timeline-wrap" id="timelineWrap">
+      <div class="timeline" id="timeline"></div>
+    </div>
+
+    <p class="hint mt-2">¿Qué significa cada color? Mirá la <a href="leyenda.html">leyenda</a>.</p>
+
+    <div id="toast" class="toast" hidden></div>
+  </main>
+</div>
+<div class="drag-tip" id="dragTip" hidden></div>
+
+<!-- Modal: cajita -->
+<div class="scrim" id="scrimBox" hidden>
+  <div class="modal modal--wide">
+    <div class="modal-head">
+      <div>
+        <h3 id="boxModalTitle">Nueva cajita</h3>
+        <p class="sub" id="boxModalSub"></p>
+      </div>
+      <button class="modal-close" data-close aria-label="Cerrar">×</button>
+    </div>
+    <form class="rm-form" id="boxForm">
+      <input type="hidden" id="boxId">
+      <div class="field">
+        <label class="label" for="boxTitle">Título</label>
+        <input id="boxTitle" class="input" required placeholder="Ej: Agenda y reservas">
+      </div>
+      <div class="grid-2-tight">
+        <div class="field">
+          <label class="label" for="boxRow">Fila</label>
+          <select id="boxRow" class="select"></select>
+        </div>
+        <div class="field">
+          <label class="label" for="boxCategory">Categoría (color)</label>
+          <select id="boxCategory" class="select"></select>
+        </div>
+      </div>
+      <div class="grid-2-tight">
+        <div class="field">
+          <label class="label" for="boxStart">Empieza el día</label>
+          <input id="boxStart" class="input" type="date" min="2026-01-01" max="2026-12-31" required>
+        </div>
+        <div class="field">
+          <label class="label" for="boxEnd">Termina el día</label>
+          <input id="boxEnd" class="input" type="date" min="2026-01-01" max="2026-12-31" required>
+        </div>
+      </div>
+      <div class="field">
+        <span class="label">Duración rápida</span>
+        <div class="quick-dates" id="quickDates">
+          <button type="button" data-dur="1">1 día (hito)</button>
+          <button type="button" data-dur="7">1 semana</button>
+          <button type="button" data-dur="14">2 semanas</button>
+          <button type="button" data-dur="30">1 mes</button>
+          <button type="button" data-dur="90">3 meses</button>
+        </div>
+        <p class="hint" id="boxDuration"></p>
+      </div>
+      <div class="field">
+        <label class="label" for="boxDesc">Descripción</label>
+        <textarea id="boxDesc" class="input" placeholder="Qué incluye (opcional)"></textarea>
+      </div>
+      <details class="more">
+        <summary>Más detalles</summary>
+        <div class="stack">
+          <div class="grid-2-tight">
+            <div class="field">
+              <label class="label" for="boxOwner">Responsable</label>
+              <input id="boxOwner" class="input" placeholder="Ej: Ivan, Gonza">
+            </div>
+            <div class="field">
+              <label class="label" for="boxProgress">Avance: <span id="boxProgressLabel">0%</span></label>
+              <input id="boxProgress" type="range" min="0" max="100" step="5" value="0">
+            </div>
+          </div>
+          <div class="field">
+            <label class="label" for="boxLink">Enlace</label>
+            <input id="boxLink" class="input" type="url" placeholder="https://… (documento, ticket, diseño)">
+          </div>
+          <div class="field">
+            <label class="label" for="boxNotes">Notas</label>
+            <textarea id="boxNotes" class="input" placeholder="Dependencias, riesgos, decisiones pendientes…"></textarea>
+          </div>
+        </div>
+      </details>
+      <div class="modal-foot">
+        <button type="button" class="btn btn--danger" id="deleteBoxBtn" hidden>Eliminar</button>
+        <span class="grow"></span>
+        <button type="button" class="btn btn--ghost" data-close>Cancelar</button>
+        <button type="submit" class="btn btn--primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: fila -->
+<div class="scrim" id="scrimRow" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h3 id="rowModalTitle">Nueva fila</h3>
+        <p class="sub">Cada fila agrupa cajitas bajo un título y pertenece a un tipo.</p>
+      </div>
+      <button class="modal-close" data-close aria-label="Cerrar">×</button>
+    </div>
+    <form class="rm-form" id="rowForm">
+      <input type="hidden" id="rowId">
+      <div class="field">
+        <label class="label" for="rowTitle">Título de la fila</label>
+        <input id="rowTitle" class="input" required placeholder="Ej: Backoffice, Lanzamiento…">
+      </div>
+      <div class="field">
+        <label class="label" for="rowKind">Tipo de fila</label>
+        <select id="rowKind" class="select"></select>
+        <p class="hint">Hito (por milestone) o Vertiente de negocio. Los tipos se editan en "Tipos de fila".</p>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn--danger" id="deleteRowBtn" hidden>Eliminar fila</button>
+        <span class="grow"></span>
+        <button type="button" class="btn btn--ghost" data-close>Cancelar</button>
+        <button type="submit" class="btn btn--primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: leyenda (categorías) -->
+<div class="scrim" id="scrimLegend" hidden>
+  <div class="modal modal--wide">
+    <div class="modal-head">
+      <div>
+        <h3>Editar leyenda</h3>
+        <p class="sub">Definí qué significa cada color y estilo. Los cambios se ven al instante.</p>
+      </div>
+      <button class="modal-close" data-close aria-label="Cerrar">×</button>
+    </div>
+    <div class="editor-list" id="legendEditor"></div>
+    <div class="modal-foot">
+      <button type="button" class="btn" data-act="add-category">+ Agregar categoría</button>
+      <span class="grow"></span>
+      <button type="button" class="btn btn--primary" data-close>Listo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: tipos de fila -->
+<div class="scrim" id="scrimKinds" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h3>Tipos de fila</h3>
+        <p class="sub">Las opciones del eje vertical (por ejemplo, Hito o Vertiente de negocio).</p>
+      </div>
+      <button class="modal-close" data-close aria-label="Cerrar">×</button>
+    </div>
+    <div class="editor-list" id="kindsEditor"></div>
+    <div class="modal-foot">
+      <button type="button" class="btn" data-act="add-kind">+ Agregar tipo</button>
+      <span class="grow"></span>
+      <button type="button" class="btn btn--primary" data-close>Listo</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/roadmap-app.js"></script>
+</body>
+</html>

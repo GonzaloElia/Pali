@@ -1,0 +1,15 @@
+/* Componente · Pasos numerados de un flujo */
+.steps { list-style: none; margin: var(--s-3) 0 0; padding: 0; counter-reset: step; }
+.steps li {
+  counter-increment: step; position: relative;
+  padding: 0 0 12px 32px; font-size: 13px; color: var(--ink-2); line-height: 1.5;
+}
+.steps li::before {
+  content: counter(step); position: absolute; left: 0; top: 0;
+  width: 21px; height: 21px; border-radius: 50%; border: 1px solid var(--line-strong); background: var(--surface);
+  color: var(--mute); font-family: var(--font-mono); font-size: 10px; display: grid; place-items: center;
+}
+.steps li::after { content: ""; position: absolute; left: 10px; top: 23px; bottom: 2px; width: 1px; background: var(--line); }
+.steps li:last-child::after { display: none; }
+.steps li b { color: var(--ink); font-weight: 500; }
+.steps li.is-key::before { border-color: var(--brand); color: var(--brand); }

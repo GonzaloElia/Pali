@@ -1,0 +1,86 @@
+/* Componente · Controles del shell: ocultar la barra lateral y cambiar de tema */
+
+/* Botón de ícono flotante (tema y abrir menú) */
+.shell-btn {
+  position: fixed; z-index: 30; width: 34px; height: 34px;
+  display: grid; place-items: center; padding: 0;
+  border: 1px solid var(--line-strong); border-radius: var(--r-sm);
+  background: var(--surface); color: var(--ink-2); cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s, opacity 0.2s;
+}
+.shell-btn:hover { border-color: var(--ink); color: var(--ink); }
+.shell-btn svg { width: 17px; height: 17px; display: block; }
+.theme-toggle { top: 10px; right: 4px; }
+.nav-open { top: 10px; left: 4px; opacity: 0; pointer-events: none; }
+html[data-sidebar="hidden"] .nav-open { opacity: 1; pointer-events: auto; }
+
+/* Ícono sol/luna: se muestra el del tema al que se va a cambiar */
+.theme-toggle .i-sun { display: none; }
+html[data-theme="dark"] .theme-toggle .i-sun { display: block; }
+html[data-theme="dark"] .theme-toggle .i-moon { display: none; }
+
+/* Ocultar menú: ícono chico en la esquina superior derecha de la barra lateral */
+.nav-hide {
+  position: absolute; top: 24px; right: 12px; width: 30px; height: 30px;
+  display: grid; place-items: center; padding: 0; border: 0; border-radius: var(--r-sm);
+  background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.8); cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.nav-hide:hover { background: rgba(255, 255, 255, 0.16); color: var(--white); }
+.nav-hide svg { width: 16px; height: 16px; display: block; }
+
+/* Menú de usuario al pie de la barra lateral */
+.user-menu { position: relative; margin-top: 14px; }
+.user-btn {
+  display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14); border-radius: var(--r-sm);
+  background: rgba(255, 255, 255, 0.06); color: var(--white); font: inherit; text-align: left; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.user-btn:hover, .user-menu.is-open .user-btn { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.28); }
+.user-btn > svg { width: 16px; height: 16px; flex: none; margin-left: auto; color: rgba(255, 255, 255, 0.6); transition: transform 0.2s var(--ease); }
+.user-menu.is-open .user-btn > svg { transform: rotate(180deg); }
+.avatar {
+  width: 30px; height: 30px; flex: none; border-radius: 50%;
+  display: grid; place-items: center; background: var(--mint); color: var(--forest); font-weight: 600; font-size: 13px;
+}
+.user-info { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.user-info b { font-weight: 500; font-size: 13px; }
+.user-info small { font-size: 11px; color: rgba(255, 255, 255, 0.6); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-pop {
+  position: absolute; left: 0; right: 0; bottom: calc(100% + 6px); padding: 4px;
+  background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-sm); box-shadow: var(--shadow-pop);
+}
+.user-item {
+  display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border: 0; border-radius: 6px;
+  background: transparent; color: var(--ink); font: inherit; font-size: 13.5px; cursor: pointer; text-align: left;
+}
+.user-item:hover { background: var(--bg-soft); }
+.user-item svg { width: 16px; height: 16px; flex: none; color: var(--ink-2); }
+
+/* Sidebar oculta: se ve solo cuando está abierta (evita foco y lectura oculta) */
+html[data-sidebar="hidden"] .sidebar { visibility: hidden; transition: visibility 0s linear 0.35s; }
+html[data-sidebar="hidden"] .main { padding-left: 56px; }
+.main { transition: padding 0.35s var(--ease); }
+
+/* Onda al cambiar de tema (View Transitions): el tema nuevo se revela desde el clic */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) { z-index: 2; }
+
+/* Anillo que sale del clic */
+.theme-ripple {
+  position: fixed; z-index: 100; width: 20px; height: 20px; margin: -10px 0 0 -10px;
+  border-radius: 50%; border: 2px solid var(--brand); pointer-events: none;
+  animation: theme-ripple 0.6s var(--ease) forwards;
+}
+@keyframes theme-ripple { from { transform: scale(0.4); opacity: 0.9; } to { transform: scale(26); opacity: 0; } }
+
+@media (max-width: 1000px) {
+  .nav-hide, .nav-open { display: none; }
+  .user-menu { margin: 0 0 0 auto; }
+  .user-btn { width: auto; }
+  .user-pop { bottom: auto; top: calc(100% + 6px); left: auto; right: 0; min-width: 200px; }
+  html[data-sidebar="hidden"] .sidebar { visibility: visible; }
+  html[data-sidebar="hidden"] .main { padding-left: 16px; }
+}

@@ -1,0 +1,124 @@
+/* ==========================================================================
+   Pali · Design tokens
+   Paleta: blanco · verde · negro (+ menta y coral de apoyo). Tipografía: IBM Plex.
+   Inspirada en un verde bosque con menta, pensado para el mundo del tenis y el paddle.
+   ========================================================================== */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+:root {
+  /* Color · superficies */
+  --white: #ffffff;         /* blanco puro: texto sobre fondos de color */
+  --surface: #ffffff;       /* superficie de cards, campos, botones y modal */
+  --bg: #ffffff;
+  --bg-soft: #f5f8f6;
+  --bg-muted: #eaf0ec;
+  --mint: #a9d6c4;          /* menta: acento sobre fondos oscuros */
+  --mint-soft: #dfeee6;     /* panel de encabezado */
+  --cream: #f6efe6;         /* superficie cálida de apoyo */
+
+  /* Color · líneas */
+  --line: #e2eae5;
+  --line-strong: #cad6cf;
+
+  /* Color · texto (negro verdoso y sus grises) */
+  --ink: #0d1f18;
+  --ink-2: #43544d;
+  --mute: #6a7b74;
+
+  /* Color · verde (acción y estado activo) */
+  --forest: #0f3d2e;        /* verde bosque: barra lateral, botón oscuro */
+  --forest-deep: #0a2c21;
+  --fill-dark: #0f3d2e;     /* relleno oscuro: botón oscuro, turno completo */
+  --fill-dark-hover: #0a2c21;
+  --brand: #1f6f57;         /* verde de marca: acción, estado abonado */
+  --brand-hover: #185a47;
+  --brand-soft: #e8f4ee;    /* fondo de estado "reservado" */
+  --brand-line: #bcdccb;
+
+  /* Color · coral (solo cancelar y estados negativos) */
+  --coral: #e5533d;
+  --coral-hover: #cf4430;
+  --coral-soft: #fdeeea;
+  --coral-line: #f4b9ad;
+
+  /* Tipografía */
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --fs-xs: 10.5px;
+  --fs-sm: 12.5px;
+  --fs-base: 14.5px;
+  --fs-md: 15.5px;
+  --fs-lg: 20px;
+  --fs-xl: 28px;
+  --fs-2xl: 42px;
+
+  /* Espaciado (escala de 4) */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+
+  /* Forma */
+  --r-sm: 8px;
+  --r: 12px;
+  --r-lg: 20px;
+  --r-pill: 999px;
+  --shadow-pop: 0 18px 44px rgba(13, 31, 24, 0.14);
+  --scrim: rgba(17, 24, 39, 0.28);
+  --grid-line: rgba(15, 61, 46, 0.07);
+
+  /* Movimiento */
+  --ease: cubic-bezier(0.22, 0.8, 0.2, 1);
+
+  /* Layout */
+  --nav-w: 232px;
+}
+
+/* ==========================================================================
+   Tema oscuro · se activa con <html data-theme="dark">
+   Solo redefine tokens: ningún componente tiene colores propios.
+   ========================================================================== */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --surface: #12221b;
+  --bg: #0b1511;
+  --bg-soft: #16271f;
+  --bg-muted: #1b2f26;
+  --mint-soft: #11261d;
+  --cream: #1c2a22;
+
+  --line: #233a2f;
+  --line-strong: #34503f;
+
+  --ink: #e9f2ed;
+  --ink-2: #b5c8bf;
+  --mute: #86a093;
+
+  --forest: #061a13;
+  --forest-deep: #04120d;
+  --fill-dark: #1f6f57;
+  --fill-dark-hover: #26866a;
+  --brand: #3fae87;
+  --brand-hover: #54c29b;
+  --brand-soft: #123426;
+  --brand-line: #24604a;
+
+  --coral: #f0705b;
+  --coral-hover: #f58773;
+  --coral-soft: #331b16;
+  --coral-line: #70372c;
+
+  --shadow-pop: 0 18px 44px rgba(0, 0, 0, 0.5);
+  --scrim: rgba(0, 0, 0, 0.62);
+  --grid-line: rgba(169, 214, 196, 0.07);
+}
+html[data-theme="dark"] .sidebar { border-right-color: var(--line); }
+html[data-theme="dark"] .btn--primary { color: #04120d; }
+html[data-theme="dark"] .chip--solid { color: #04120d; }
+html[data-theme="dark"] .nav-item.is-active .n { color: var(--forest); }
+
+/* Sidebar oculta: la columna se achica a 0 y el contenido ocupa todo el ancho */
+html[data-sidebar="hidden"] { --nav-w: 0px; }

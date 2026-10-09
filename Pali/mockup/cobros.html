@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cobros · Pali backoffice</title>
+<link rel="stylesheet" href="css/main.css">
+<script>/* Tema y barra lateral: se aplican antes de pintar para evitar parpadeos */
+(function(){try{var d=document.documentElement,t=localStorage.getItem('pali-theme');
+if(!t&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)t='dark';
+if(t==='dark')d.setAttribute('data-theme','dark');
+if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar','hidden');}catch(e){}})();</script>
+<script src="js/mock-api.js"></script>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar" data-nav="cobros">
+    <p class="brand">Pali <em>· backoffice</em></p>
+    <p class="brand-sub">Club de ejemplo</p>
+    <script src="js/nav.js"></script>
+    <div class="foot"><a href="index.html">Mapa de flujos</a></div>
+  </aside>
+
+  <main class="main">
+    <header class="page-header">
+      <p class="kicker">Backoffice · Cobros</p>
+      <h2>Cuánto entró, <em>por día, semana y mes</em>.</h2>
+      <p class="lede">Suma los turnos reservados y no cancelados por el precio del turno <span class="chip chip--dashed">a confirmar</span>. El pago se hace en caja y no se registra por turno. El filtro por año aplica a la vista mensual.</p>
+    </header>
+
+    <div class="grid-3">
+      <div class="card kpi kpi--brand"><span class="dom">Hoy</span><span class="value" id="kToday">—</span><span class="sub">turnos de hoy</span></div>
+      <div class="card kpi"><span class="dom">Esta semana</span><span class="value" id="kWeek">—</span><span class="sub">desde el lunes</span></div>
+      <div class="card kpi"><span class="dom">Este mes</span><span class="value" id="kMonth">—</span><span class="sub">acumulado del mes</span></div>
+    </div>
+
+    <section class="section">
+      <div class="row between wrap">
+        <div class="seg" id="seg">
+          <button data-act="gran" data-v="day">Por día</button>
+          <button data-act="gran" data-v="week">Por semana</button>
+          <button data-act="gran" data-v="month" class="is-on">Por mes</button>
+        </div>
+        <div class="field" style="flex-direction:row; align-items:center; gap:10px">
+          <label class="label" for="year">Año</label>
+          <select id="year" class="select" style="width:auto"></select>
+        </div>
+      </div>
+
+      <div class="card mt-4">
+        <div class="row between wrap">
+          <p class="kicker" id="title" style="margin:0"></p>
+          <span class="chip chip--soft" id="total"></span>
+        </div>
+        <div class="bars mt-4" id="bars"></div>
+        <div class="bar-labels" id="labels"></div>
+      </div>
+
+      <div class="table-wrap mt-5">
+        <table class="table">
+          <thead><tr><th>Período</th><th class="num">Ingresos</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <p class="note mt-5"><b>Datos de ejemplo.</b> Es una estimación: turnos no cancelados × precio. El importe de cada turno es el precio cargado en Configuración (estimado en 7k).</p>
+  </main>
+</div>
+
+<script>
+/* Pantalla Cobros. Lógica en el HTML; datos siempre vía PaliApi. */
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var thisYear = new Date().getFullYear();
+  var S = { gran: 'month', year: thisYear };
+  var money = function (n) { return '$ ' + Math.round(n).toLocaleString('es-AR'); };
+
+  $('#year').innerHTML = [thisYear, thisYear - 1].map(function (y) { return '<option value="' + y + '">' + y + '</option>'; }).join('');
+
+  async function load() {
+    var d = await PaliApi.getIncome({ granularity: S.gran, year: S.year });
+    var max = Math.max.apply(null, d.values.concat([1]));
+    var peak = d.values.indexOf(Math.max.apply(null, d.values));
+    $('#title').textContent = S.gran === 'day' ? 'Últimos 7 días' : S.gran === 'week' ? 'Últimas 8 semanas (desde el lunes)' : 'Meses de ' + S.year;
+    $('#total').textContent = 'Total ' + money(d.total);
+    $('#bars').innerHTML = d.values.map(function (v, i) {
+      return '<div class="bar' + (i === peak && v > 0 ? ' is-peak' : '') + '" title="' + esc(d.labels[i]) + ': ' + money(v) + '"><div class="fill" style="height:' + Math.round(v / max * 100) + '%"></div></div>';
+    }).join('');
+    $('#labels').innerHTML = d.labels.map(function (l) { return '<span>' + esc(l) + '</span>'; }).join('');
+    $('#rows').innerHTML = d.labels.map(function (l, i) { return '<tr><td>' + esc(l) + '</td><td class="num">' + money(d.values[i]) + '</td></tr>'; }).join('');
+    $('#year').disabled = S.gran !== 'month';
+  }
+
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('[data-act="gran"]');
+    if (!el) return;
+    S.gran = el.dataset.v;
+    document.querySelectorAll('#seg button').forEach(function (b) { b.classList.toggle('is-on', b === el); });
+    load();
+  });
+  $('#year').addEventListener('change', function () { S.year = +this.value; load(); });
+
+  PaliApi.getIncomeSummary().then(function (s) {
+    $('#kToday').textContent = money(s.today); $('#kWeek').textContent = money(s.week); $('#kMonth').textContent = money(s.month);
+  });
+  load();
+})();
+</script>
+<script>
+/* Controles del shell (iguales en todas las pantallas): tema claro/oscuro con onda y ocultar la barra lateral. */
+(function () {
+  var root = document.documentElement;
+  function save(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  var SUN = '<svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+  var MOON = '<svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>';
+  var CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
+  var MENU = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
+
+  function isDark() { return root.getAttribute('data-theme') === 'dark'; }
+  function paintTheme() {
+    var b = document.getElementById('themeToggle');
+    b.setAttribute('aria-label', isDark() ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro');
+    b.title = isDark() ? 'Tema claro' : 'Tema oscuro';
+  }
+  function setTheme(dark) {
+    if (dark) root.setAttribute('data-theme', 'dark'); else root.removeAttribute('data-theme');
+    save('pali-theme', dark ? 'dark' : 'light'); paintTheme();
+  }
+  function toggleTheme(ev) {
+    var next = !isDark(), btn = ev.currentTarget, r = btn.getBoundingClientRect();
+    var x = ev.clientX || r.left + r.width / 2, y = ev.clientY || r.top + r.height / 2;
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !document.startViewTransition) { setTheme(next); return; }
+    var ring = document.createElement('div'); ring.className = 'theme-ripple';
+    ring.style.left = x + 'px'; ring.style.top = y + 'px'; document.body.appendChild(ring);
+    setTimeout(function () { ring.remove(); }, 700);
+    var end = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    var t = document.startViewTransition(function () { setTheme(next); });
+    t.ready.then(function () {
+      root.animate(
+        { clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + end + 'px at ' + x + 'px ' + y + 'px)'] },
+        { duration: 650, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', pseudoElement: '::view-transition-new(root)' }
+      );
+    });
+  }
+
+  function setSidebar(hidden) {
+    if (hidden) root.setAttribute('data-sidebar', 'hidden'); else root.removeAttribute('data-sidebar');
+    save('pali-sidebar', hidden ? 'hidden' : 'shown');
+    var o = document.getElementById('navOpen'); if (o) o.setAttribute('aria-expanded', String(!hidden));
+  }
+
+  var theme = document.createElement('button');
+  theme.id = 'themeToggle'; theme.className = 'shell-btn theme-toggle'; theme.innerHTML = MOON + SUN;
+  theme.addEventListener('click', toggleTheme); document.body.appendChild(theme); paintTheme();
+
+  var side = document.querySelector('.sidebar');
+  if (side) {
+    /* Ocultar menú: ícono chico arriba a la derecha de la barra lateral */
+    var hide = document.createElement('button');
+    hide.className = 'nav-hide'; hide.innerHTML = CHEV;
+    hide.setAttribute('aria-label', 'Ocultar menú'); hide.title = 'Ocultar menú';
+    hide.addEventListener('click', function () { setSidebar(true); });
+    side.appendChild(hide);
+
+    /* Menú de usuario al pie: rol de quien ingresó y, por ahora, solo "Cerrar sesión" (simulado) */
+    var who = 'admin@tuclub.com';
+    try { who = sessionStorage.getItem('pali-session') || who; } catch (e) {}
+    var UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>';
+    var OUT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>';
+    var menu = document.createElement('div'); menu.className = 'user-menu';
+    menu.innerHTML =
+      '<div class="user-pop" role="menu" hidden><button type="button" class="user-item" role="menuitem" data-logout>' + OUT + '<span>Cerrar sesión</span></button></div>' +
+      '<button type="button" class="user-btn" aria-haspopup="menu" aria-expanded="false">' +
+        '<span class="avatar" aria-hidden="true">A</span>' +
+        '<span class="user-info"><b>Administrador</b><small></small></span>' + UP + '</button>';
+    menu.querySelector('small').textContent = who;
+    var pop = menu.querySelector('.user-pop'), ubtn = menu.querySelector('.user-btn');
+    function togglePop(show) { pop.hidden = !show; ubtn.setAttribute('aria-expanded', String(show)); menu.classList.toggle('is-open', show); }
+    ubtn.addEventListener('click', function (e) { e.stopPropagation(); togglePop(pop.hidden); });
+    menu.querySelector('[data-logout]').addEventListener('click', function () {
+      try { sessionStorage.removeItem('pali-session'); } catch (e) {}
+      location.href = 'login.html';
+    });
+    document.addEventListener('click', function (e) { if (!menu.contains(e.target)) togglePop(false); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') togglePop(false); });
+    side.appendChild(menu);
+    var open = document.createElement('button');
+    open.id = 'navOpen'; open.className = 'shell-btn nav-open'; open.innerHTML = MENU;
+    open.setAttribute('aria-label', 'Mostrar menú'); open.title = 'Mostrar menú';
+    open.setAttribute('aria-expanded', String(root.getAttribute('data-sidebar') !== 'hidden'));
+    open.addEventListener('click', function () { setSidebar(false); });
+    document.body.appendChild(open);
+  }
+})();
+</script>
+</body>
+</html>

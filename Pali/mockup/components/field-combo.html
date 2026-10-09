@@ -1,0 +1,12 @@
+<!-- Buscador único de personas. Busca por nombre y apellido; si no existe, ofrece crearla.
+     La lista (#comboList) se llena desde JavaScript con PaliApi.searchPeople(q). Ver agenda.html y personas.html. -->
+<div class="field">
+  <label class="label" for="q">Persona (opcional)</label>
+  <div class="combo">
+    <input id="q" class="input" type="text" placeholder="Nombre y apellido" autocomplete="off">
+    <div id="comboList" class="combo-list" hidden>
+      <button type="button" class="combo-item" data-act="addPerson" data-id="p1"><span>Martín Gómez</span><small>11 5555-1000</small></button>
+      <button type="button" class="combo-item combo-item--create" data-act="startCreate"><span>Crear persona “Nombre Apellido”</span><small>+ nueva</small></button>
+    </div>
+  </div>
+</div>

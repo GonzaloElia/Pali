@@ -1,0 +1,1092 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Reserva de canchas por WhatsApp · Producto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ffffff; --bg2:#f6f7f9; --bg3:#eef0f3;
+  --line:#e5e7eb; --line2:#d1d5db;
+  --ink:#111827; --ink2:#4b5563; --mute:#6b7280;
+  --blue:#2563eb; --blue-soft:#eff6ff; --blue-line:#bfdbfe;
+  --amber:#b45309; --amber-soft:#fffbeb; --amber-line:#fcd34d;
+  --sans:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --nav:196px; --r:8px;
+  --ease:cubic-bezier(.22,.8,.2,1);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:14.5px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--blue);text-decoration:none}
+code,.mono{font-family:var(--mono);font-size:.88em}
+code{background:var(--bg2);padding:.08em .35em;border-radius:4px}
+::selection{background:#dbeafe}
+.app{display:grid;grid-template-columns:var(--nav) minmax(0,1fr);min-height:100vh}
+nav.side{position:sticky;top:0;height:100vh;padding:22px 10px 20px 14px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:2px;background:var(--bg)}
+.brand{font-weight:600;font-size:14px;letter-spacing:-.01em;margin:0 0 1px 8px}
+.brand em{font-style:normal;color:var(--mute);font-weight:400}
+.brand-sub{font-family:var(--mono);font-size:10.5px;color:var(--mute);margin:0 0 18px 8px}
+nav.side a{display:flex;align-items:baseline;gap:8px;padding:6px 8px;border-radius:6px;color:var(--ink2);font-size:13px;transition:background .15s,color .15s}
+nav.side a .n{font-family:var(--mono);font-size:10.5px;color:var(--mute);width:24px;flex:none}
+nav.side a:hover{background:var(--bg2);color:var(--ink)}
+nav.side a.active{background:var(--blue-soft);color:var(--blue)}
+nav.side a.active .n{color:var(--blue)}
+nav.side .foot{margin-top:auto;font-size:11px;color:var(--mute);line-height:1.5;padding:0 8px}
+main{padding:0 40px 96px;width:100%;min-width:0}
+section.sec{padding-top:64px;scroll-margin-top:8px}
+section.sec + section.sec{border-top:1px solid var(--line);margin-top:64px}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin:0 0 10px}
+.kicker::before{content:"";display:inline-block;width:14px;height:1px;background:var(--line2);vertical-align:middle;margin-right:8px}
+h1,h2{font-weight:600;letter-spacing:-.02em;margin:0}
+h1{font-size:38px;line-height:1.1}
+h1 em,h2 em{font-style:normal;color:var(--blue)}
+h2{font-size:24px;line-height:1.2;margin-bottom:10px}
+p.lede{font-size:15.5px;color:var(--ink2);max-width:74ch;margin:12px 0 0}
+p.lede strong{color:var(--ink);font-weight:500}
+.note{border-left:2px solid var(--blue);padding:10px 14px;color:var(--ink2);font-size:13.5px;margin:22px 0;background:var(--bg2);border-radius:0 6px 6px 0}
+.note b{color:var(--ink);font-weight:500}
+.note.amber{border-left-color:var(--amber);background:var(--amber-soft)}
+.hero{min-height:60vh;display:flex;flex-direction:column;justify-content:center;padding-top:32px}
+.hero .meta{display:flex;gap:28px;margin-top:30px;flex-wrap:wrap}
+.hero .meta div{font-size:12px;color:var(--mute)}
+.hero .meta div b{display:block;font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:500;margin-top:3px}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:26px;font-size:12.5px;color:var(--ink2)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.dot.b{background:var(--blue)} .dot.a{background:#f59e0b} .dot.g{background:#9ca3af}
+.reveal{opacity:0;transform:translateY(8px);transition:opacity .5s var(--ease),transform .5s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:20px}
+.tbl th:first-child,.tbl td:first-child{width:22%}
+.tbl th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);font-weight:500}
+.tbl td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink2)}
+.tbl td:first-child{color:var(--ink);font-weight:500}
+.tbl tr:hover td{background:var(--bg2)}
+.tbl.tri th:first-child,.tbl.tri td:first-child{width:33%}
+.tbl b{color:var(--ink);font-weight:500}
+.chip{display:inline-block;font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line2);color:var(--ink2);margin:3px 4px 3px 0;background:#fff}
+.chip.b{border-color:var(--blue-line);color:var(--blue);background:var(--blue-soft)}
+.chip.a{border-color:var(--amber-line);color:var(--amber);background:var(--amber-soft)}
+.chip.g{color:var(--mute);border-style:dashed}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:24px}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px 14px 12px;display:flex;flex-direction:column;gap:7px;transition:border-color .15s}
+.card:hover{border-color:var(--blue)}
+.card .dom{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.card h3{font-weight:600;font-size:15px;margin:0;color:var(--ink)}
+.card p{margin:0;font-size:12.5px;color:var(--ink2);line-height:1.5}
+.big{font-size:26px;font-weight:600;letter-spacing:-.02em;color:var(--ink)}
+.big small{font-size:12.5px;font-weight:400;color:var(--mute);letter-spacing:0;margin-left:4px}
+.tl{margin-top:24px;border-top:1px solid var(--line2)}
+.tl-step{display:grid;grid-template-columns:32px 148px 1fr;gap:14px;padding:12px 4px;border-bottom:1px solid var(--line);align-items:start}
+.tl-step .n{font-family:var(--mono);font-size:11px;color:var(--mute);padding-top:5px}
+.actor{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:5px 8px;border-radius:5px;border:1px solid var(--line2);text-align:center;color:var(--ink2);background:#fff;line-height:1.35}
+.actor.act-app{color:var(--blue);border-color:var(--blue-line);background:var(--blue-soft)}
+.actor.act-db{color:var(--ink2);background:var(--bg2)}
+.actor.act-u{color:var(--ink)}
+.tl-step .what{color:var(--ink);font-size:13.5px;line-height:1.5}
+.tl-step .how{color:var(--mute);font-size:12.5px;margin-top:2px;line-height:1.5}
+.tl-step.key{border-left:2px solid var(--blue);padding-left:10px;margin-left:-12px}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:20px}
+.slot{border:1px solid var(--blue-line);background:var(--blue-soft);border-radius:var(--r);padding:9px 12px;font-family:var(--mono);font-size:12.5px;color:var(--blue)}
+.slot span{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin-bottom:2px}
+.ba{border:1px solid var(--blue-line);background:var(--blue-soft);border-radius:var(--r);padding:14px 16px 12px;margin:24px 0}
+.ba .t{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin:0 0 7px}
+.ba ul{margin:0;padding-left:18px;color:var(--ink2);font-size:13.5px}
+.ba li{margin:5px 0;line-height:1.5}
+.ba li b{color:var(--ink);font-weight:500}
+.graph{margin-top:24px}
+.graph svg{width:100%;height:auto;display:block;font-family:var(--sans)}
+.gn rect{fill:#fff;stroke:var(--line2);stroke-width:1}
+.gn.app rect{fill:var(--blue-soft);stroke:var(--blue-line)}
+.gn.store rect{fill:var(--bg2)}
+.gn.warn rect{fill:var(--amber-soft);stroke:var(--amber-line);stroke-dasharray:4 3}
+.gn .t{fill:var(--ink);font-size:13px;font-weight:500}
+.gn .s{fill:var(--mute);font-family:var(--mono);font-size:10.5px}
+.gn .tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;fill:var(--blue)}
+.gn.store .tag{fill:var(--mute)}
+.gn.warn .tag{fill:var(--amber)}
+.ge path{fill:none;stroke:#9ca3af;stroke-width:1.2;marker-end:url(#arw)}
+.ge.dash path{stroke-dasharray:4 4}
+.wall{stroke:var(--amber);stroke-width:1;stroke-dasharray:6 5;fill:none}
+.walllbl{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;fill:var(--amber)}
+.calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:20px}
+.calc label{display:flex;flex-direction:column;gap:5px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.calc input{font:inherit;font-family:var(--sans);font-size:14px;letter-spacing:0;text-transform:none;color:var(--ink);border:1px solid var(--line2);border-radius:6px;padding:8px 10px;background:#fff;width:100%}
+.calc input:focus{outline:none;border-color:var(--blue)}
+.res{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:14px}
+.res .card .big.neg{color:#b91c1c}
+.qa{margin-top:22px;border-top:1px solid var(--line2)}
+.qitem{display:grid;grid-template-columns:160px 1fr;gap:16px;padding:13px 4px;border-bottom:1px solid var(--line);align-items:start}
+.qitem .who{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);border:1px solid var(--line2);border-radius:5px;padding:5px 8px;text-align:center;background:#fff}
+.qitem .who.w-iv{color:var(--blue);border-color:var(--blue-line);background:var(--blue-soft)}
+.qitem .q{color:var(--ink);font-size:13.5px;line-height:1.5;font-weight:500}
+.qitem .ctx{color:var(--mute);font-size:12.5px;margin-top:3px;line-height:1.5}
+@media (max-width:640px){.qitem{grid-template-columns:1fr}.qitem .who{justify-self:start}}
+.bk td:nth-child(2){font-family:var(--mono);font-size:12px;color:var(--mute);white-space:nowrap}
+.mockwrap{overflow-x:auto;margin-top:12px}
+.tbl.mock{margin-top:0;font-size:12.5px}
+.tbl.mock th:first-child,.tbl.mock td:first-child{width:auto}
+.tbl.mock td{font-family:var(--mono);font-size:12px;white-space:nowrap}
+.tbl.mock td:first-child{font-weight:400;color:var(--ink2)}
+.tbl.mock td.nul{color:var(--mute);font-style:italic}
+.er-wrap{max-width:960px}
+.er-box{fill:#fff;stroke:var(--line2);stroke-width:1}
+.er-hd{fill:var(--blue-soft);stroke:var(--blue-line);stroke-width:1}
+.er-en{fill:var(--blue);font-family:var(--mono);font-size:12.5px;font-weight:500}
+.er-fn{fill:var(--ink);font-family:var(--mono);font-size:11.5px}
+.er-fn.er-opt{fill:var(--amber)}
+.er-kt{fill:var(--blue);font-family:var(--mono);font-size:9.5px;letter-spacing:.08em}
+.er-ot{fill:var(--amber);font-family:var(--mono);font-size:9.5px;letter-spacing:.06em}
+.er-rel{fill:none;stroke:#9ca3af;stroke-width:1.3}
+.er-dash{stroke-dasharray:5 4}
+.er-cd{fill:var(--ink2);font-family:var(--mono);font-size:11px}
+.top{position:fixed;right:22px;bottom:22px;z-index:20;background:#fff;border:1px solid var(--line2);border-radius:8px;padding:8px 12px;font:inherit;font-size:12.5px;color:var(--ink2);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .25s}
+.top.on{opacity:1;pointer-events:auto}
+.top:hover{border-color:var(--ink);color:var(--ink)}
+@media (max-width:1100px){
+  .app{grid-template-columns:1fr}
+  nav.side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;border-right:0;border-bottom:1px solid var(--line);padding:14px 16px}
+  nav.side .brand,nav.side .brand-sub{width:100%;margin:0}
+  nav.side .brand-sub{margin-bottom:6px}
+  nav.side .foot{display:none}
+  main{padding:0 20px 72px}
+  h1{font-size:32px}
+}
+@media (max-width:640px){
+  .tl-step{grid-template-columns:28px 1fr}
+  .tl-step .actor{grid-column:2;justify-self:start}
+  .tl-step > div{grid-column:2}
+}
+@media print{
+  nav.side,.top{display:none}
+  .app{display:block}
+  main{padding:0}
+  section.sec{break-before:page;padding-top:24px}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<nav class="side" id="nav">
+  <p class="brand">Reserva de canchas <em>· mapa</em></p>
+  <p class="brand-sub">borrador · act. 2026-10-09</p>
+  <a href="#producto"><span class="n">00</span>El producto</a>
+  <a href="#alcance"><span class="n">01</span>Alcance</a>
+  <a href="#turnos"><span class="n">02</span>Turnos y horarios</a>
+  <a href="#comercial"><span class="n">03</span>Modelo comercial</a>
+  <a href="#datos"><span class="n">04</span>Arquitectura de datos</a>
+  <a href="#backend"><span class="n">05</span>Backend</a>
+  <a href="#financiero"><span class="n">06</span>Financiero</a>
+  <a href="#prototipo"><span class="n">07</span>Prototipo y diseño</a>
+  <a href="#preguntas"><span class="n">08</span>Preguntas abiertas</a>
+  <div class="foot">Documento vivo. Se completa por iteraciones con la información que va aportando el equipo.</div>
+</nav>
+<main id="main">
+
+<header class="hero reveal" id="top">
+  <p class="kicker">Producto · Reserva de canchas</p>
+  <h1>Alquilar una cancha,<br>por <em>una conversación de WhatsApp</em>.</h1>
+  <p class="lede">Un producto con dos caras: un <strong>backoffice para el administrador</strong> y un <strong>chatbot conversacional de WhatsApp</strong> para alquilar canchas. Todo se alberga en una base de datos que el chatbot consulta antes de ofrecer opciones. <strong>Hoy se vende a un club específico y el deporte es paddle.</strong></p>
+  <div class="meta">
+    <div>Competidor conocido<b>Clubo</b></div>
+    <div>Deporte de hoy<b>Paddle</b></div>
+    <div>Turno<b>1 h 30 min (parámetro)</b></div>
+    <div>Cuota<b>15k ARS por cancha / mes</b></div>
+    <div>Datos<b>Una base por club</b></div>
+  </div>
+  <div class="legend">
+    <span><i class="dot b"></i>Definido por el equipo</span>
+    <span><i class="dot a"></i>Propuesta o pendiente de confirmar</span>
+    <span><i class="dot g"></i>Externo · fuera de nuestro control</span>
+  </div>
+  <p class="note"><b>Cómo leer este documento.</b> Es un borrador que crece por iteraciones. Lo marcado en azul fue indicado por el equipo. Lo marcado en ámbar es <b>propuesta o derivación</b> que hay que confirmar; la sección 04 (arquitectura de datos) es una propuesta de diseño completa, pedida expresamente.</p>
+</header>
+
+<!-- ================================================== 00 PRODUCTO -->
+<section class="sec reveal" id="producto">
+  <p class="kicker">00 · El producto</p>
+  <h2>Qué proponemos, <em>y en qué se diferencia</em>.</h2>
+  <p class="lede">Hay un competidor conocido, <strong>Clubo</strong>. Queremos proponer algo diferente: un producto que sirva del lado del <strong>backoffice del administrador</strong> y que, del lado del cliente, permita <strong>alquilar una cancha mediante un chatbot conversacional de WhatsApp</strong>.</p>
+
+  <p class="kicker" style="margin-top:38px">Las piezas</p>
+  <div class="cards">
+    <div class="card"><span class="dom">Lado administrador</span><h3>Backoffice</h3><p>Herramienta de gestión para el administrador del club.</p></div>
+    <div class="card"><span class="dom">Lado cliente</span><h3>Chatbot de WhatsApp</h3><p>Conversacional. Es el medio por el cual se alquila una cancha.</p></div>
+    <div class="card"><span class="dom">Datos</span><h3>Base de datos</h3><p>Aloja toda la información. Es la fuente de los turnos disponibles. Cada club tiene la suya.</p></div>
+  </div>
+
+  <p class="kicker" style="margin-top:44px">Quién es quién</p>
+  <table class="tbl tri">
+    <thead><tr><th>Actor</th><th>Qué rol cumple</th><th>¿Usa el producto?</th></tr></thead>
+    <tbody>
+      <tr><td>El club <span class="chip b">nuestro cliente</span></td><td>Se piensa para un club específico que pagaría una cuota mensual. Todavía no hay ningún club contactado: el primer cliente está por conseguirse</td><td>Sí</td></tr>
+      <tr><td>Administrador</td><td>Gestiona el club desde el backoffice</td><td>Sí, desde el backoffice</td></tr>
+      <tr><td>Quien alquila</td><td>Alquila una cancha conversando con el chatbot por WhatsApp</td><td>Sí, desde WhatsApp</td></tr>
+      <tr><td>Clubo <span class="chip g">competidor</span></td><td>Competidor que ya conocemos</td><td>No</td></tr>
+    </tbody>
+  </table>
+
+  <p class="kicker" style="margin-top:44px">Equipo del proyecto</p>
+  <table class="tbl tri">
+    <thead><tr><th>Persona</th><th>Rol</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td>Ivan</td><td>Líder tecnológico</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Gonza</td><td>BA, diseño y entendimiento del negocio</td><td><span class="chip b">definido</span></td></tr>
+    </tbody>
+  </table>
+
+  <p class="kicker" style="margin-top:44px">Flujo de alquiler por el chatbot</p>
+  <p class="lede">Lo definido hasta ahora: el chatbot no ofrece opciones hasta haber consultado la base de datos.</p>
+  <div class="tl">
+    <div class="tl-step"><span class="n">01</span><span class="actor act-u">Cliente</span><div><div class="what">Quiere alquilar una cancha y conversa con el chatbot por WhatsApp</div></div></div>
+    <div class="tl-step key"><span class="n">02</span><span class="actor act-db">Base de datos</span><div><div class="what">El chatbot consulta qué turnos hay disponibles y a qué hora</div><div class="how">Esta consulta ocurre antes de dar cualquier opción.</div></div></div>
+    <div class="tl-step"><span class="n">03</span><span class="actor act-app">Chatbot</span><div><div class="what">Presenta al cliente las opciones disponibles</div></div></div>
+    <div class="tl-step"><span class="n">04</span><span class="actor act-u">Cliente</span><div><div class="what">Reserva el turno y paga en caja, en el club</div><div class="how">El pago online queda para el roadmap (sección 01).</div></div></div>
+  </div>
+
+  <p class="kicker" style="margin-top:44px">Hoy y a futuro</p>
+  <table class="tbl tri">
+    <thead><tr><th>Tema</th><th>Hoy</th><th>A futuro</th></tr></thead>
+    <tbody>
+      <tr><td>Deporte</td><td><b>Paddle</b></td><td>Otros deportes, como fútbol y tenis</td></tr>
+      <tr><td>Clientes</td><td>Un club específico</td><td>Vender a otros clubes, adaptando ciertas cosas</td></tr>
+    </tbody>
+  </table>
+  <p class="note amber"><b>Primero lo primero:</b> se construye pensando en el club de hoy y en paddle, pero con una arquitectura de datos que ya contemple otros deportes y otros clubes (sección 04).</p>
+</section>
+
+<!-- ================================================== 01 ALCANCE -->
+<section class="sec reveal" id="alcance">
+  <p class="kicker">01 · Alcance</p>
+  <h2>Qué hace el producto, <em>y qué queda para después</em>.</h2>
+  <p class="lede">Lo que el administrador puede hacer desde el <strong>backoffice</strong>, cómo se cobra y qué se deja para el roadmap. Todo lo de las tablas fue definido por el equipo, salvo lo marcado como propuesta.</p>
+
+  <p class="kicker" style="margin-top:38px">Backoffice del administrador</p>
+  <table class="tbl tri">
+    <thead><tr><th>Área</th><th>Qué permite</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td>Turnos</td><td>Gestionar y crear turnos. Un turno se reserva con <b>al menos 1 persona</b> y se pueden sumar las demás después, hasta 4. Un turno con 0 personas está Libre</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Reservas</td><td>Pestaña con las reservas ya creadas: ver si el turno está <b>completo o incompleto</b> (faltan personas) y <b>cancelar turnos</b></td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Personas</td><td>Guardar la información de las personas que se suman al evento. Un <b>buscador único</b>: con nombre y apellido se busca; si la persona existe se asigna a la cancha, y si no existe se la <b>crea y se le piden sus datos</b>, entre ellos una <b>categoría obligatoria</b> (1ra a 8va, una lista que depende del club y del deporte), el teléfono y un <b>alias</b> opcional para distinguir a dos personas con el mismo nombre y apellido. Al sumar una persona a un turno se muestra como “Juan Pérez (alias)”</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Historial</td><td>Reconocer en qué canchas jugó cada persona</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Cobros (apartado más administrativo)</td><td>Ver cuánto se cobró en el mes y cuánto entró <b>por día, por semana y por mes</b>, con filtro por <b>año</b>. Como el pago en caja no se registra por turno, hoy el prototipo lo estima como turnos no cancelados por el precio del turno</td><td><span class="chip b">definido</span> <span class="chip a">cálculo a confirmar</span></td></tr>
+      <tr><td>Configuración</td><td>El <b>administrador carga el precio del turno</b> desde un apartado de configuración. Es un único precio: <b>no varía por cancha ni por horario</b>. El valor estimado es de <b>7k</b></td><td><span class="chip b">definido</span> <span class="chip a">monto a confirmar</span></td></tr>
+    </tbody>
+  </table>
+  <p class="note"><b>Principio de diseño: reservar con muy pocos clics.</b> Hoy los clubes anotan todo a mano y se sienten cómodos así. Si el paso a paso para reservar una cancha desde el backoffice es muy corto, se rompe la fricción de tener que entrar a un sistema. Es el flujo más importante del backoffice.</p>
+  <p class="note amber"><b>Habrá un roadmap:</b> las funciones de arriba son lo que se imagina para el producto, pero no todo tiene por qué salir junto. Qué entra en la primera entrega está por definir.</p>
+
+  <p class="kicker" style="margin-top:44px">Chatbot de WhatsApp</p>
+  <table class="tbl tri">
+    <thead><tr><th>Tema</th><th>Definición</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td>Canal</td><td>API de WhatsApp Business</td><td><span class="chip a">propuesta</span></td></tr>
+      <tr><td>Disponibilidad</td><td>Consulta la base de datos antes de ofrecer opciones</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Pedir turnos</td><td>El jugador puede <b>pedir un turno</b> a través del chatbot</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Cancelación</td><td>Una reserva puede cancelarla el <b>jugador</b> (por el chatbot) y el <b>administrador</b> (desde el backoffice)</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Turno ya cancelado por el administrador</td><td>Si el jugador consulta o intenta operar sobre un turno, el chatbot <b>lee el estado del turno en la base de datos</b>; si está cancelado, responde que <b>el turno ya fue cancelado</b></td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Aviso al jugador cuando el administrador cancela</td><td>El sistema le <b>envía un mensaje de WhatsApp</b> a la persona cuando se cancela su turno. No hace falta una IA para esto: es una regla que se dispara cuando el turno pasa a cancelado. Requiere el teléfono de la persona, su consentimiento y una plantilla aprobada por Meta</td><td><span class="chip a">propuesta</span></td></tr>
+    </tbody>
+  </table>
+
+  <p class="kicker" style="margin-top:44px">Cómo se paga el alquiler</p>
+  <table class="tbl tri">
+    <thead><tr><th>Cuándo</th><th>Cómo funciona</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td>Primera versión</td><td>El jugador <b>paga en caja</b>, de forma presencial. El pago <b>no se marca en la aplicación</b>: no hay opción de abonado en las pantallas. El campo de pago existe en la base de datos como <b>campo opcional</b> (sección 05) para cuando haya pago online u otro club lo registre</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Roadmap, más adelante</td><td>El chatbot pregunta: <b>¿pagás en caja o pagás online?</b> Si es online, se redirige a Mercado Pago o a otra app de cobros; si no, se registra como pago presencial</td><td><span class="chip a">a futuro</span></td></tr>
+    </tbody>
+  </table>
+  <p class="note"><b>Por qué el pago online no es prioridad:</b> la gente suele pagar en caja y está acostumbrada a hacerlo así, y Mercado Pago u otros bancos suelen cobrar comisión por transacción. Pagar en caja es mejor para el club.</p>
+</section>
+
+<!-- ================================================== 02 TURNOS -->
+<section class="sec reveal" id="turnos">
+  <p class="kicker">02 · Turnos y horarios</p>
+  <h2>Cómo se arma <em>la grilla de cada día</em>.</h2>
+  <p class="lede">La cancha se puede alquilar <strong>todos los días</strong> y siempre se respeta el turno de <strong>1 h 30 min</strong>. Esa duración es un <strong>parámetro</strong>: hoy vale 1 h 30 min y podría cambiar.</p>
+
+  <table class="tbl tri">
+    <thead><tr><th>Regla</th><th>Valor</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td>Días de alquiler</td><td>Todos los días</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Duración del turno</td><td>1 h 30 min, como parámetro configurable</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Último turno</td><td>El de las 22:30</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Primer turno</td><td>Cerca de las 11:00. Se obtiene contando hacia atrás cada 1 h 30 min desde las 22:30</td><td><span class="chip b">definido</span></td></tr>
+    </tbody>
+  </table>
+
+  <p class="kicker" style="margin-top:44px">Grilla resultante</p>
+  <p class="lede">Contando hacia atrás desde las 22:30, de a 1 h 30 min, el primer turno cae a las <strong>10:30</strong>. Son <strong>9 turnos por cancha y por día</strong>.</p>
+  <div class="slots">
+    <div class="slot"><span>Turno 1</span>10:30 – 12:00</div>
+    <div class="slot"><span>Turno 2</span>12:00 – 13:30</div>
+    <div class="slot"><span>Turno 3</span>13:30 – 15:00</div>
+    <div class="slot"><span>Turno 4</span>15:00 – 16:30</div>
+    <div class="slot"><span>Turno 5</span>16:30 – 18:00</div>
+    <div class="slot"><span>Turno 6</span>18:00 – 19:30</div>
+    <div class="slot"><span>Turno 7</span>19:30 – 21:00</div>
+    <div class="slot"><span>Turno 8</span>21:00 – 22:30</div>
+    <div class="slot"><span>Turno 9</span>22:30 – 00:00</div>
+  </div>
+  <p class="note"><b>Confirmado:</b> las 22:30 es la <b>hora de inicio</b> del último turno, que termina a las 00:00. Los horarios de fin y la cantidad de turnos salen de esa regla.</p>
+</section>
+
+<!-- ================================================== 02 COMERCIAL -->
+<section class="sec reveal" id="comercial">
+  <p class="kicker">03 · Modelo comercial</p>
+  <h2>Cuánto paga el club, <em>y cómo escala</em>.</h2>
+  <p class="lede">Hoy se le vende a un club específico que tiene canchas de paddle. El club paga una <strong>cuota mensual por cada cancha</strong>.</p>
+
+  <div class="cards">
+    <div class="card"><span class="dom">1 cancha</span><div class="big">15k<small>pesos argentinos por mes</small></div><p>Cuota mensual por una cancha de paddle.</p></div>
+    <div class="card"><span class="dom">2 canchas</span><div class="big">30k<small>pesos argentinos por mes</small></div><p>Cuota mensual por dos canchas de paddle.</p></div>
+  </div>
+  <p class="note"><b>Regla:</b> 15k pesos argentinos por cancha de paddle, por mes. A más canchas, más cuota (2 canchas = 30k).</p>
+
+  <p class="kicker" style="margin-top:44px">Cómo evoluciona</p>
+  <p class="lede">Lo construido hoy para este club se irá <strong>ajustando para poder venderlo a otros clubes</strong>.</p>
+
+  <p class="kicker" style="margin-top:44px">Referencia de mercado en Argentina</p>
+  <p class="lede">Precios públicos de plataformas parecidas, relevados en las páginas de cada una. Pueden estar desactualizados. <strong>No se encontró información de Padelink, Quiero Jugar ni Clubo</strong>; falta confirmar si son esos nombres.</p>
+  <table class="tbl">
+    <thead><tr><th>Plataforma</th><th>Modelo</th><th>Precio publicado</th></tr></thead>
+    <tbody>
+      <tr><td>PadelBook</td><td>Abono por tramo de canchas</td><td>1 a 3 canchas $44.900/mes; 4 a 6 $74.900; 7 o más $94.900</td></tr>
+      <tr><td>CanchaYa</td><td>Abono, hasta 3 canchas</td><td>Desde $40.000/mes con pago anual (20% de descuento)</td></tr>
+      <tr><td>Complejo.ar</td><td>Abono por tramo de canchas</td><td>1 a 3 canchas $47.200/mes, IVA incluido</td></tr>
+      <tr><td>Canchero</td><td>Tarifa fija por club</td><td>$49.999/mes, todo incluido</td></tr>
+      <tr><td>ATC Sports</td><td>Abono en USD por tramo</td><td>1 a 3 canchas 40–50 USD/mes; 4 a 6 64 USD; 7 o más 80 USD</td></tr>
+      <tr><td>Reservalo</td><td>Comisión o abono chico</td><td>Starter sin abono y 10% del turno; Pro $9.990/mes y 2%</td></tr>
+      <tr><td>Canchas Club</td><td>Comisión</td><td>3% por transacción; plan de $15.000 luego de los primeros 100 clubes</td></tr>
+      <tr><td>Book Padel</td><td>Gratis para el club</td><td>Se financia con publicidad</td></tr>
+    </tbody>
+  </table>
+  <p class="note amber"><b>Lectura:</b> los abonos por 1 a 3 canchas están entre $40.000 y $50.000 por mes. Con 15k por cancha, 2 canchas pagan 30k (por debajo del mercado) y 3 canchas pagan 45k (en línea). La diferencia del producto es el chatbot de WhatsApp: la mayoría de las referencias son apps o páginas de reserva. El precio final está en las preguntas abiertas.</p>
+</section>
+
+<!-- ================================================== 03 DATOS -->
+<section class="sec reveal" id="datos">
+  <p class="kicker">04 · Arquitectura de datos</p>
+  <h2>Una base por club, <em>pensada para crecer</em>.</h2>
+  <p class="lede">Los requisitos dados: <strong>cada club tiene su propia base de datos</strong>, sus datos son suyos y <strong>no se comparten con otros clubes</strong>. Además, el diseño tiene que servir para <strong>otros deportes</strong> y poder <strong>adaptarse a otras bases de datos</strong>.</p>
+  <p class="note amber"><b>Propuesta de diseño.</b> Lo que sigue es una propuesta armada a partir de esos requisitos y del resto del documento; hay que validarla antes de construir.</p>
+
+  <p class="kicker" style="margin-top:38px">Aislamiento por club</p>
+  <div class="graph">
+  <svg viewBox="0 0 900 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama de aislamiento de datos por club">
+    <defs>
+      <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#9ca3af" stroke="none"/></marker>
+    </defs>
+    <g class="gn app"><rect x="30" y="70" width="180" height="56" rx="8"/><text class="tag" x="44" y="90">Cliente</text><text class="t" x="44" y="108">Chatbot de WhatsApp</text></g>
+    <g class="gn app"><rect x="30" y="190" width="180" height="56" rx="8"/><text class="tag" x="44" y="210">Administrador</text><text class="t" x="44" y="228">Backoffice</text></g>
+    <g class="gn app"><rect x="280" y="100" width="200" height="130" rx="8"/><text class="tag" x="296" y="124">Propuesta</text><text class="t" x="296" y="146">Capa de acceso a datos</text><text class="s" x="296" y="168">Un solo contrato,</text><text class="s" x="296" y="184">un adaptador por motor</text><text class="s" x="296" y="206">Elige la base del club</text></g>
+    <g class="gn warn"><rect x="560" y="10" width="310" height="56" rx="8"/><text class="tag" x="576" y="30">Propuesta · control</text><text class="t" x="576" y="48">Registro de clubes</text><text class="s" x="576" y="62">qué base y qué número de WhatsApp es de cada club</text></g>
+    <g class="gn store"><rect x="560" y="110" width="310" height="56" rx="8"/><text class="tag" x="576" y="130">Datos del club A</text><text class="t" x="576" y="148">Base de datos del Club A</text></g>
+    <g class="gn store"><rect x="560" y="185" width="310" height="56" rx="8"/><text class="tag" x="576" y="205">Datos del club B</text><text class="t" x="576" y="223">Base de datos del Club B</text></g>
+    <g class="gn store"><rect x="560" y="260" width="310" height="56" rx="8"/><text class="tag" x="576" y="280">Datos del club N</text><text class="t" x="576" y="298">Base de datos del Club N</text></g>
+    <rect class="wall" x="548" y="100" width="334" height="226" rx="10"/>
+    <text class="walllbl" x="560" y="338" style="display:none">sin acceso cruzado</text>
+    <g class="ge"><path d="M210 98 C245 98 245 150 280 150"/></g>
+    <g class="ge"><path d="M210 218 C245 218 245 190 280 190"/></g>
+    <g class="ge dash"><path d="M480 135 C520 135 520 38 560 38"/></g>
+    <g class="ge"><path d="M480 155 C520 155 520 138 560 138"/></g>
+    <g class="ge"><path d="M480 175 C520 175 520 213 560 213"/></g>
+    <g class="ge"><path d="M480 195 C520 195 520 288 560 288"/></g>
+  </svg>
+  </div>
+  <p class="note"><b>Cómo leerlo:</b> cada flecha hacia una base llega a <b>una sola</b>. No hay consulta que cruce datos entre clubes. El registro de clubes solo dice a qué base ir; no guarda reservas ni clientes.</p>
+
+  <p class="kicker" style="margin-top:44px">Modelo de datos de cada club</p>
+  <p class="lede">Todas las bases de club tienen <strong>el mismo esquema</strong>. Nada del esquema dice "paddle": el deporte es un dato, no una estructura. Las entidades son <code>sport</code>, <code>category</code>, <code>court</code>, <code>court_attribute</code>, <code>setting</code>, <code>person</code>, <code>booking</code>, <code>booking_participant</code>, <code>payment</code> y <code>staff_user</code>.</p>
+  <p class="note"><b>El detalle de cada campo, el DER y las tablas con datos de ejemplo están en la sección 05, Backend.</b> Se mantienen ahí para no duplicar la información.</p>
+
+  <p class="kicker" style="margin-top:44px">Cómo responde "qué turnos hay"</p>
+  <div class="tl">
+    <div class="tl-step"><span class="n">01</span><span class="actor act-app">Chatbot</span><div><div class="what">Identifica el club por el número de WhatsApp y pide la disponibilidad de una fecha</div></div></div>
+    <div class="tl-step"><span class="n">02</span><span class="actor act-db">Base del club</span><div><div class="what">Lee la duración del turno y el último turno desde <code>setting</code> y genera la grilla del día</div><div class="how">Hoy: turnos de 90 min con el último a las 22:30.</div></div></div>
+    <div class="tl-step key"><span class="n">03</span><span class="actor act-db">Base del club</span><div><div class="what">Resta los turnos que ya tienen una <code>booking</code> activa en esa cancha</div><div class="how">Lo que queda es lo disponible.</div></div></div>
+    <div class="tl-step"><span class="n">04</span><span class="actor act-app">Chatbot</span><div><div class="what">Recién ahora ofrece las opciones al cliente</div></div></div>
+  </div>
+
+  <p class="kicker" style="margin-top:44px">Decisiones de diseño propuestas</p>
+  <table class="tbl tri">
+    <thead><tr><th>Decisión</th><th>Por qué</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td>Una base de datos por club</td><td>Los datos son del club y no se comparten con otros</td><td><span class="chip b">requisito</span></td></tr>
+      <tr><td>Mismo esquema en todas las bases</td><td>Un cambio se aplica igual a todos los clubes y el producto se vende a otros sin rehacer nada</td><td><span class="chip a">propuesta</span></td></tr>
+      <tr><td>El deporte es un dato (<code>sport</code>), no una estructura</td><td>Sumar fútbol o tenis es agregar registros, no cambiar el esquema</td><td><span class="chip a">propuesta</span></td></tr>
+      <tr><td>Atributos por deporte en <code>court_attribute</code></td><td>Cada deporte tiene sus particularidades sin columnas nuevas ni tipos exclusivos de un motor</td><td><span class="chip a">propuesta</span></td></tr>
+      <tr><td>Duración del turno en <code>setting</code></td><td>Es un parámetro y puede cambiar sin tocar código ni esquema</td><td><span class="chip a">propuesta</span></td></tr>
+      <tr><td>La reserva guarda inicio y fin</td><td>Si cambia la duración del turno, las reservas pasadas no se alteran</td><td><span class="chip a">propuesta</span></td></tr>
+      <tr><td>Una cancha no puede tener dos reservas activas en el mismo horario</td><td>Evita reservar dos veces el mismo turno, también si dos personas piden a la vez</td><td><span class="chip a">propuesta</span></td></tr>
+      <tr><td>Disponibilidad calculada, no guardada</td><td>No hay que fabricar turnos por adelantado: se obtienen de los parámetros y las reservas</td><td><span class="chip a">propuesta</span></td></tr>
+      <tr><td>Capa de acceso a datos con un adaptador por motor</td><td>El producto habla con un contrato; cambiar de base de datos afecta solo al adaptador</td><td><span class="chip a">propuesta</span></td></tr>
+      <tr><td>Tipos y consultas estándar, sin funciones propias de un motor</td><td>Para que el mismo esquema funcione en otras bases</td><td><span class="chip a">propuesta</span></td></tr>
+      <tr><td>Registro de clubes separado de los datos de los clubes</td><td>Hace falta saber a qué base ir; no mezcla datos de negocio de ningún club</td><td><span class="chip a">propuesta</span></td></tr>
+    </tbody>
+  </table>
+
+  <p class="kicker" style="margin-top:44px">Motores de base de datos</p>
+  <p class="lede">Recomendación para elegir el motor inicial y los siguientes. Como el esquema usa tipos y consultas estándar, cualquiera de estos sirve con su adaptador.</p>
+  <table class="tbl tri">
+    <thead><tr><th>Motor</th><th>Rol propuesto</th><th>Por qué</th></tr></thead>
+    <tbody>
+      <tr><td>PostgreSQL <span class="chip a">recomendado</span></td><td>Motor inicial de producción</td><td>Relacional, de código abierto, muy extendido y con soporte en todas las nubes. Respeta bien las restricciones de unicidad que evitan reservas duplicadas</td></tr>
+      <tr><td>MySQL / MariaDB</td><td>Primer adaptador adicional</td><td>Es lo que más usan muchos clubes y proveedores de hosting, por lo que es el motor más probable de pedirnos a futuro</td></tr>
+      <tr><td>SQL Server</td><td>Adaptador a pedido</td><td>Solo si algún club o cliente lo exige</td></tr>
+      <tr><td>SQLite</td><td>Desarrollo y pruebas</td><td>No requiere servidor, sirve para probar el esquema y los adaptadores localmente. No para producción</td></tr>
+    </tbody>
+  </table>
+  <p class="note amber"><b>Recomendación, a confirmar:</b> arrancar con un solo motor (PostgreSQL) y construir el segundo adaptador cuando exista un club que lo necesite. Mantener el contrato de la capa de acceso a datos desde el día uno es lo que hace barato sumar motores después.</p>
+
+  <p class="note amber"><b>Pendiente de definir:</b> lo que falta confirmar de esta sección (motores de base de datos, validación de la propuesta) está en la sección 08, Preguntas abiertas.</p>
+</section>
+
+<!-- ================================================== 05 BACKEND -->
+<section class="sec reveal" id="backend">
+  <p class="kicker">05 · Backend</p>
+  <h2>Los campos y las tablas, <em>pensados para más de un club</em>.</h2>
+  <p class="lede">Acá se van dejando los <strong>campos</strong> y la <strong>arquitectura de datos</strong> del proyecto. Se construye para el club de hoy, pero las bases quedan sentadas para otros clubes: <strong>lo que un club usa y otro no es un campo opcional</strong>, no una tabla distinta. Es una propuesta de diseño a validar con Ivan, salvo lo marcado como definido.</p>
+  <p class="note"><b>Cómo se mantiene:</b> cada decisión de campos, tablas o relaciones se anota acá y se refleja en el DER y en las tablas de ejemplo. Las dudas van en la sección 08.</p>
+
+  <p class="kicker" style="margin-top:44px">Reglas de diseño</p>
+  <table class="tbl tri">
+    <thead><tr><th>Regla</th><th>Qué significa</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td>Lo que usan solo algunos clubes es opcional</td><td>El campo admite vacío (<code>NULL</code>). Un vacío significa “no se registra”; nunca se rellena con un valor que afirme algo que no se sabe</td><td><span class="chip a">propuesta</span></td></tr>
+      <tr><td>Lo obligatorio es obligatorio</td><td>Un campo obligatorio no se puede dejar vacío: el formulario no avanza y avisa qué campo falta completar. Hoy en una persona: nombre, apellido, teléfono y categoría</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Lo que cambia entre clubes va en <code>setting</code></td><td>Por ejemplo, si el club registra pagos. El esquema es el mismo en todas las bases; cambia la configuración</td><td><span class="chip a">propuesta</span></td></tr>
+      <tr><td>El estado del turno se calcula</td><td>Se guarda solo si la reserva está activa o cancelada. Libre (0 personas), Reservado (1 a 3) y Completo (4) salen de contar las personas</td><td><span class="chip a">propuesta</span></td></tr>
+      <tr><td>Las listas cerradas (enum) son tablas por club y deporte</td><td>La categoría tiene sus valores en <code>category</code>, no escritos en el código: cada club y cada deporte puede tener los suyos sin cambiar el esquema</td><td><span class="chip a">propuesta</span></td></tr>
+      <tr><td>La cantidad de personas depende del deporte</td><td>El “4” de paddle no está escrito en el código: es un dato del deporte (<code>players_required</code>)</td><td><span class="chip a">propuesta</span></td></tr>
+    </tbody>
+  </table>
+
+  <p class="kicker" style="margin-top:44px">Estados del turno</p>
+  <table class="tbl">
+    <thead><tr><th>Estado</th><th>Cuándo ocurre</th><th>¿Se guarda?</th><th>Definición</th></tr></thead>
+    <tbody>
+      <tr><td>Libre</td><td><b>0 personas</b>: no hay una reserva activa en esa cancha y horario. Si se quita a la última persona, el turno vuelve a Libre</td><td>No, se calcula</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Reservado</td><td><b>De 1 a 3 personas</b>: una persona o una pareja reservó y el turno está incompleto, faltan personas para llegar a 4</td><td>No, se calcula</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Completo</td><td><b>4 personas</b> (la cantidad que marca el deporte)</td><td>No, se calcula</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Cancelado</td><td>La reserva fue cancelada por el jugador o por el administrador. El horario vuelve a estar Libre</td><td>Sí, en <code>booking.status</code></td><td><span class="chip b">definido</span></td></tr>
+    </tbody>
+  </table>
+  <p class="note"><b>En las pantallas hay tres estados, definidos por la cantidad de personas:</b> Libre (0), Reservado (1 a 3) y Completo (4). El estado “abonado” ya no existe en la visual: el club de hoy cobra en caja y no registra el pago en la aplicación.</p>
+
+  <p class="kicker" style="margin-top:44px">El campo “abonó”</p>
+  <p class="lede">El campo tiene que <strong>existir en la tabla</strong> aunque hoy no se use ni se muestre. Hay dos formas de resolver qué vale cuando no hay integración con Mercado Pago:</p>
+  <table class="tbl tri">
+    <thead><tr><th>Opción</th><th>Qué pasa</th><th>Veredicto</th></tr></thead>
+    <tbody>
+      <tr><td>Verdadero siempre mientras se cobre en caja</td><td>Dice que todos pagaron sin que nadie lo haya registrado. Si el club después registra pagos, los viejos “verdadero” no son confiables y los reportes engañan</td><td><span class="chip g">no recomendada</span></td></tr>
+      <tr><td>Campo opcional: vacío = “no se registra”</td><td>Hoy queda vacío. Cuando un club registra pagos, pasa a verdadero o falso. Es la misma tabla para todos los clubes</td><td><span class="chip a">recomendada</span></td></tr>
+    </tbody>
+  </table>
+  <p class="note amber"><b>Propuesta:</b> <code>booking_participant.paid</code>, verdadero/falso <b>opcional</b>, por jugador. Con <code>setting.track_payments = false</code> (el club de hoy) la pantalla no muestra ni pide nada y el campo queda vacío. Cuando exista Mercado Pago, o un club quiera registrar quién abonó, se activa el <code>setting</code> y el campo pasa a verdadero o falso <b>sin cambiar el esquema</b>. La tabla <code>payment</code> queda para el detalle (método, importe y fecha) y puede estar vacía.</p>
+
+  <p class="kicker" style="margin-top:44px">DER</p>
+  <p class="lede">Diagrama entidad-relación de la base de cada club. <b>PK</b> es la clave primaria, <b>FK</b> una clave que apunta a otra tabla y <b>opcional</b> un campo que admite vacío. <code>setting</code> y <code>staff_user</code> no se relacionan con otras tablas. El registro de clubes queda fuera de las bases de los clubes (sección 04).</p>
+  <div class="graph er-wrap">
+<svg viewBox="0 0 940 610" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama entidad-relación del backoffice">
+<g class="er-g"><rect class="er-box" x="30" y="20" width="230" height="88" rx="8"/>
+<path class="er-hd" d="M30 46 V28 a8 8 0 0 1 8 -8 H252 a8 8 0 0 1 8 8 V46 Z"/>
+<text class="er-en" x="42" y="37">sport</text>
+<text class="er-fn" x="42" y="60">id</text>
+<text class="er-kt" x="250" y="60" text-anchor="end">PK</text>
+<text class="er-fn" x="42" y="78">name</text>
+<text class="er-fn" x="42" y="96">players_required</text>
+</g>
+<g class="er-g"><rect class="er-box" x="340" y="20" width="250" height="106" rx="8"/>
+<path class="er-hd" d="M340 46 V28 a8 8 0 0 1 8 -8 H582 a8 8 0 0 1 8 8 V46 Z"/>
+<text class="er-en" x="352" y="37">court</text>
+<text class="er-fn" x="352" y="60">id</text>
+<text class="er-kt" x="580" y="60" text-anchor="end">PK</text>
+<text class="er-fn" x="352" y="78">sport_id</text>
+<text class="er-kt" x="580" y="78" text-anchor="end">FK</text>
+<text class="er-fn" x="352" y="96">name</text>
+<text class="er-fn" x="352" y="114">active</text>
+</g>
+<g class="er-g"><rect class="er-box" x="670" y="20" width="240" height="88" rx="8"/>
+<path class="er-hd" d="M670 46 V28 a8 8 0 0 1 8 -8 H902 a8 8 0 0 1 8 8 V46 Z"/>
+<text class="er-en" x="682" y="37">court_attribute</text>
+<text class="er-fn" x="682" y="60">court_id</text>
+<text class="er-kt" x="900" y="60" text-anchor="end">FK</text>
+<text class="er-fn" x="682" y="78">key</text>
+<text class="er-fn" x="682" y="96">value</text>
+</g>
+<g class="er-g"><rect class="er-box" x="340" y="190" width="250" height="232" rx="8"/>
+<path class="er-hd" d="M340 216 V198 a8 8 0 0 1 8 -8 H582 a8 8 0 0 1 8 8 V216 Z"/>
+<text class="er-en" x="352" y="207">booking</text>
+<text class="er-fn" x="352" y="230">id</text>
+<text class="er-kt" x="580" y="230" text-anchor="end">PK</text>
+<text class="er-fn" x="352" y="248">court_id</text>
+<text class="er-kt" x="580" y="248" text-anchor="end">FK</text>
+<text class="er-fn" x="352" y="266">start_at</text>
+<text class="er-fn" x="352" y="284">end_at</text>
+<text class="er-fn" x="352" y="302">status</text>
+<text class="er-fn" x="352" y="320">source</text>
+<text class="er-fn" x="352" y="338">price</text>
+<text class="er-fn er-opt" x="352" y="356">contact_phone</text>
+<text class="er-ot" x="580" y="356" text-anchor="end">opcional</text>
+<text class="er-fn er-opt" x="352" y="374">cancelled_by</text>
+<text class="er-ot" x="580" y="374" text-anchor="end">opcional</text>
+<text class="er-fn er-opt" x="352" y="392">cancelled_at</text>
+<text class="er-ot" x="580" y="392" text-anchor="end">opcional</text>
+<text class="er-fn" x="352" y="410">created_at</text>
+</g>
+<g class="er-g"><rect class="er-box" x="30" y="150" width="230" height="106" rx="8"/>
+<path class="er-hd" d="M30 176 V158 a8 8 0 0 1 8 -8 H252 a8 8 0 0 1 8 8 V176 Z"/>
+<text class="er-en" x="42" y="167">category</text>
+<text class="er-fn" x="42" y="190">id</text>
+<text class="er-kt" x="250" y="190" text-anchor="end">PK</text>
+<text class="er-fn" x="42" y="208">sport_id</text>
+<text class="er-kt" x="250" y="208" text-anchor="end">FK</text>
+<text class="er-fn" x="42" y="226">name</text>
+<text class="er-fn" x="42" y="244">sort_order</text>
+</g>
+<g class="er-g"><rect class="er-box" x="30" y="290" width="230" height="88" rx="8"/>
+<path class="er-hd" d="M30 316 V298 a8 8 0 0 1 8 -8 H252 a8 8 0 0 1 8 8 V316 Z"/>
+<text class="er-en" x="42" y="307">booking_participant</text>
+<text class="er-fn" x="42" y="330">booking_id</text>
+<text class="er-kt" x="250" y="330" text-anchor="end">FK</text>
+<text class="er-fn" x="42" y="348">person_id</text>
+<text class="er-kt" x="250" y="348" text-anchor="end">FK</text>
+<text class="er-fn er-opt" x="42" y="366">paid</text>
+<text class="er-ot" x="250" y="366" text-anchor="end">opcional</text>
+</g>
+<g class="er-g"><rect class="er-box" x="30" y="430" width="230" height="160" rx="8"/>
+<path class="er-hd" d="M30 456 V438 a8 8 0 0 1 8 -8 H252 a8 8 0 0 1 8 8 V456 Z"/>
+<text class="er-en" x="42" y="447">person</text>
+<text class="er-fn" x="42" y="470">id</text>
+<text class="er-kt" x="250" y="470" text-anchor="end">PK</text>
+<text class="er-fn" x="42" y="488">first_name</text>
+<text class="er-fn" x="42" y="506">last_name</text>
+<text class="er-fn er-opt" x="42" y="524">alias</text>
+<text class="er-ot" x="250" y="524" text-anchor="end">opcional</text>
+<text class="er-fn" x="42" y="542">whatsapp_phone</text>
+<text class="er-fn" x="42" y="560">category_id</text>
+<text class="er-kt" x="250" y="560" text-anchor="end">FK</text>
+<text class="er-fn" x="42" y="578">created_at</text>
+</g>
+<g class="er-g"><rect class="er-box" x="670" y="240" width="240" height="124" rx="8"/>
+<path class="er-hd" d="M670 266 V248 a8 8 0 0 1 8 -8 H902 a8 8 0 0 1 8 8 V266 Z"/>
+<text class="er-en" x="682" y="257">payment</text>
+<text class="er-fn" x="682" y="280">id</text>
+<text class="er-kt" x="900" y="280" text-anchor="end">PK</text>
+<text class="er-fn" x="682" y="298">booking_id</text>
+<text class="er-kt" x="900" y="298" text-anchor="end">FK</text>
+<text class="er-fn" x="682" y="316">method</text>
+<text class="er-fn" x="682" y="334">amount</text>
+<text class="er-fn" x="682" y="352">paid_at</text>
+</g>
+<g class="er-g"><rect class="er-box" x="670" y="420" width="240" height="106" rx="8"/>
+<path class="er-hd" d="M670 446 V428 a8 8 0 0 1 8 -8 H902 a8 8 0 0 1 8 8 V446 Z"/>
+<text class="er-en" x="682" y="437">staff_user</text>
+<text class="er-fn" x="682" y="460">id</text>
+<text class="er-kt" x="900" y="460" text-anchor="end">PK</text>
+<text class="er-fn" x="682" y="478">email</text>
+<text class="er-fn" x="682" y="496">name</text>
+<text class="er-fn" x="682" y="514">active</text>
+</g>
+<g class="er-g"><rect class="er-box" x="340" y="470" width="250" height="70" rx="8"/>
+<path class="er-hd" d="M340 496 V478 a8 8 0 0 1 8 -8 H582 a8 8 0 0 1 8 8 V496 Z"/>
+<text class="er-en" x="352" y="487">setting</text>
+<text class="er-fn" x="352" y="510">key</text>
+<text class="er-kt" x="580" y="510" text-anchor="end">PK</text>
+<text class="er-fn" x="352" y="528">value</text>
+</g>
+<path class="er-rel" d="M260 64 L340 64"/>
+<text class="er-cd" x="270" y="58" text-anchor="middle">1</text><text class="er-cd" x="330" y="58" text-anchor="middle">N</text>
+<path class="er-rel" d="M590 64 L670 64"/>
+<text class="er-cd" x="600" y="58" text-anchor="middle">1</text><text class="er-cd" x="658" y="58" text-anchor="middle">0..N</text>
+<path class="er-rel" d="M465.0 126 L465.0 190"/>
+<text class="er-cd" x="477.0" y="140">1</text><text class="er-cd" x="477.0" y="184">N</text>
+<path class="er-rel" d="M260 334 L340 334"/>
+<text class="er-cd" x="272" y="328" text-anchor="middle">N</text><text class="er-cd" x="330" y="328" text-anchor="middle">1</text>
+<path class="er-rel" d="M145.0 378 L145.0 430"/>
+<text class="er-cd" x="157.0" y="392">N</text><text class="er-cd" x="157.0" y="424">1</text>
+<path class="er-rel er-dash" d="M590 284 L670 284"/>
+<text class="er-cd" x="600" y="278" text-anchor="middle">1</text><text class="er-cd" x="656" y="278" text-anchor="middle">0..N</text>
+<path class="er-rel" d="M145.0 108 L145.0 150"/>
+<text class="er-cd" x="157.0" y="121">1</text><text class="er-cd" x="157.0" y="145">N</text>
+<path class="er-rel" d="M30 203.0 L12 203.0 L12 510.0 L30 510.0"/>
+<text class="er-cd" x="40" y="197.0">1</text><text class="er-cd" x="40" y="504.0">N</text>
+</svg>
+  </div>
+  <p class="note"><b>Cómo leerlo:</b> una cancha tiene muchas reservas y una reserva tiene muchas personas (<code>booking_participant</code>). Una persona puede jugar en muchas reservas, lo que da el historial de canchas. Cada deporte tiene sus categorías y cada persona tiene una (obligatoria). El pago es opcional: una reserva puede tener cero o más filas en <code>payment</code>.</p>
+
+  <p class="kicker" style="margin-top:44px">Detalle de campos</p>
+  <p class="lede">Los tipos son genéricos para que el esquema sirva en cualquier motor (sección 04).</p>
+  <p class="kicker" style="margin-top:34px"><code>sport</code></p>
+  <p class="lede" style="margin-top:6px;font-size:14px">Catálogo de deportes del club. Hoy tiene un solo registro: paddle.</p>
+  <table class="tbl bk">
+    <thead><tr><th>Campo</th><th>Tipo</th><th>¿Obligatorio?</th><th>Qué guarda</th></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>identificador</td><td>Sí</td><td>Clave primaria</td></tr>
+      <tr><td><code>name</code></td><td>texto</td><td>Sí</td><td>Nombre del deporte (“Paddle”)</td></tr>
+      <tr><td><code>players_required</code></td><td>entero</td><td>Sí</td><td>Personas para que un turno esté completo. Paddle: 4. Cambia con el deporte, sin tocar código</td></tr>
+    </tbody>
+  </table>
+  <p class="kicker" style="margin-top:34px"><code>category</code></p>
+  <p class="lede" style="margin-top:6px;font-size:14px">Lista cerrada (enum) de categorías. Depende del club y del deporte: cada club carga la suya. Hoy, paddle: 1ra, 2da, 3ra, 4ta, 5ta, 6ta, 7ma y 8va.</p>
+  <table class="tbl bk">
+    <thead><tr><th>Campo</th><th>Tipo</th><th>¿Obligatorio?</th><th>Qué guarda</th></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>identificador</td><td>Sí</td><td>Clave primaria</td></tr>
+      <tr><td><code>sport_id</code></td><td>identificador</td><td>Sí</td><td>Deporte al que pertenece la categoría (apunta a <code>sport</code>)</td></tr>
+      <tr><td><code>name</code></td><td>texto</td><td>Sí</td><td>Nombre visible: “1ra”, “2da”…</td></tr>
+      <tr><td><code>sort_order</code></td><td>entero</td><td>Sí</td><td>Orden en que se muestran las opciones (1 a 8)</td></tr>
+    </tbody>
+  </table>
+
+  <p class="kicker" style="margin-top:34px"><code>court</code></p>
+  <p class="lede" style="margin-top:6px;font-size:14px">Cada cancha del club. Pertenece a un deporte.</p>
+  <table class="tbl bk">
+    <thead><tr><th>Campo</th><th>Tipo</th><th>¿Obligatorio?</th><th>Qué guarda</th></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>identificador</td><td>Sí</td><td>Clave primaria</td></tr>
+      <tr><td><code>sport_id</code></td><td>identificador</td><td>Sí</td><td>Deporte de la cancha (apunta a <code>sport</code>)</td></tr>
+      <tr><td><code>name</code></td><td>texto</td><td>Sí</td><td>“Cancha 1”, “Cancha 2”</td></tr>
+      <tr><td><code>active</code></td><td>verdadero/falso</td><td>Sí</td><td>Si la cancha se puede reservar</td></tr>
+    </tbody>
+  </table>
+  <p class="kicker" style="margin-top:34px"><code>court_attribute</code></p>
+  <p class="lede" style="margin-top:6px;font-size:14px">Características propias de cada deporte o cancha sin cambiar el esquema. Puede no tener ninguna fila.</p>
+  <table class="tbl bk">
+    <thead><tr><th>Campo</th><th>Tipo</th><th>¿Obligatorio?</th><th>Qué guarda</th></tr></thead>
+    <tbody>
+      <tr><td><code>court_id</code></td><td>identificador</td><td>Sí</td><td>Cancha a la que pertenece. Junto con <code>key</code> forma la clave</td></tr>
+      <tr><td><code>key</code></td><td>texto</td><td>Sí</td><td>Nombre de la característica (ejemplo: techada)</td></tr>
+      <tr><td><code>value</code></td><td>texto</td><td>Sí</td><td>Valor de la característica</td></tr>
+    </tbody>
+  </table>
+  <p class="kicker" style="margin-top:34px"><code>setting</code></p>
+  <p class="lede" style="margin-top:6px;font-size:14px">Parámetros del club: una fila por parámetro.</p>
+  <table class="tbl bk">
+    <thead><tr><th>Campo</th><th>Tipo</th><th>¿Obligatorio?</th><th>Qué guarda</th></tr></thead>
+    <tbody>
+      <tr><td><code>key</code></td><td>texto</td><td>Sí</td><td>Nombre del parámetro. Clave primaria</td></tr>
+      <tr><td><code>value</code></td><td>texto</td><td>Sí</td><td>Valor del parámetro. Claves hoy: <code>slot_minutes</code> (90), <code>last_slot_start</code> (22:30), <code>turn_price</code> (estimado 7000), <code>currency</code>, <code>timezone</code> y <code>track_payments</code> (falso)</td></tr>
+    </tbody>
+  </table>
+  <p class="kicker" style="margin-top:34px"><code>person</code></p>
+  <p class="lede" style="margin-top:6px;font-size:14px">Cada persona que se suma a un turno. Se busca por nombre y apellido; si no existe, se crea.</p>
+  <table class="tbl bk">
+    <thead><tr><th>Campo</th><th>Tipo</th><th>¿Obligatorio?</th><th>Qué guarda</th></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>identificador</td><td>Sí</td><td>Clave primaria</td></tr>
+      <tr><td><code>first_name</code></td><td>texto</td><td>Sí</td><td>Nombre</td></tr>
+      <tr><td><code>last_name</code></td><td>texto</td><td>Sí</td><td>Apellido</td></tr>
+      <tr><td><code>alias</code></td><td>texto</td><td><span class="chip a">opcional</span></td><td>Alias o apodo para distinguir a dos personas con el mismo nombre y apellido. Si no se completa, la persona se crea igual. Si existe, se muestra junto al nombre: “Juan Pérez (alias)”</td></tr>
+      <tr><td><code>whatsapp_phone</code></td><td>texto</td><td>Sí</td><td>Teléfono. <b>Obligatorio</b> al crear la persona (ejemplo: 2284-363702). Permite avisar por WhatsApp</td></tr>
+      <tr><td><code>category_id</code></td><td>identificador</td><td>Sí</td><td>Categoría de la persona (apunta a <code>category</code>). <b>Obligatoria</b>: toda persona tiene una, que se elige de la lista cerrada al crearla</td></tr>
+      <tr><td><code>created_at</code></td><td>fecha y hora</td><td>Sí</td><td>Cuándo se creó</td></tr>
+    </tbody>
+  </table>
+  <p class="kicker" style="margin-top:34px"><code>booking</code></p>
+  <p class="lede" style="margin-top:6px;font-size:14px">Una reserva de una cancha en un horario. Siempre tiene al menos una persona: con cero personas el turno está Libre y la reserva no existe.</p>
+  <table class="tbl bk">
+    <thead><tr><th>Campo</th><th>Tipo</th><th>¿Obligatorio?</th><th>Qué guarda</th></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>identificador</td><td>Sí</td><td>Clave primaria</td></tr>
+      <tr><td><code>court_id</code></td><td>identificador</td><td>Sí</td><td>Cancha reservada</td></tr>
+      <tr><td><code>start_at</code></td><td>fecha y hora</td><td>Sí</td><td>Inicio del turno</td></tr>
+      <tr><td><code>end_at</code></td><td>fecha y hora</td><td>Sí</td><td>Fin del turno. Se guarda para que un cambio de duración no altere las reservas pasadas</td></tr>
+      <tr><td><code>status</code></td><td>texto</td><td>Sí</td><td>Solo <code>active</code> o <code>cancelled</code>. Libre, Reservado y Completo no se guardan</td></tr>
+      <tr><td><code>source</code></td><td>texto</td><td>Sí</td><td>Quién la creó: <code>backoffice</code> o <code>chatbot</code></td></tr>
+      <tr><td><code>price</code></td><td>importe</td><td>Sí</td><td>Precio del turno al momento de reservar, tomado de <code>setting</code>. Propuesta: así un cambio de precio no altera los totales pasados</td></tr>
+      <tr><td><code>contact_phone</code></td><td>texto</td><td><span class="chip a">opcional</span></td><td>WhatsApp de quien reservó por el chatbot</td></tr>
+      <tr><td><code>cancelled_by</code></td><td>texto</td><td><span class="chip a">opcional</span></td><td>Quién canceló: jugador o administrador</td></tr>
+      <tr><td><code>cancelled_at</code></td><td>fecha y hora</td><td><span class="chip a">opcional</span></td><td>Cuándo se canceló</td></tr>
+      <tr><td><code>created_at</code></td><td>fecha y hora</td><td>Sí</td><td>Cuándo se creó</td></tr>
+    </tbody>
+  </table>
+  <p class="kicker" style="margin-top:34px"><code>booking_participant</code></p>
+  <p class="lede" style="margin-top:6px;font-size:14px">Qué personas juegan en cada reserva. Da el historial de quién jugó en qué cancha. Cuando hay tantas personas como <code>sport.players_required</code>, el turno está Completo.</p>
+  <table class="tbl bk">
+    <thead><tr><th>Campo</th><th>Tipo</th><th>¿Obligatorio?</th><th>Qué guarda</th></tr></thead>
+    <tbody>
+      <tr><td><code>booking_id</code></td><td>identificador</td><td>Sí</td><td>Reserva. Junto con <code>person_id</code> forma la clave</td></tr>
+      <tr><td><code>person_id</code></td><td>identificador</td><td>Sí</td><td>Persona que juega</td></tr>
+      <tr><td><code>paid</code></td><td>verdadero/falso</td><td><span class="chip a">opcional</span></td><td>Si esa persona abonó. Vacío = el club no registra pagos (caso de hoy). Verdadero o falso solo si el club registra pagos</td></tr>
+    </tbody>
+  </table>
+  <p class="kicker" style="margin-top:34px"><code>payment</code></p>
+  <p class="lede" style="margin-top:6px;font-size:14px">Detalle de un cobro, para cuando se registren pagos (por ejemplo, Mercado Pago). Hoy puede estar vacía. Una reserva puede tener cero o más cobros.</p>
+  <table class="tbl bk">
+    <thead><tr><th>Campo</th><th>Tipo</th><th>¿Obligatorio?</th><th>Qué guarda</th></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>identificador</td><td>Sí</td><td>Clave primaria</td></tr>
+      <tr><td><code>booking_id</code></td><td>identificador</td><td>Sí</td><td>Reserva que se cobró</td></tr>
+      <tr><td><code>method</code></td><td>texto</td><td>Sí</td><td>Cómo se pagó: caja, Mercado Pago, otro. Permite sumar el pago online sin cambiar el esquema</td></tr>
+      <tr><td><code>amount</code></td><td>importe</td><td>Sí</td><td>Monto cobrado</td></tr>
+      <tr><td><code>paid_at</code></td><td>fecha y hora</td><td>Sí</td><td>Cuándo se cobró</td></tr>
+    </tbody>
+  </table>
+  <p class="kicker" style="margin-top:34px"><code>staff_user</code></p>
+  <p class="lede" style="margin-top:6px;font-size:14px">Usuarios que entran al backoffice.</p>
+  <table class="tbl bk">
+    <thead><tr><th>Campo</th><th>Tipo</th><th>¿Obligatorio?</th><th>Qué guarda</th></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>identificador</td><td>Sí</td><td>Clave primaria</td></tr>
+      <tr><td><code>email</code></td><td>texto</td><td>Sí</td><td>Correo del usuario</td></tr>
+      <tr><td><code>name</code></td><td>texto</td><td>Sí</td><td>Nombre</td></tr>
+      <tr><td><code>active</code></td><td>verdadero/falso</td><td>Sí</td><td>Si puede entrar</td></tr>
+    </tbody>
+  </table>
+
+  <p class="kicker" style="margin-top:50px">Tablas con datos de ejemplo</p>
+  <p class="lede">Datos <strong>inventados</strong> para ver cómo quedan las tablas y cómo se calculan los estados. Son los de un club como el de hoy: 2 canchas de paddle, cobro en caja. <code>NULL</code> significa campo vacío.</p>
+  <p class="kicker" style="margin-top:30px"><code>sport</code></p>
+  <div class="mockwrap"><table class="tbl mock">
+    <thead><tr><th>id</th><th>name</th><th>players_required</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Paddle</td><td>4</td></tr>
+    </tbody>
+  </table></div>
+  <p class="kicker" style="margin-top:30px"><code>category</code></p>
+  <div class="mockwrap"><table class="tbl mock">
+    <thead><tr><th>id</th><th>sport_id</th><th>name</th><th>sort_order</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>1</td><td>1ra</td><td class="nul">NULL</td><td>1</td></tr><tr><td>2</td><td>1</td><td>2da</td><td class="nul">NULL</td><td>2</td></tr><tr><td>3</td><td>1</td><td>3ra</td><td class="nul">NULL</td><td>3</td></tr><tr><td>4</td><td>1</td><td>4ta</td><td class="nul">NULL</td><td>4</td></tr>
+      <tr><td>5</td><td>1</td><td>5ta</td><td class="nul">NULL</td><td>5</td></tr><tr><td>6</td><td>1</td><td>6ta</td><td class="nul">NULL</td><td>6</td></tr><tr><td>7</td><td>1</td><td>7ma</td><td class="nul">NULL</td><td>7</td></tr><tr><td>8</td><td>1</td><td>8va</td><td>8</td></tr>
+    </tbody>
+  </table></div>
+<p class="kicker" style="margin-top:30px"><code>court</code></p>
+  <div class="mockwrap"><table class="tbl mock">
+    <thead><tr><th>id</th><th>sport_id</th><th>name</th><th>active</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>1</td><td>Cancha 1</td><td>true</td></tr>
+      <tr><td>2</td><td>1</td><td>Cancha 2</td><td>true</td></tr>
+    </tbody>
+  </table></div>
+  <p class="kicker" style="margin-top:30px"><code>court_attribute</code> · solo como ejemplo ilustrativo</p>
+  <div class="mockwrap"><table class="tbl mock">
+    <thead><tr><th>court_id</th><th>key</th><th>value</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>techada</td><td>true</td></tr>
+    </tbody>
+  </table></div>
+  <p class="kicker" style="margin-top:30px"><code>setting</code></p>
+  <div class="mockwrap"><table class="tbl mock">
+    <thead><tr><th>key</th><th>value</th></tr></thead>
+    <tbody>
+      <tr><td>slot_minutes</td><td>90</td></tr>
+      <tr><td>last_slot_start</td><td>22:30</td></tr>
+      <tr><td>turn_price</td><td>7000</td></tr>
+      <tr><td>currency</td><td>ARS</td></tr>
+      <tr><td>timezone</td><td>America/Argentina/Buenos_Aires</td></tr>
+      <tr><td>track_payments</td><td>false</td></tr>
+    </tbody>
+  </table></div>
+  <p class="kicker" style="margin-top:30px"><code>person</code></p>
+  <div class="mockwrap"><table class="tbl mock">
+    <thead><tr><th>id</th><th>first_name</th><th>last_name</th><th>alias</th><th>whatsapp_phone</th><th>category_id</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Martín</td><td>Gómez</td><td class="nul">NULL</td><td>11 5555-1000</td><td>1 (1ra)</td></tr>
+      <tr><td>2</td><td>Lucía</td><td>Fernández</td><td class="nul">NULL</td><td>11 5555-1037</td><td>4 (4ta)</td></tr>
+      <tr><td>3</td><td>Santiago</td><td>Rossi</td><td class="nul">NULL</td><td>11 5555-1074</td><td>7 (7ma)</td></tr>
+      <tr><td>4</td><td>Camila</td><td>Herrera</td><td class="nul">NULL</td><td>2284-363702</td><td>5 (5ta)</td></tr>
+      <tr><td>5</td><td>Nicolás</td><td>Paz</td><td class="nul">NULL</td><td>11 5555-1148</td><td>3 (3ra)</td></tr>
+      <tr><td>6</td><td>Valentina</td><td>Ortiz</td><td class="nul">NULL</td><td>11 5555-1185</td><td>6 (6ta)</td></tr>
+      <tr><td>7</td><td>Julieta</td><td>Ríos</td><td class="nul">NULL</td><td>11 5555-1333</td><td>8 (8va)</td></tr>
+      <tr><td>8</td><td>Martín</td><td>Gómez</td><td>Tincho</td><td>11 5555-1444</td><td>2 (2da)</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note" style="margin-top:12px"><b>Dos “Martín Gómez”:</b> las personas 1 y 8 tienen el mismo nombre y apellido. En el backoffice se muestran como “Martín Gómez” y “Martín Gómez (Tincho)”, así se las distingue al sumarlas a un turno. El alias se puede dejar vacío.</p>
+  <p class="kicker" style="margin-top:30px"><code>booking</code> · sin <code>created_at</code> para que entre en pantalla</p>
+  <div class="mockwrap"><table class="tbl mock">
+    <thead><tr><th>id</th><th>court_id</th><th>start_at</th><th>end_at</th><th>status</th><th>source</th><th>price</th><th>contact_phone</th><th>cancelled_by</th><th>cancelled_at</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>1</td><td>2026-10-10 10:30</td><td>2026-10-10 12:00</td><td>active</td><td>backoffice</td><td>7000</td><td class="nul">NULL</td><td class="nul">NULL</td><td class="nul">NULL</td></tr>
+      <tr><td>2</td><td>2</td><td>2026-10-10 12:00</td><td>2026-10-10 13:30</td><td>active</td><td>chatbot</td><td>7000</td><td>11 5555-1111</td><td class="nul">NULL</td><td class="nul">NULL</td></tr>
+      <tr><td>3</td><td>1</td><td>2026-10-10 13:30</td><td>2026-10-10 15:00</td><td>cancelled</td><td>backoffice</td><td>7000</td><td class="nul">NULL</td><td>administrador</td><td>2026-10-09 18:20</td></tr>
+      <tr><td>4</td><td>2</td><td>2026-10-10 15:00</td><td>2026-10-10 16:30</td><td>active</td><td>backoffice</td><td>7000</td><td class="nul">NULL</td><td class="nul">NULL</td><td class="nul">NULL</td></tr>
+    </tbody>
+  </table></div>
+  <p class="kicker" style="margin-top:30px"><code>booking_participant</code> · <code>paid</code> vacío: este club no registra pagos</p>
+  <div class="mockwrap"><table class="tbl mock">
+    <thead><tr><th>booking_id</th><th>person_id</th><th>paid</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>1</td><td class="nul">NULL</td></tr>
+      <tr><td>1</td><td>2</td><td class="nul">NULL</td></tr>
+      <tr><td>1</td><td>3</td><td class="nul">NULL</td></tr>
+      <tr><td>1</td><td>7</td><td class="nul">NULL</td></tr>
+      <tr><td>2</td><td>4</td><td class="nul">NULL</td></tr>
+      <tr><td>2</td><td>5</td><td class="nul">NULL</td></tr>
+      <tr><td>3</td><td>6</td><td class="nul">NULL</td></tr>
+      <tr><td>4</td><td>6</td><td class="nul">NULL</td></tr>
+    </tbody>
+  </table></div>
+  <p class="kicker" style="margin-top:30px"><code>payment</code> · sin filas</p>
+  <p class="lede" style="margin-top:6px;font-size:14px">Este club cobra en caja y no registra el pago en la aplicación, así que la tabla está vacía.</p>
+
+  <p class="kicker" style="margin-top:30px">Estado que resulta de esos datos</p>
+  <p class="lede" style="margin-top:6px;font-size:14px">No se guarda: se calcula contando las personas de cada reserva activa contra <code>players_required</code> (4).</p>
+  <div class="mockwrap"><table class="tbl mock">
+    <thead><tr><th>booking</th><th>status</th><th>Personas</th><th>Estado en la agenda</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>active</td><td>4 de 4</td><td><span class="chip b">Completo</span></td></tr>
+      <tr><td>2</td><td>active</td><td>2 de 4</td><td><span class="chip a">Reservado</span></td></tr>
+      <tr><td>3</td><td>cancelled</td><td>—</td><td>Libre otra vez (queda en el historial como cancelada)</td></tr>
+      <tr><td>4</td><td>active</td><td>1 de 4</td><td><span class="chip a">Reservado</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <p class="kicker" style="margin-top:30px">El mismo esquema en un club que sí registra pagos</p>
+  <p class="lede" style="margin-top:6px;font-size:14px">Con <code>track_payments = true</code>, la misma tabla guarda quién abonó, sin ningún cambio de esquema.</p>
+  <div class="mockwrap"><table class="tbl mock">
+    <thead><tr><th>booking_id</th><th>person_id</th><th>paid</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>1</td><td>true</td></tr><tr><td>1</td><td>2</td><td>true</td></tr><tr><td>1</td><td>3</td><td>false</td></tr><tr><td>1</td><td>7</td><td>true</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note amber"><b>Pendiente de definir:</b> cómo se reparte el precio del turno entre las personas, qué muestra Cobros sin registro de pago y otras dudas del backend están en la sección 08, Preguntas abiertas.</p>
+</section>
+
+<!-- ================================================== 06 FINANCIERO -->
+<section class="sec reveal" id="financiero">
+  <p class="kicker">06 · Financiero</p>
+  <h2>Costo y beneficio, <em>con el primer cliente</em>.</h2>
+  <p class="lede">Los costos contemplados son <strong>almacenar los datos en una base de datos</strong> y <strong>usar la API de WhatsApp Business</strong>. El ingreso es la cuota de <strong>15k pesos argentinos por cancha por mes</strong>, y el primer cliente tiene <strong>dos canchas</strong>.</p>
+
+  <p class="kicker" style="margin-top:38px">Ingreso del primer cliente</p>
+  <table class="tbl tri">
+    <thead><tr><th>Concepto</th><th>Cuenta</th><th>Valor</th></tr></thead>
+    <tbody>
+      <tr><td>Cuota por cancha</td><td>Definido</td><td>15.000 ARS / mes <span class="chip b">definido</span></td></tr>
+      <tr><td>Canchas del primer cliente</td><td>Definido</td><td>2 <span class="chip b">definido</span></td></tr>
+      <tr><td>Ingreso mensual</td><td>2 × 15.000</td><td><b>30.000 ARS / mes</b></td></tr>
+      <tr><td>Ingreso anual</td><td>30.000 × 12</td><td><b>360.000 ARS / año</b></td></tr>
+    </tbody>
+  </table>
+
+  <p class="kicker" style="margin-top:44px">Cuánto datos genera este cliente</p>
+  <p class="lede">Con 2 canchas y 9 turnos por día, el máximo es de <strong>18 turnos por día</strong>, o sea <strong>6.570 reservas por año</strong> si estuviera todo ocupado. Es un volumen muy chico: el costo de la base va a venir casi por completo del <strong>cómputo</strong> (tener el servidor encendido), no del almacenamiento.</p>
+  <p class="note amber"><b>Estimación mía:</b> el tamaño exacto en MB por reserva no se midió; se asume que ocupa muy poco, del orden de 1 GB o menos en total durante los primeros años.</p>
+
+  <p class="kicker" style="margin-top:44px">Costo de la base de datos · escenarios</p>
+  <p class="lede">No se sabe cuánto va a costar, así que armé escenarios con precios públicos. Todos usan un tipo de cambio supuesto de <strong>1.500 ARS por USD</strong>, que se puede cambiar en la calculadora de abajo.</p>
+  <table class="tbl">
+    <thead><tr><th>Escenario</th><th>Supuesto</th><th>Costo USD / mes</th><th>Costo ARS / mes</th><th>Margen ARS / mes</th><th>Margen %</th></tr></thead>
+    <tbody>
+      <tr><td>Neon · plan gratuito</td><td>0,5 GB y 100 CU-hora por mes incluidos. Alcanza para un cliente chico</td><td>0</td><td>0</td><td>30.000</td><td>100%</td></tr>
+      <tr><td>Neon · Launch, uso bajo</td><td>~50 CU-hora por mes (la base se apaga cuando no hay consultas) + 1 GB</td><td>~5,65</td><td>~8.475</td><td>~21.525</td><td>~72%</td></tr>
+      <tr><td>Neon · Launch, siempre encendida</td><td>0,25 CU las 24 h = 180 CU-hora por mes + 1 GB</td><td>~19,43</td><td>~29.145</td><td>~855</td><td>~3%</td></tr>
+      <tr><td>Amazon RDS PostgreSQL</td><td>Instancia db.t4g.micro (~12 USD) + ~20 GB de almacenamiento (~2,30 USD, estimado)</td><td>~14,30</td><td>~21.450</td><td>~8.550</td><td>~29%</td></tr>
+    </tbody>
+  </table>
+  <p class="note"><b>Punto de equilibrio:</b> con 30.000 ARS de ingreso y 1.500 ARS por USD, la base puede costar hasta <b>20 USD por mes</b> antes de dar pérdida con este cliente.</p>
+  <p class="note amber"><b>Lectura:</b> el escenario "siempre encendida" casi se come toda la cuota. Con una base por club, la manera de ahorrar es que el motor se apague solo cuando no hay consultas, o compartir un mismo servidor entre varios clubes con una base separada para cada uno (el aislamiento de datos se mantiene). Esto es una recomendación a validar.</p>
+
+  <p class="kicker" style="margin-top:44px">Costo de la API de WhatsApp Business</p>
+  <table class="tbl tri">
+    <thead><tr><th>Concepto</th><th>Costo</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td>Acceso a la API</td><td>Sin licencia mensual propia: Meta cobra por mensaje</td><td><span class="chip b">fuente oficial</span></td></tr>
+      <tr><td>Respuestas del chatbot dentro de las 24 h desde que el jugador escribió</td><td><b>Gratis</b></td><td><span class="chip b">fuente oficial</span></td></tr>
+      <tr><td>Mensajes de plantilla fuera de esas 24 h (por ejemplo, recordatorios)</td><td>~0,026 USD por mensaje (utilidad, Argentina)</td><td><span class="chip a">tarifa a confirmar</span></td></tr>
+      <tr><td>Aviso por cancelación del administrador (plantilla de utilidad)</td><td>~0,026 USD por mensaje si la ventana de 24 h está cerrada; gratis si el jugador escribió en las últimas 24 h</td><td><span class="chip a">tarifa a confirmar</span></td></tr>
+      <tr><td>Proveedor intermediario (si se usa uno)</td><td>Sin dato. Puede sumar cargos propios</td><td><span class="chip a">pendiente</span></td></tr>
+    </tbody>
+  </table>
+  <p class="note"><b>Con el flujo de hoy el costo de WhatsApp es 0:</b> el jugador escribe primero y el chatbot le responde dentro de la ventana de 24 h, que es gratis. El costo aparece solo si el sistema inicia mensajes fuera de esa ventana, por ejemplo avisar una cancelación o enviar un recordatorio.</p>
+  <p class="note"><b>El aviso de cancelación es barato:</b> solo se envía cuando el administrador cancela, no en cada turno. Como referencia, 20 cancelaciones por mes serían ~0,52 USD, unos 780 ARS con el dólar supuesto de 1.500.</p>
+  <p class="note amber"><b>Ejemplo de cuidado:</b> si se enviara un recordatorio por plantilla a cada turno y las 2 canchas estuvieran llenas (540 turnos por mes), serían ~14 USD, unos 21.000 ARS: cerca del 70% de la cuota de 30.000 ARS. Conviene definirlo antes de prometer recordatorios.</p>
+
+  <p class="kicker" style="margin-top:44px">Rentabilidad con base de datos y WhatsApp</p>
+  <p class="lede">Ingreso del primer cliente: <strong>30.000 ARS por mes</strong> (unos 20 USD con el dólar supuesto de 1.500). La IA se supone gratuita. Los escenarios suman los costos de la base de datos y de WhatsApp.</p>
+  <table class="tbl">
+    <thead><tr><th>Escenario</th><th>Qué incluye</th><th>Costo USD / mes</th><th>Costo ARS / mes</th><th>Margen ARS / mes</th><th>Margen %</th></tr></thead>
+    <tbody>
+      <tr><td>A · Todo gratuito</td><td>Neon gratuito, WhatsApp sin plantillas, IA gratuita</td><td>0</td><td>0</td><td>30.000</td><td>100%</td></tr>
+      <tr><td>B · Realista</td><td>Neon Launch con uso bajo + 20 avisos de cancelación por mes</td><td>~6,17</td><td>~9.255</td><td>~20.745</td><td>~69%</td></tr>
+      <tr><td>C · Con RDS</td><td>Amazon RDS PostgreSQL + 20 avisos de cancelación</td><td>~14,82</td><td>~22.230</td><td>~7.770</td><td>~26%</td></tr>
+      <tr><td>D · Con recordatorios</td><td>Neon Launch bajo + un recordatorio por plantilla en cada turno (540) + 20 avisos</td><td>~20,21</td><td>~30.315</td><td>~−315</td><td>~−1%</td></tr>
+      <tr><td>E · Peor caso</td><td>Neon siempre encendida + recordatorios + avisos</td><td>~33,99</td><td>~50.985</td><td>~−20.985</td><td>~−70%</td></tr>
+    </tbody>
+  </table>
+  <p class="note"><b>Lectura:</b> con el flujo definido (el jugador escribe primero, el sistema avisa solo las cancelaciones) la rentabilidad queda entre ~26% y ~69% según la base de datos. Un recordatorio por plantilla en cada turno la lleva a cero: el tope son unos 550 mensajes de plantilla por mes con Neon bajo.</p>
+  <p class="note amber"><b>Riesgo a verificar:</b> la documentación oficial de Meta que leí dice que las respuestas dentro de las 24 h son gratis, pero una fuente secundaria afirma que desde el 1 de octubre de 2026 solo los primeros 1.000 mensajes de servicio por número y por mes son gratis, y el resto se cobra al valor de utilidad. Si fuera así, con unos 3.200 mensajes por mes serían ~58 USD y el negocio daría pérdida con 2 canchas. Hay que confirmarlo en el tarifario de Meta antes de fijar el precio.</p>
+
+  <p class="kicker" style="margin-top:44px">Calculadora</p>
+  <p class="lede">Cambiá los valores para ver el resultado. Arranca con los datos del primer cliente.</p>
+  <div class="calc">
+    <label>Canchas<input id="c_n" type="number" min="0" step="1" value="2"></label>
+    <label>Cuota por cancha (ARS / mes)<input id="c_fee" type="number" min="0" step="500" value="15000"></label>
+    <label>Tipo de cambio (ARS por USD)<input id="c_fx" type="number" min="1" step="10" value="1500"></label>
+    <label>Costo de la base (USD / mes)<input id="c_db" type="number" min="0" step="0.5" value="5.65"></label>
+    <label>Costo de WhatsApp (USD / mes)<input id="c_wa" type="number" min="0" step="0.5" value="0"></label>
+  </div>
+  <div class="res">
+    <div class="card"><span class="dom">Ingreso</span><div class="big" id="r_in">—</div><p>ARS por mes</p></div>
+    <div class="card"><span class="dom">Costo total</span><div class="big" id="r_cost">—</div><p>ARS por mes (base + WhatsApp)</p></div>
+    <div class="card"><span class="dom">Margen</span><div class="big" id="r_m">—</div><p id="r_pct">—</p></div>
+    <div class="card"><span class="dom">Costo máximo total</span><div class="big" id="r_be">—</div><p>USD por mes, para no perder</p></div>
+  </div>
+
+  <p class="kicker" style="margin-top:44px">Qué falta incluir</p>
+  <div class="ba">
+    <p class="t">Fuera de este cálculo, por ahora</p>
+    <ul>
+      <li>Solo se contemplan la base de datos y la API de WhatsApp Business.</li>
+      <li>Cualquier otro costo del proyecto se suma a este cuadro cuando se defina.</li>
+      <li>El costo de WhatsApp lo fija Meta por mensaje. El costo de una IA, si el chatbot usa una, es aparte y lo cobra el proveedor del modelo: todavía no está contemplado.</li>
+      <li>El costo real de la base se actualiza cuando se elija el proveedor y se mida el uso.</li>
+      <li>El costo de las plantillas de WhatsApp se confirma en el tarifario de Meta, y si hay proveedor intermediario, en el suyo.</li>
+    </ul>
+  </div>
+
+  <!-- fin financiero -->
+
+  <p class="note"><b>Fuentes de precios:</b> <a href="https://neon.com/pricing">Neon</a> · <a href="https://aws.amazon.com/rds/postgresql/pricing">Amazon RDS</a> · <a href="https://www.bytebase.com/dbcost/rds/instance/db.t4g.micro/">db.t4g.micro</a> · <a href="https://developers.facebook.com/documentation/business-messaging/whatsapp/pricing">Meta WhatsApp Business Platform</a> · <a href="https://ominiflow.com/whatsapp-api-pricing/argentina">tarifa Argentina (fuente secundaria)</a>. El tipo de cambio de 1.500 es un supuesto de referencia, a actualizar. Los precios de proveedores pueden cambiar.</p>
+</section>
+
+<!-- ================================================== 06 PREGUNTAS -->
+<section class="sec reveal" id="prototipo">
+  <p class="kicker">07 · Prototipo y diseño</p>
+  <h2>La referencia visual, <em>y cómo se conecta a los datos</em>.</h2>
+  <p class="lede">Hay un <strong>prototipo navegable en HTML del backoffice</strong> del administrador. Es la referencia visual del producto: las pantallas se diseñan ahí y luego se definen los endpoints. <strong>El chatbot de WhatsApp queda fuera del diseño de pantallas por ahora</strong>; su definición sigue vigente en este documento.</p>
+
+  <p class="kicker" style="margin-top:38px">Pantallas del prototipo</p>
+  <table class="tbl tri">
+    <thead><tr><th>Pantalla</th><th>Qué resuelve</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td>Agenda</td><td>Grilla de turnos por cancha y día. <b>Reservar en 2 clics</b>: tocar un turno libre y confirmar; las personas se suman ahora o después. También gestiona un turno reservado</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Reservas</td><td>Reservas ya creadas, completas o incompletas, y cancelar turnos</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Personas</td><td>Buscador único por nombre y apellido; si no existe se crea y se piden sus datos (teléfono, categoría obligatoria y alias opcional); historial de canchas donde jugó</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Cobros</td><td>Cuánto entró por día, semana y mes, con filtro por año (estimado: turnos no cancelados por el precio)</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Configuración</td><td>Precio del turno (único, lo carga el administrador), parámetros de turnos y canchas</td><td><span class="chip b">definido</span></td></tr>
+    </tbody>
+  </table>
+  <p class="note"><b>Datos de ejemplo:</b> las personas y reservas del prototipo son inventadas y se guardan en el navegador. El precio del turno que usa es el estimado de 7k.</p>
+
+  <p class="kicker" style="margin-top:44px">Design system</p>
+  <table class="tbl tri">
+    <thead><tr><th>Tema</th><th>Definición</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td>Paleta</td><td><b>Blanco, verde y negro.</b> Verde bosque (#0f3d2e) para la barra lateral y el turno completo; verde de marca (#1f6f57) para la acción principal; menta (#a9d6c4 y #dfeee6) para lo activo y los encabezados; negro verdoso (#0d1f18) para el texto</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Acento de cancelación</td><td>Coral (#e5533d), usado solo para cancelar y para el estado “Cancelado”</td><td><span class="chip a">propuesta</span></td></tr>
+      <tr><td>Tipografía</td><td>IBM Plex Sans para el texto e IBM Plex Mono para horarios, importes y etiquetas</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Inspiración</td><td>Caso Crezco de Behance: verde bosque con menta, paneles amplios, títulos grandes y esquinas redondeadas. El verde alude al tenis y al paddle</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Estados del turno</td><td>Libre (borde punteado), Reservado, es decir incompleto (verde suave) y Completo, con las 4 personas (verde bosque). No hay estado “abonado”</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Principio</td><td>Pocos clics para reservar: hoy los clubes anotan a mano y un paso a paso corto rompe la fricción de entrar a un sistema</td><td><span class="chip b">definido</span></td></tr>
+    </tbody>
+  </table>
+
+  <p class="kicker" style="margin-top:44px">Contrato de datos del prototipo</p>
+  <p class="lede">Las pantallas piden los datos a una capa simulada. Cuando se definan los endpoints, cada método se reemplaza por una llamada real con la misma forma de respuesta y <strong>las pantallas no cambian</strong>. Los endpoints de abajo son <strong>candidatos</strong>, no están definidos.</p>
+  <table class="tbl tri">
+    <thead><tr><th>Grupo</th><th>Endpoints candidatos</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td>Configuración</td><td><code>GET /settings</code>, <code>PATCH /settings</code></td><td><span class="chip a">candidato</span></td></tr>
+      <tr><td>Canchas</td><td><code>GET /courts</code>, <code>POST /courts</code></td><td><span class="chip a">candidato</span></td></tr>
+      <tr><td>Disponibilidad</td><td><code>GET /availability?date=</code> (calculada desde los parámetros y las reservas activas)</td><td><span class="chip a">candidato</span></td></tr>
+      <tr><td>Reservas</td><td><code>GET /bookings</code>, <code>GET /bookings/:id</code>, <code>POST /bookings</code>, <code>POST /bookings/:id/cancel</code>, <code>POST</code> y <code>DELETE</code> de participantes</td><td><span class="chip a">candidato</span></td></tr>
+      <tr><td>Personas</td><td><code>GET /people?q=</code>, <code>POST /people</code>, <code>GET /people/:id</code>, <code>PATCH /people/:id</code> (editar perfil), <code>GET /people/:id/history</code></td><td><span class="chip a">candidato</span></td></tr>
+      <tr><td>Cobros</td><td><code>GET /income</code> (día, semana o mes, con año), <code>GET /income/summary</code></td><td><span class="chip a">candidato</span></td></tr>
+    </tbody>
+  </table>
+  <p class="note amber"><b>Coherencia con la arquitectura de datos:</b> el prototipo ya respeta una base por club con el mismo esquema, disponibilidad calculada, reserva con inicio y fin, reservas que siempre tienen al menos una persona, estado del turno calculado por cantidad de personas (Libre, Reservado, Completo) y un campo de pago opcional que admite más métodos a futuro. Detalle en la sección 05.</p>
+
+  <p class="kicker" style="margin-top:44px">Dónde está todo</p>
+  <p class="lede">En la carpeta <code>Pali</code> de la computadora: <code>CONTEXTO.md</code> (resumen de todo lo definido), <code>DESIGN-SYSTEM.md</code>, <code>docs/producto-reserva-canchas.html</code> (este documento) y <code>mockup/</code> (el prototipo, con <code>index.html</code> como punto de entrada).</p>
+</section>
+
+<section class="sec reveal" id="preguntas">
+  <p class="kicker">08 · Preguntas abiertas</p>
+  <h2>Lo que falta definir <em>para cerrar el alcance</em>.</h2>
+  <p class="lede">Preguntas que todavía no tienen respuesta. Algunas se consultan con <strong>Ivan</strong> (líder tecnológico); cuando se respondan, pasan a la sección que corresponda.</p>
+
+  <div class="qa">
+    <div class="qitem"><span class="who w-iv">Consultar con Ivan</span><div><div class="q">Para reservar desde el backoffice con pocos clics, ¿qué datos son obligatorios al crear el turno?</div><div class="ctx">Principio de diseño: el flujo de reserva debe ser muy corto para romper la fricción de entrar a un sistema. Ya está definido que un turno se reserva con al menos una persona y se completa después hasta 4.</div></div></div>
+    <div class="qitem"><span class="who w-iv">Consultar con Ivan</span><div><div class="q">¿Qué datos se piden a una persona cuando se la crea?</div><div class="ctx">Definido: nombre, apellido, teléfono y categoría son obligatorios; el alias es opcional. El formulario avisa por campo qué falta completar. Falta definir qué otros datos adicionales hacen falta. Hoy el modelo de datos los contempla como campos de <code>person</code>.</div></div></div>
+    <div class="qitem"><span class="who">A consultar</span><div><div class="q">¿Quiénes usan el backoffice y desde qué dispositivo?</div><div class="ctx">Por ahora hay un solo administrador. Está por definir si habrá otros usuarios y si también se podrá usar desde el celular.</div></div></div>
+    <div class="qitem"><span class="who">A consultar</span><div><div class="q">¿El chatbot debe avisar por su cuenta, por ejemplo con un recordatorio antes del turno?</div><div class="ctx">Con el flujo actual el costo de WhatsApp es 0. Un mensaje de plantilla fuera de la ventana de 24 h tiene costo por mensaje (ver sección 06).</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Qué funciones del backoffice entran en la primera entrega del roadmap?</div><div class="ctx">Las funciones de la sección 01 son lo que se imagina; el orden y el corte de la primera entrega no están definidos.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Se mantiene 15.000 ARS por cancha o se sube el precio?</div><div class="ctx">El mercado publica abonos de $40.000 a $50.000 por 1 a 3 canchas. Con 2 canchas, 15k por cancha da 30k. Falta confirmar los datos de Padelink, Quiero Jugar y Clubo.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Cuál es el precio exacto del turno y en qué moneda?</div><div class="ctx">Estimado en 7k. Lo carga el administrador en configuración y es único para todas las canchas y horarios.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Cómo se compara el producto concretamente con Clubo?</div><div class="ctx">Hoy solo está definido que Clubo es un competidor conocido y que se propone algo diferente.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Se confirma PostgreSQL como motor inicial y la propuesta de arquitectura de datos?</div><div class="ctx">Recomendación y propuesta de las secciones 04, a validar con Ivan.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Se quiere que el sistema avise por WhatsApp al jugador cuando el administrador cancela su turno?</div><div class="ctx">Técnicamente es posible con una plantilla aprobada por Meta. Hace falta el teléfono de la persona y su consentimiento para recibir mensajes. Si el turno se creó desde el backoffice y la persona no tiene teléfono cargado, no se la puede avisar.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Qué texto tiene el mensaje de cancelación y se ofrece reprogramar?</div><div class="ctx">Por ejemplo, avisar el turno cancelado y ofrecer ver otros turnos disponibles por el chatbot.</div></div></div>
+    <div class="qitem"><span class="who w-iv">Consultar con Ivan</span><div><div class="q">¿Qué modelo de IA usa el chatbot, si usa uno, y puede ser gratuito?</div><div class="ctx">La idea es un modelo gratuito porque la tarea es simple (pedir turno, cancelar, consultar). Los planes gratuitos tienen límites que cambian y algunos pueden usar los datos enviados para mejorar el producto; hay que revisarlo porque se manejan nombres y teléfonos. Una opción es resolver lo más posible con botones y reglas, y dejar el modelo solo para interpretar texto libre.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Se usa un proveedor intermediario de WhatsApp o se conecta directo a la API de Meta?</div><div class="ctx">Un intermediario puede sumar cargos propios. Falta además confirmar la tarifa de plantillas en el tarifario de Meta.</div></div></div>
+  </div>
+
+  <p class="kicker" style="margin-top:44px">Backend y estados del turno</p>
+  <p class="lede">Dudas que salen de las definiciones de la sección 05.</p>
+  <div class="qa">
+    <div class="qitem"><span class="who w-iv">Consultar con Ivan</span><div><div class="q">¿Se confirma que “abonó” sea un campo opcional (vacío si el club no registra pagos) y no siempre verdadero?</div><div class="ctx">Propuesta: <code>booking_participant.paid</code> opcional, con <code>setting.track_payments</code> en falso para el club de hoy. La alternativa de dejarlo siempre en verdadero no se recomienda porque afirma pagos que nadie registró.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿El precio del turno es por cancha o se reparte entre las personas?</div><div class="ctx">Estimado en 7k, pero no está definido si es el total del turno o lo que paga cada jugador. Afecta el cálculo de Cobros y el sentido del campo “abonó” por jugador.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Qué debe mostrar Cobros si el pago en caja no se registra?</div><div class="ctx">Propuesta, mientras tanto: turnos no cancelados por el precio del turno, como estimación. Otra opción es contar solo los turnos Completos. Hay que definir si el administrador necesita cierre de caja real.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Qué pasa cuando se quita a la última persona de un turno?</div><div class="ctx">Como con 0 personas el turno está Libre, el prototipo libera la reserva (la borra) en vez de dejarla vacía. Falta definir si debe pedir confirmación, y cómo cuenta quien reserva por el chatbot: se propone que se sume como la primera persona del turno.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Un turno puede tener más de 4 personas o debe bloquearse en 4?</div><div class="ctx">El prototipo bloquea al llegar a 4 (la cantidad sale de <code>players_required</code>). También falta definir si el chatbot puede ofrecer un turno Reservado (de 1 a 3 personas) a otras personas que quieran sumarse.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Qué categoría se le asigna a quien reserva por el chatbot si todavía no está en la base?</div><div class="ctx">Como la categoría es obligatoria al crear una persona, el chatbot tendría que preguntarla o dejar la persona pendiente de completar desde el backoffice. También falta definir si el administrador puede cambiar la categoría después y quién decide la categoría de cada jugador.</div></div></div>
+    <div class="qitem"><span class="who w-iv">Consultar con Ivan</span><div><div class="q">¿Se valida que no se repita la combinación de nombre, apellido y alias?</div><div class="ctx">Definido: el alias es opcional y se puede crear una persona sin él, aunque ya exista otra con el mismo nombre y apellido. Falta definir si el sistema debe impedir dos personas idénticas en los tres campos, o solo advertir. También falta definir si el buscador debe encontrar a la persona por el alias.</div></div></div>
+    <div class="qitem"><span class="who w-iv">Consultar con Ivan</span><div><div class="q">¿La categoría se guarda en la persona o hace falta una por deporte?</div><div class="ctx">Propuesta: <code>person.category_id</code> obligatorio, que apunta a una lista de categorías por deporte (<code>category</code>). Si una persona juega más de un deporte, necesitaría una categoría por cada uno; en ese caso se pasa a una tabla <code>persona × deporte</code>. Definido: hoy la lista es 1ra, 2da, 3ra, 4ta, 5ta, 6ta, 7ma y 8va, y puede variar según el club y el deporte.</div></div></div>
+    <div class="qitem"><span class="who w-iv">Consultar con Ivan</span><div><div class="q">¿Qué otros campos opcionales hacen falta para sentar las bases de otros clubes y deportes?</div><div class="ctx">Hoy los opcionales son <code>alias</code>, <code>whatsapp_phone</code>, <code>contact_phone</code>, <code>cancelled_by</code>, <code>cancelled_at</code> y <code>paid</code>. Falta definir si <code>players_required</code> va en el deporte (propuesta) o en cada cancha, y si conviene guardar el precio en cada reserva (<code>booking.price</code>).</div></div></div>
+  </div>
+
+  <p class="kicker" style="margin-top:44px">Mercado y primer cliente</p>
+  <p class="lede">Dudas que no se resuelven con el producto sino hablando con clubes. Todavía no hay ningún club contactado, así que ninguna tiene respuesta. <strong>Todo lo que dice cómo ayuda el producto a un club son hipótesis, no datos medidos.</strong></p>
+
+  <div class="qa">
+    <div class="qitem"><span class="who">A validar con clubes</span><div><div class="q">¿Por qué un club querría tener este producto? ¿Qué problema concreto le resuelve?</div><div class="ctx">Hipótesis: deja de atender teléfono y WhatsApp para dar turnos; evita turnos pisados o mal anotados; sabe cuánto cobra por día, semana y mes; guarda quién juega y en qué cancha; cuesta menos que las alternativas relevadas (a confirmar, esos precios pueden estar desactualizados).</div></div></div>
+    <div class="qitem"><span class="who">A validar con clubes</span><div><div class="q">¿Al club le duele lo suficiente el problema como para cambiar su forma de trabajar?</div><div class="ctx">Si hoy todo le funciona “más o menos”, puede no querer aprender un sistema nuevo. Señal para seguir: 3 de 5 conversaciones cuentan un problema concreto y frecuente. Si responden “no tenemos problemas”, hay que cambiar el tipo de club o el enfoque antes de construir más.</div></div></div>
+    <div class="qitem"><span class="who">A validar con clubes</span><div><div class="q">¿Lo que más le duele al club es la gestión de turnos o es otra cosa?</div><div class="ctx">Alternativas posibles: cobrar, cancelaciones de último momento, conseguir más jugadores. Preguntas para las primeras conversaciones: cuántos mensajes de reserva reciben por día y quién los contesta; si alguna vez se les pisó un turno o perdieron plata por no anotarlo; cuánto tiempo les lleva cerrar el mes; qué cambiaría si esto desapareciera mañana.</div></div></div>
+    <div class="qitem"><span class="who">A validar con clubes</span><div><div class="q">¿Los jugadores reservarían por WhatsApp con un chatbot?</div><div class="ctx">Muchos pueden preferir hablar con una persona. El chatbot es el diferencial propuesto frente a la competencia, así que esta duda afecta toda la propuesta.</div></div></div>
+    <div class="qitem"><span class="who">A validar con clubes</span><div><div class="q">¿Cuánto vale esto para el club en pesos?</div><div class="ctx">Si el club ahorra 1 hora de trabajo por día, 30.000 ARS por mes puede parecerle poco; si no siente el ahorro, puede parecerle caro. Se relaciona con la pregunta de precio de la sección anterior.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Qué tipo de club es el primer objetivo?</div><div class="ctx">Propuesta: 2 a 4 canchas de pádel, el dueño administra, hoy anotan a mano o por WhatsApp, y queda en una zona a la que se pueda ir en persona. A confirmar.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Cómo se consigue el primer cliente, si hoy no hay ningún club contactado?</div><div class="ctx">Propuesta: ofrecer a un club ser cliente co-creador, para construir el producto juntos. Primero el entorno (conocidos que juegan pádel y saben quién administra su club), después los clubes donde se juega y visitas en persona a 20 a 30 clubes chicos de la zona; Instagram y WhatsApp como último recurso. Las primeras conversaciones son de escuchar, no de presentar; la demo con el prototipo viene después.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Qué recibe y qué da el club en el trato de co-creación?</div><div class="ctx">Propuesta. El club recibe prioridad en lo que pida, uso gratis mientras se construye y precio fundador congelado después. El club da una reunión semanal de 30 minutos, uso con datos reales y permiso para mostrar el caso y recomendar. Duración del período gratis, precio fundador y fecha en que pasa a pago: sin definir. Debe quedar por escrito qué pasa si funciona y qué pasa si no.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Cómo se trabaja con Scrum con el cliente adentro?</div><div class="ctx">Propuesta: Gonza como Product Owner, Ivan en desarrollo y el dueño del club como stakeholder en la revisión semanal; sprints de 1 a 2 semanas. Primero lo mínimo que reemplace el cuaderno del club (agenda, reservas, cobros); el chatbot recién cuando el club ya usa el sistema. Duración de sprint a confirmar con Ivan.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Cómo se evita hacer el producto a medida de un solo club?</div><div class="ctx">Riesgo: cada pedido del cliente debería pasar la pregunta “¿lo pediría otro club?”. Si no, se anota pero no se prioriza. También hay riesgo de que el cliente se enfríe o de que el “gratis” se vuelva costumbre; por eso conviene fijar reunión semanal y fecha de pago desde el inicio.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Con qué métricas se sabe si la búsqueda del primer cliente va bien?</div><div class="ctx">Propuesta de metas (estimación, no datos medidos): semana 2, 15 clubes contactados; semana 3, 5 conversaciones; semana 4, 1 acuerdo de co-creación. Si en la semana 3 no hay conversaciones, el problema está en cómo se contacta o a quién.</div></div></div>
+  </div>
+</section>
+
+</main>
+</div>
+<button class="top" id="topBtn" aria-label="Volver arriba">↑ Arriba</button>
+<script>
+(function(){
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)e.target.classList.add('in')})},{threshold:.05});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
+  var links=document.querySelectorAll('nav.side a'),secs=[];
+  links.forEach(function(a){var s=document.querySelector(a.getAttribute('href'));if(s)secs.push([a,s])});
+  var btn=document.getElementById('topBtn');
+  function onScroll(){
+    var y=window.scrollY+120,cur=null;
+    secs.forEach(function(p){if(p[1].offsetTop<=y)cur=p[0]});
+    links.forEach(function(a){a.classList.toggle('active',a===cur)});
+    btn.classList.toggle('on',window.scrollY>600);
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+  btn.addEventListener('click',function(){window.scrollTo({top:0})});
+  var f=function(n){return Math.round(n).toLocaleString('es-AR')};
+  function calc(){
+    var g=function(id){return parseFloat(document.getElementById(id).value)||0};
+    var inc=g('c_n')*g('c_fee'),fx=g('c_fx'),cost=(g('c_db')+g('c_wa'))*fx,m=inc-cost;
+    document.getElementById('r_in').textContent=f(inc);
+    document.getElementById('r_cost').textContent=f(cost);
+    var rm=document.getElementById('r_m');rm.textContent=f(m);rm.classList.toggle('neg',m<0);
+    document.getElementById('r_pct').textContent=(inc>0?(m/inc*100).toFixed(1):'0')+'% sobre el ingreso';
+    document.getElementById('r_be').textContent=fx>0?(inc/fx).toFixed(2).replace('.',','):'—';
+  }
+  ['c_n','c_fee','c_fx','c_db','c_wa'].forEach(function(id){document.getElementById(id).addEventListener('input',calc)});
+  calc();
+})();
+</script>
+</body>
+</html>

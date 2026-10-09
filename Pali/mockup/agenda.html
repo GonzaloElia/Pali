@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agenda · Pali backoffice</title>
+<link rel="stylesheet" href="css/main.css">
+<script>/* Tema y barra lateral: se aplican antes de pintar para evitar parpadeos */
+(function(){try{var d=document.documentElement,t=localStorage.getItem('pali-theme');
+if(!t&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)t='dark';
+if(t==='dark')d.setAttribute('data-theme','dark');
+if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar','hidden');}catch(e){}})();</script>
+<script src="js/mock-api.js"></script>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar" data-nav="agenda">
+    <p class="brand">Pali <em>· backoffice</em></p>
+    <p class="brand-sub">Club de ejemplo</p>
+    <script src="js/nav.js"></script>
+    <div class="foot"><a href="index.html">Mapa de flujos</a></div>
+  </aside>
+
+  <main class="main">
+    <header class="page-header">
+      <p class="kicker">Backoffice · Agenda</p>
+      <div class="row between wrap">
+        <div>
+          <h2>Turnos del día, <em id="dateLabel"></em></h2>
+          <p class="lede">Reservar es tocar un turno libre y confirmar: <b>2 clics</b>. Las personas se pueden sumar ahora o después.</p>
+        </div>
+        <div class="row">
+          <button class="btn btn--icon" data-act="prev" aria-label="Día anterior">←</button>
+          <button class="btn" data-act="today">Hoy</button>
+          <button class="btn btn--icon" data-act="next" aria-label="Día siguiente">→</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="legend">
+      <span><i class="swatch swatch--free"></i>Libre (0 personas)</span>
+      <span><i class="swatch swatch--booked"></i>Reservado (1 a 3 personas)</span>
+      <span><i class="swatch swatch--full"></i>Completo (4 personas)</span>
+    </div>
+
+    <section class="section"><div id="agenda" class="agenda"></div></section>
+
+    <p class="note mt-5"><b>Datos de ejemplo.</b> Las reservas que hagas acá aparecen en Reservas y Cobros.</p>
+
+    <!-- Modal: reservar un turno libre / gestionar un turno reservado -->
+    <div id="scrim" class="scrim" hidden data-act="scrim"><div id="modal" class="modal"></div></div>
+    <div id="toast" class="toast" hidden></div>
+  </main>
+</div>
+
+<script>
+/* Pantalla Agenda. Toda la lógica vive en este HTML; los datos se piden siempre a PaliApi (futuros endpoints). */
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var PENCIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+  var pname = PaliApi.util.personLabel;   // “Juan Pérez” o “Juan Pérez (alias)”
+
+  var S = { cap: 4, cats: [], date: PaliApi.util.today(), grid: null, modal: null, selected: [], q: '', results: [], newPerson: null };
+
+  function label() {
+    var s = PaliApi.util.parseDate(S.date).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+  function say(msg) { var t = $('#toast'); t.textContent = msg; t.hidden = false; setTimeout(function () { t.hidden = true; }, 2200); }
+
+  /* ---------- agenda ---------- */
+  async function load() { S.cap = (await PaliApi.getSettings()).playersPerBooking; S.cats = await PaliApi.listCategories(); S.grid = await PaliApi.listSlots({ date: S.date }); renderAgenda(); }
+  function cellTitle(c) { return c.state === 'free' ? 'Libre' : (c.state === 'full' ? 'Completo' : 'Reservado'); }
+  function cellSub(c) {
+    if (c.state === 'free') return 'Tocá para reservar';
+    var n = c.booking.participants.length;
+    return n + ' de ' + c.booking.capacity + ' personas';
+  }
+  function renderAgenda() {
+    $('#dateLabel').textContent = label();
+    var g = S.grid, el = $('#agenda');
+    el.style.gridTemplateColumns = '64px repeat(' + g.courts.length + ', minmax(0, 1fr))';
+    var html = '<div></div>' + g.courts.map(function (c) { return '<div class="agenda-head">' + esc(c.name) + '</div>'; }).join('');
+    g.rows.forEach(function (row, ri) {
+      html += '<div class="agenda-time">' + row.start + '</div>';
+      row.cells.forEach(function (cell, ci) {
+        var cls = cell.state === 'free' ? 'free' : (cell.state === 'full' ? 'full' : 'booked');
+        html += '<button class="slot slot--' + cls + '" data-act="open" data-r="' + ri + '" data-c="' + ci + '">' +
+          '<span class="t">' + cellTitle(cell) + ' · ' + row.start + '–' + row.end + '</span>' +
+          '<span class="s">' + cellSub(cell) + '</span></button>';
+      });
+    });
+    el.innerHTML = html;
+  }
+
+  /* ---------- modal ---------- */
+  function resetForm() { S.q = ''; S.results = []; S.selected = []; S.newPerson = null; }
+  function openModal(ri, ci) {
+    var row = S.grid.rows[ri], cell = row.cells[ci];
+    var court = S.grid.courts.filter(function (c) { return c.id === cell.courtId; })[0];
+    resetForm();
+    S.modal = { courtId: cell.courtId, courtName: court.name, start: row.start, end: row.end, booking: cell.booking };
+    renderModal();
+    $('#scrim').hidden = false;
+  }
+  function closeModal() { S.modal = null; $('#scrim').hidden = true; }
+
+  function renderModal() {
+    var m = S.modal, bk = m.booking;
+    $('#modal').innerHTML =
+      '<div class="modal-head"><div><h3>' + (bk ? 'Turno reservado' : 'Reservar turno') + '</h3>' +
+      '<p class="sub">' + esc(m.courtName) + ' · ' + esc(label()) + ' · ' + m.start + '–' + m.end + '</p></div>' +
+      '<button class="modal-close" data-act="close" aria-label="Cerrar">×</button></div>' +
+      '<div id="searchBlock" class="field"><label class="label" for="q">Persona</label>' +
+      '<div class="combo"><input id="q" class="input" type="text" placeholder="Nombre y apellido" autocomplete="off">' +
+      '<div id="comboList" class="combo-list" hidden></div></div>' +
+      '<p class="hint">Si no está, se crea al momento y se le piden sus datos.</p></div>' +
+      '<div id="newPerson" class="stack--form" hidden></div>' +
+      '<div id="plist" class="mt-4"></div>' +
+      '<div id="modalFoot" class="modal-foot">' +
+        (bk ? '<button class="btn btn--danger" data-act="cancelBooking">Cancelar turno</button><button class="btn btn--dark" data-act="close">Aceptar</button>'
+            : '<button class="btn btn--primary" data-act="reserve">Reservar</button>') +
+      '</div>';
+    renderPersons();
+  }
+
+  function people() { return S.modal.booking ? S.modal.booking.participants : S.selected; }
+  function renderPersons() {
+    var list = people(), el = $('#plist');
+    el.innerHTML = list.length
+      ? '<ul class="plist">' + list.map(function (p) {
+          return '<li><span class="row" style="gap:10px">' + esc(p.name) + (p.category ? '<span class="chip chip--soft">' + esc(p.category) + '</span>' : '') + '</span>' +
+            '<span class="row" style="gap:4px">' +
+            '<button class="btn btn--ghost btn--tiny" data-act="editPerson" data-id="' + p.id + '" aria-label="Editar perfil de ' + esc(p.name) + '" title="Editar perfil">' + PENCIL + '</button>' +
+            '<button class="btn btn--ghost btn--sm" data-act="removePerson" data-id="' + p.id + '">Quitar</button></span></li>';
+        }).join('') + '</ul>'
+      : '<p class="hint">Sumá al menos una persona para reservar. Un turno sin personas está Libre.</p>';
+  }
+
+  /* buscador único */
+  function canCreate() {
+    var n = S.q.trim().toLowerCase();
+    return !!n;   // siempre se puede crear: puede haber dos personas con el mismo nombre (se distinguen por el alias)
+  }
+  function renderCombo() {
+    var el = $('#comboList');
+    var html = S.results.map(function (p) {
+      return '<button type="button" class="combo-item" data-act="addPerson" data-id="' + p.id + '"><span class="row" style="gap:10px">' + esc(pname(p)) + (p.category ? '<span class="chip chip--soft">' + esc(p.category) + '</span>' : '') + '</span><small>' + esc(p.phone) + '</small></button>';
+    }).join('');
+    if (canCreate()) html += '<button type="button" class="combo-item combo-item--create" data-act="startCreate"><span>' + (S.results.length ? 'Crear otra persona' : 'Crear persona') + ' “' + esc(S.q.trim()) + '”</span><small>' + (S.results.length ? 'con alias' : '+ nueva') + '</small></button>';
+    el.innerHTML = html;
+    el.hidden = !S.q.trim().length;
+  }
+  async function onType() { S.q = $('#q').value; S.results = await PaliApi.searchPeople(S.q); renderCombo(); }
+  function renderNewPerson() {
+    var el = $('#newPerson'), np = S.newPerson;
+    /* Con el formulario abierto reemplaza al buscador, la lista y los botones; al cerrarlo vuelven */
+    ['#searchBlock', '#plist', '#modalFoot'].forEach(function (sel) { var n = $(sel); if (n) n.hidden = !!np; });
+    if (!np) { el.hidden = true; el.innerHTML = ''; return; }
+    el.hidden = false;
+    var editing = !!np.id;
+    el.innerHTML =
+      (editing ? '<p class="kicker">Editar perfil</p>' : '') +
+      '<div class="grid-2" style="gap:12px"><div class="field"><label class="label">Nombre</label><input id="npFirst" class="input" value="' + esc(np.firstName) + '"></div>' +
+      '<div class="field"><label class="label">Apellido</label><input id="npLast" class="input" value="' + esc(np.lastName) + '"></div></div>' +
+      '<div class="field"><label class="label" for="npPhone">Teléfono</label><input id="npPhone" class="input" placeholder="Ej: 2284-363702" value="' + esc(np.phone || '') + '"></div>' +
+      '<div class="grid-2" style="gap:12px"><div class="field"><label class="label" for="npAlias">Alias <span class="hint">(opcional)</span></label><input id="npAlias" class="input" placeholder="Ej: Tincho" autocomplete="off" title="Para distinguir a dos personas con el mismo nombre y apellido" value="' + esc(np.alias || '') + '"></div>' +
+      '<div class="field"><label class="label" for="npCat">Categoría</label><select id="npCat" class="select"><option value="" disabled' + (np.categoryId ? '' : ' selected') + '>Elegí una categoría</option>' +
+      S.cats.map(function (c) { return '<option value="' + c.id + '"' + (c.id === np.categoryId ? ' selected' : '') + '>' + esc(c.name) + '</option>'; }).join('') + '</select></div></div>' +
+      '<p id="npErr" class="field-error" hidden></p>' +
+      '<div class="modal-foot"><button class="btn btn--neutral" data-act="cancelNew">Cancelar</button>' +
+      '<button class="btn btn--dark" data-act="saveNewPerson">' + (editing ? 'Guardar cambios' : 'Agregar') + '</button></div>';
+  }
+  /* Campos obligatorios: si falta alguno se marca y se avisa por campo y con un resumen */
+  function validatePerson() {
+    var req = [['npFirst', 'Nombre'], ['npLast', 'Apellido'], ['npPhone', 'Teléfono'], ['npCat', 'Categoría']], missing = [], first = null;
+    req.forEach(function (r) {
+      var el = $('#' + r[0]), empty = !el.value.trim(), f = el.closest('.field'), m = f.querySelector('.field-error');
+      f.classList.toggle('field--error', empty);
+      if (empty) {
+        if (!m) { m = document.createElement('p'); m.className = 'field-error'; f.appendChild(m); }
+        m.textContent = 'Falta completar el campo ' + r[1] + ': es obligatorio.';
+        missing.push(r[1]); if (!first) first = el;
+      } else if (m) m.remove();
+    });
+    var err = $('#npErr');
+    err.hidden = !missing.length;
+    if (missing.length) {
+      err.textContent = 'No se puede continuar: ' + (missing.length > 1 ? 'faltan los campos obligatorios ' : 'falta el campo obligatorio ') + missing.join(', ') + '.';
+      first.focus();
+    }
+    return !missing.length;
+  }
+  async function addPerson(p) {
+    if (people().length >= S.cap && !people().some(function (x) { return x.id === p.id; })) { say('El turno ya está completo'); return; }
+    if (S.modal.booking) { S.modal.booking = await PaliApi.addParticipant(S.modal.booking.id, p.id); await load(); }
+    else if (!S.selected.some(function (x) { return x.id === p.id; })) S.selected.push({ id: p.id, name: pname(p), category: p.category });
+    S.q = ''; S.results = []; $('#q').value = ''; renderCombo(); renderPersons();
+  }
+
+  /* ---------- acciones ---------- */
+  var actions = {
+    prev: async function () { S.date = PaliApi.util.addDays(S.date, -1); await load(); },
+    next: async function () { S.date = PaliApi.util.addDays(S.date, 1); await load(); },
+    today: async function () { S.date = PaliApi.util.today(); await load(); },
+    open: function (d) { openModal(+d.r, +d.c); },
+    close: closeModal,
+    scrim: function (d, e) { if (e.target.id === 'scrim') closeModal(); },
+    startCreate: function () {
+      var parts = S.q.trim().split(/\s+/);
+      S.newPerson = { firstName: parts[0] || '', lastName: parts.slice(1).join(' '), phone: '' };
+      $('#comboList').hidden = true; renderNewPerson();
+    },
+    cancelNew: function () { S.newPerson = null; renderNewPerson(); },
+    saveNewPerson: async function () {
+      var f = $('#npFirst').value.trim(), l = $('#npLast').value.trim();
+      if (!validatePerson()) return;
+      var data = { firstName: f, lastName: l, alias: $('#npAlias').value.trim(), phone: $('#npPhone').value.trim(), categoryId: $('#npCat').value };
+      if (S.newPerson.id) {   // editar perfil
+        var up = await PaliApi.updatePerson(S.newPerson.id, data);
+        S.selected.forEach(function (x) { if (x.id === up.id) { x.name = pname(up); x.category = up.category; } });
+        if (S.modal.booking) S.modal.booking = await PaliApi.getBooking(S.modal.booking.id);
+        S.newPerson = null; renderNewPerson(); renderPersons(); await load(); say('Perfil actualizado');
+        return;
+      }
+      var p = await PaliApi.createPerson(data);
+      S.newPerson = null; renderNewPerson(); await addPerson(p);
+    },
+    editPerson: async function (d) {
+      var p = await PaliApi.getPerson(d.id);
+      S.newPerson = { id: p.id, firstName: p.firstName, lastName: p.lastName, alias: p.alias, phone: p.phone, categoryId: p.categoryId };
+      renderNewPerson();
+    },
+    addPerson: async function (d) {
+      var p = S.results.filter(function (x) { return x.id === d.id; })[0];
+      if (p) await addPerson(p);
+    },
+    removePerson: async function (d) {
+      if (S.modal.booking) {
+        var res = await PaliApi.removeParticipant(S.modal.booking.id, d.id);
+        if (!res) { closeModal(); await load(); say('Sin personas: el turno quedó Libre'); return; }   // 0 personas = Libre
+        S.modal.booking = res; await load();
+      }
+      else S.selected = S.selected.filter(function (x) { return x.id !== d.id; });
+      renderPersons();
+    },
+    reserve: async function () {
+      if (!S.selected.length) { var h = $('#plist'); h.innerHTML = '<p class="field-error">Para reservar hay que sumar al menos una persona. Un turno sin personas está Libre.</p>'; return; }
+      await PaliApi.createBooking({
+        date: S.date, courtId: S.modal.courtId, start: S.modal.start,
+        personIds: S.selected.map(function (x) { return x.id; }), source: 'backoffice'
+      });
+      closeModal(); await load(); say('Turno reservado');
+    },
+    cancelBooking: async function () {
+      await PaliApi.cancelBooking(S.modal.booking.id);
+      closeModal(); await load(); say('Turno cancelado');
+    }
+  };
+
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.combo') && $('#comboList')) $('#comboList').hidden = true;
+    var el = e.target.closest('[data-act]');
+    if (el && actions[el.dataset.act]) actions[el.dataset.act](el.dataset, e);
+  });
+  document.addEventListener('input', function (e) { if (e.target.id === 'q') onType(); });
+  document.addEventListener('focusin', function (e) { if (e.target.id === 'q' && e.target.value) onType(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && S.modal) closeModal(); });
+
+  load();
+})();
+</script>
+<script>
+/* Controles del shell (iguales en todas las pantallas): tema claro/oscuro con onda y ocultar la barra lateral. */
+(function () {
+  var root = document.documentElement;
+  function save(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  var SUN = '<svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+  var MOON = '<svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>';
+  var CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
+  var MENU = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
+
+  function isDark() { return root.getAttribute('data-theme') === 'dark'; }
+  function paintTheme() {
+    var b = document.getElementById('themeToggle');
+    b.setAttribute('aria-label', isDark() ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro');
+    b.title = isDark() ? 'Tema claro' : 'Tema oscuro';
+  }
+  function setTheme(dark) {
+    if (dark) root.setAttribute('data-theme', 'dark'); else root.removeAttribute('data-theme');
+    save('pali-theme', dark ? 'dark' : 'light'); paintTheme();
+  }
+  function toggleTheme(ev) {
+    var next = !isDark(), btn = ev.currentTarget, r = btn.getBoundingClientRect();
+    var x = ev.clientX || r.left + r.width / 2, y = ev.clientY || r.top + r.height / 2;
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !document.startViewTransition) { setTheme(next); return; }
+    var ring = document.createElement('div'); ring.className = 'theme-ripple';
+    ring.style.left = x + 'px'; ring.style.top = y + 'px'; document.body.appendChild(ring);
+    setTimeout(function () { ring.remove(); }, 700);
+    var end = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    var t = document.startViewTransition(function () { setTheme(next); });
+    t.ready.then(function () {
+      root.animate(
+        { clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + end + 'px at ' + x + 'px ' + y + 'px)'] },
+        { duration: 650, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', pseudoElement: '::view-transition-new(root)' }
+      );
+    });
+  }
+
+  function setSidebar(hidden) {
+    if (hidden) root.setAttribute('data-sidebar', 'hidden'); else root.removeAttribute('data-sidebar');
+    save('pali-sidebar', hidden ? 'hidden' : 'shown');
+    var o = document.getElementById('navOpen'); if (o) o.setAttribute('aria-expanded', String(!hidden));
+  }
+
+  var theme = document.createElement('button');
+  theme.id = 'themeToggle'; theme.className = 'shell-btn theme-toggle'; theme.innerHTML = MOON + SUN;
+  theme.addEventListener('click', toggleTheme); document.body.appendChild(theme); paintTheme();
+
+  var side = document.querySelector('.sidebar');
+  if (side) {
+    /* Ocultar menú: ícono chico arriba a la derecha de la barra lateral */
+    var hide = document.createElement('button');
+    hide.className = 'nav-hide'; hide.innerHTML = CHEV;
+    hide.setAttribute('aria-label', 'Ocultar menú'); hide.title = 'Ocultar menú';
+    hide.addEventListener('click', function () { setSidebar(true); });
+    side.appendChild(hide);
+
+    /* Menú de usuario al pie: rol de quien ingresó y, por ahora, solo "Cerrar sesión" (simulado) */
+    var who = 'admin@tuclub.com';
+    try { who = sessionStorage.getItem('pali-session') || who; } catch (e) {}
+    var UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>';
+    var OUT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>';
+    var menu = document.createElement('div'); menu.className = 'user-menu';
+    menu.innerHTML =
+      '<div class="user-pop" role="menu" hidden><button type="button" class="user-item" role="menuitem" data-logout>' + OUT + '<span>Cerrar sesión</span></button></div>' +
+      '<button type="button" class="user-btn" aria-haspopup="menu" aria-expanded="false">' +
+        '<span class="avatar" aria-hidden="true">A</span>' +
+        '<span class="user-info"><b>Administrador</b><small></small></span>' + UP + '</button>';
+    menu.querySelector('small').textContent = who;
+    var pop = menu.querySelector('.user-pop'), ubtn = menu.querySelector('.user-btn');
+    function togglePop(show) { pop.hidden = !show; ubtn.setAttribute('aria-expanded', String(show)); menu.classList.toggle('is-open', show); }
+    ubtn.addEventListener('click', function (e) { e.stopPropagation(); togglePop(pop.hidden); });
+    menu.querySelector('[data-logout]').addEventListener('click', function () {
+      try { sessionStorage.removeItem('pali-session'); } catch (e) {}
+      location.href = 'login.html';
+    });
+    document.addEventListener('click', function (e) { if (!menu.contains(e.target)) togglePop(false); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') togglePop(false); });
+    side.appendChild(menu);
+    var open = document.createElement('button');
+    open.id = 'navOpen'; open.className = 'shell-btn nav-open'; open.innerHTML = MENU;
+    open.setAttribute('aria-label', 'Mostrar menú'); open.title = 'Mostrar menú';
+    open.setAttribute('aria-expanded', String(root.getAttribute('data-sidebar') !== 'hidden'));
+    open.addEventListener('click', function () { setSidebar(false); });
+    document.body.appendChild(open);
+  }
+})();
+</script>
+</body>
+</html>

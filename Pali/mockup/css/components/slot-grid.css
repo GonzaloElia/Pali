@@ -1,0 +1,44 @@
+/* Componente · Agenda de turnos (grilla por cancha) y slot */
+.agenda { display: grid; gap: 8px; }
+.agenda-head {
+  font-family: var(--font-mono); font-size: var(--fs-xs); letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--mute); padding: 4px 2px;
+}
+.agenda-time {
+  font-family: var(--font-mono); font-size: 12px; color: var(--ink-2);
+  display: flex; align-items: center; justify-content: flex-end; padding-right: 6px;
+}
+
+.slot {
+  display: flex; flex-direction: column; justify-content: center; gap: 2px;
+  min-height: 58px; padding: 8px 12px; text-align: left; font: inherit;
+  border-radius: var(--r); border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  cursor: pointer; transition: border-color 0.15s, background 0.15s;
+}
+.slot .t { font-size: 13px; font-weight: 500; }
+.slot .s { font-size: 11.5px; color: var(--mute); }
+
+/* Libre: borde punteado, invita a reservar */
+.slot--free { border-style: dashed; border-color: var(--line-strong); }
+.slot--free .s { color: var(--mute); }
+.slot--free:hover { border-style: solid; border-color: var(--brand); background: var(--brand-soft); }
+.slot--free:hover .s { color: var(--brand); }
+
+/* Reservado: turno con personas, todavía incompleto */
+.slot--booked { background: var(--brand-soft); border-color: var(--brand-line); }
+.slot--booked .t { color: var(--brand); }
+.slot--booked .s { color: var(--brand); }
+.slot--booked:hover { border-color: var(--brand); }
+
+/* Completo: están todas las personas del turno */
+.slot--full { background: var(--fill-dark); border-color: var(--fill-dark); }
+.slot--full .t { color: var(--white); }
+.slot--full .s { color: var(--mint); }
+.slot--full:hover { background: var(--fill-dark-hover); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: 12.5px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.swatch { width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--line-strong); display: inline-block; }
+.swatch--free { border-style: dashed; background: var(--surface); }
+.swatch--booked { background: var(--brand-soft); border-color: var(--brand-line); }
+.swatch--full { background: var(--fill-dark); border-color: var(--fill-dark); }

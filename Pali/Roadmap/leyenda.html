@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leyenda · Roadmap 2026 · Pali</title>
+<link rel="stylesheet" href="../mockup/css/main.css">
+<link rel="stylesheet" href="css/roadmap.css">
+<script src="js/roadmap-store.js"></script>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Ocultar barra lateral" title="Pantalla completa">‹</button>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <p class="brand">Pali <em>· roadmap</em></p>
+    <p class="brand-sub">línea de tiempo 2026</p>
+    <a class="nav-item" href="index.html"><span class="n">00</span>Roadmap</a>
+    <a class="nav-item is-active" href="leyenda.html"><span class="n">01</span>Leyenda</a>
+    <div class="foot">Se guarda solo en tu navegador. <a href="../mockup/index.html">Volver al prototipo</a></div>
+  </aside>
+
+  <main class="main">
+    <header class="page-header page-header--compact">
+      <!-- Botón de memoria: fijo en la esquina de arriba a la derecha de esta cajita -->
+      <div class="storage-widget" id="storageWidget">
+        <button type="button" class="storage-pill" id="storagePill" aria-expanded="false" aria-controls="storagePanel" title="Ver la memoria usada">Memoria</button>
+        <div class="storage-panel" id="storagePanel" role="status" hidden></div>
+      </div>
+      <p class="kicker">Pali · Roadmap 2026 · Leyenda</p>
+      <h1>Cómo leer <em>el roadmap</em>.</h1>
+      <p class="lede">Qué significa cada color, el borde punteado y cada elemento de la línea de tiempo. Los significados se editan desde el roadmap con "Editar leyenda".</p>
+      <div class="row mt-4"><a class="btn btn--sm" href="index.html">← Volver al roadmap</a></div>
+    </header>
+
+    <section class="section">
+      <p class="kicker">Categorías de las cajitas</p>
+      <ul class="legend-list" id="categoryList"></ul>
+    </section>
+
+    <section class="section">
+      <p class="kicker">Otros elementos</p>
+      <ul class="legend-list" id="fixedList"></ul>
+    </section>
+
+  </main>
+</div>
+
+<script src="js/leyenda-app.js"></script>
+</body>
+</html>

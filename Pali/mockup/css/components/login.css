@@ -1,0 +1,55 @@
+/* Pantalla · Login (dos paneles: presentación a la izquierda, fondo verde con tarjeta a la derecha) */
+.login { display: grid; grid-template-columns: minmax(300px, 350px) minmax(0, 1fr); min-height: 100vh; }
+
+/* Panel izquierdo */
+.login-side {
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: 32px 32px 28px; background: var(--bg-soft);
+  border-right: 2px solid var(--brand);
+}
+.login-brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 24px; letter-spacing: -0.03em; color: var(--ink); }
+.login-brand::before {
+  content: ""; width: 26px; height: 26px; flex: none; border-radius: 50%;
+  background:
+    radial-gradient(circle at 0% 50%, transparent 58%, var(--bg-soft) 60% 66%, transparent 68%),
+    radial-gradient(circle at 100% 50%, transparent 58%, var(--bg-soft) 60% 66%, transparent 68%),
+    var(--brand);
+}
+.login-sub { font-size: var(--fs-sm); color: var(--ink-2); margin-top: 4px; }
+.login-intro .kicker { color: var(--brand); font-weight: 500; }
+.login-intro .kicker::before { display: none; }
+.login-intro h1 { font-size: 32px; letter-spacing: -0.03em; margin-bottom: 12px; }
+.login-intro .lede { font-size: 14px; max-width: 30ch; }
+.login-foot { font-size: var(--fs-sm); color: var(--ink-2); }
+
+/* Panel derecho: degradé verde con la tarjeta */
+.login-main {
+  display: grid; place-items: center; padding: 32px 20px;
+  background:
+    radial-gradient(60% 70% at 18% 100%, rgba(63, 174, 135, 0.75) 0%, transparent 62%),
+    radial-gradient(55% 60% at 92% 4%, rgba(31, 111, 87, 0.9) 0%, transparent 60%),
+    linear-gradient(135deg, #0a2c21 0%, #0f3d2e 45%, #0a2c21 100%);
+}
+.login-card {
+  width: 100%; max-width: 448px; padding: 32px;
+  background: var(--surface); border-radius: var(--r-lg);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.28);
+}
+.login-card .label { font-family: var(--font-sans); font-size: 14px; letter-spacing: 0; text-transform: none; color: var(--ink-2); }
+.login-card .req { color: var(--brand); margin-left: 2px; }
+.login-link { font-size: 13px; font-weight: 500; color: var(--brand); background: none; border: 0; padding: 0; cursor: pointer; font-family: inherit; text-align: left; }
+.login-link:hover { text-decoration: underline; }
+.login-sep { height: 1px; background: var(--line-strong); width: 40%; margin: 4px auto; }
+.ms-mark { width: 16px; height: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; flex: none; }
+.ms-mark i { display: block; }
+.ms-mark i:nth-child(1) { background: #f25022; }   /* colores de Microsoft */
+.ms-mark i:nth-child(2) { background: #7fba00; }
+.ms-mark i:nth-child(3) { background: #00a4ef; }
+.ms-mark i:nth-child(4) { background: #ffb900; }
+.login-card .btn-note { font-size: var(--fs-sm); color: var(--mute); text-align: center; }
+
+@media (max-width: 860px) {
+  .login { grid-template-columns: 1fr; }
+  .login-side { gap: 28px; border-right: 0; border-bottom: 2px solid var(--brand); }
+  .login-card { padding: 24px; }
+}

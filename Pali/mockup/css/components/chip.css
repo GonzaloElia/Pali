@@ -1,0 +1,17 @@
+/* Componente · Chip de estado */
+.chip {
+  display: inline-block; font-family: var(--font-mono); font-size: 11px; line-height: 1.5;
+  padding: 2px 8px; border-radius: var(--r-pill);
+  border: 1px solid var(--line-strong); color: var(--ink-2); background: var(--surface);
+  white-space: nowrap;
+}
+.chip--soft { border-color: var(--brand-line); color: var(--brand); background: var(--brand-soft); }
+.chip--solid { border-color: var(--brand); color: var(--white); background: var(--brand); }
+.chip--ink { border-color: var(--fill-dark); color: var(--white); background: var(--fill-dark); }
+.chip--coral { border-color: var(--coral-line); color: var(--coral); background: var(--coral-soft); }
+.chip--dashed { border-style: dashed; color: var(--mute); }
+
+/* Punto de estado */
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; background: var(--line-strong); }
+.dot--brand { background: var(--brand); }
+.dot--ink { background: var(--ink); }

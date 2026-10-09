@@ -1,0 +1,57 @@
+/* Componente · Campos de formulario y buscador único (combo) */
+.field { display: flex; flex-direction: column; gap: 4px; }   /* el título queda pegado a su campo */
+/* Separación entre campos de un formulario: mayor que la del título a su campo, para que se lea a cuál pertenece */
+.stack--form { display: flex; flex-direction: column; gap: 20px; }
+.label {
+  font-family: var(--font-mono); font-size: var(--fs-xs);
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute);
+  line-height: 1.3;
+}
+/* Lo que va dentro del título (por ejemplo "opcional") hereda su tipografía: así todos los títulos miden lo mismo */
+.label .hint { font: inherit; letter-spacing: inherit; text-transform: inherit; color: var(--mute); }
+.input, .select {
+  font: inherit; font-size: 14px; color: var(--ink);
+  width: 100%; height: 40px; padding: 0 12px; line-height: 1.2;
+  background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-sm);
+  transition: border-color 0.15s;
+}
+.input:focus, .select:focus { outline: none; border-color: var(--brand); }
+.input::placeholder { color: var(--mute); }
+.hint { font-size: var(--fs-sm); color: var(--mute); }
+
+/* Checkbox / switch simple */
+.check { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--ink); cursor: pointer; }
+.check input { width: 16px; height: 16px; accent-color: var(--brand); }
+
+/* Buscador único: busca persona o permite crearla */
+.combo { position: relative; }
+.combo-list {
+  position: absolute; z-index: 10; left: 0; right: 0; top: calc(100% + 4px);
+  background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r);
+  box-shadow: var(--shadow-pop); overflow: hidden; max-height: 240px; overflow-y: auto;
+}
+.combo-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  width: 100%; text-align: left; font: inherit; font-size: 13.5px;
+  padding: 9px 12px; background: var(--surface); border: 0; border-bottom: 1px solid var(--line);
+  color: var(--ink); cursor: pointer;
+}
+.combo-item:last-child { border-bottom: 0; }
+.combo-item:hover, .combo-item.is-hover { background: var(--bg-soft); }
+.combo-item small { color: var(--mute); font-family: var(--font-mono); font-size: 11px; }
+.combo-item--create { color: var(--brand); font-weight: 500; }
+.combo-item--create:hover { background: var(--brand-soft); }
+
+/* Control segmentado */
+.seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--r-sm); overflow: hidden; background: var(--surface); }
+.seg button {
+  font: inherit; font-size: 13px; padding: 7px 14px; border: 0; background: transparent; color: var(--ink-2); cursor: pointer;
+  border-right: 1px solid var(--line);
+}
+.seg button:last-child { border-right: 0; }
+.seg button:hover { background: var(--bg-soft); color: var(--ink); }
+.seg button.is-on { background: var(--ink); color: var(--bg); }
+
+/* Campo obligatorio sin completar */
+.field--error .input, .field--error .select { border-color: var(--coral); }
+.field-error { font-size: var(--fs-sm); color: var(--coral); line-height: 1.4; }

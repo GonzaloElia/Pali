@@ -1,0 +1,43 @@
+/* Componente · Botón */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font: inherit; font-size: 13.5px; font-weight: 500; line-height: 1;
+  padding: 10px 16px; border-radius: var(--r-sm);
+  border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink);
+  cursor: pointer; white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.btn:hover { border-color: var(--ink); text-decoration: none; }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; }
+
+/* Primario: verde de marca */
+.btn--primary { background: var(--brand); border-color: var(--brand); color: var(--white); }
+.btn--primary:hover { background: var(--brand-hover); border-color: var(--brand-hover); }
+
+/* Neutro: borde y texto grises, para Cancelar junto a una acción principal */
+.btn--neutral { color: var(--ink-2); border-color: var(--line-strong); }
+.btn--neutral:hover { color: var(--ink); border-color: var(--ink-2); background: var(--bg-soft); }
+
+/* Oscuro: verde bosque */
+.btn--dark { background: var(--fill-dark); border-color: var(--fill-dark); color: var(--white); }
+.btn--dark:hover { background: var(--fill-dark-hover); border-color: var(--fill-dark-hover); }
+
+/* Cancelar: coral (solo acciones destructivas) */
+.btn--danger { color: var(--coral); border-color: var(--coral-line); }
+.btn--danger:hover { background: var(--coral-soft); border-color: var(--coral); }
+.btn--coral { background: var(--coral); border-color: var(--coral); color: var(--white); }
+.btn--coral:hover { background: var(--coral-hover); border-color: var(--coral-hover); }
+
+/* Fantasma */
+.btn--ghost { border-color: transparent; background: transparent; color: var(--ink-2); }
+.btn--ghost:hover { background: var(--bg-soft); border-color: transparent; color: var(--ink); }
+
+/* Tamaños */
+.btn--sm { padding: 6px 10px; font-size: var(--fs-sm); }
+.btn--lg { padding: 13px 20px; font-size: 14.5px; }
+.btn--block { width: 100%; }
+
+/* Botón cuadrado de ícono (texto corto) */
+.btn--icon { padding: 8px 10px; }
+.btn--tiny { padding: 5px 6px; line-height: 0; border-radius: 6px; }   /* botón de ícono chico, ej: editar */
+.btn--tiny svg { width: 14px; height: 14px; display: block; }

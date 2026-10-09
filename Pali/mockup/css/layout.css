@@ -1,0 +1,77 @@
+/* Pali · Layout: shell de la app (sidebar verde bosque + contenido) */
+.app { display: grid; grid-template-columns: var(--nav-w) minmax(0, 1fr); min-height: 100vh; transition: grid-template-columns 0.35s var(--ease); }
+
+/* Barra lateral */
+.sidebar {
+  position: sticky; top: 0; height: 100vh;
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 26px 14px 22px 16px;
+  background: var(--forest);
+  color: var(--white);
+  min-width: 0; overflow: hidden;
+  border-right: 1px solid transparent;
+}
+.brand {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 600; font-size: 18px; letter-spacing: -0.02em; color: var(--white);
+  margin: 0 0 2px 6px;
+}
+/* Marca: una pelota con su costura */
+.brand::before {
+  content: ""; width: 22px; height: 22px; flex: none; border-radius: 50%;
+  background:
+    radial-gradient(circle at 0% 50%, transparent 58%, var(--forest) 60% 66%, transparent 68%),
+    radial-gradient(circle at 100% 50%, transparent 58%, var(--forest) 60% 66%, transparent 68%),
+    var(--mint);
+}
+.brand em { font-style: normal; color: var(--mint); font-weight: 400; font-size: 13px; }
+.brand-sub { font-family: var(--font-mono); font-size: var(--fs-xs); color: rgba(255, 255, 255, 0.55); margin: 0 0 22px 6px; }
+.nav-item {
+  display: flex; align-items: baseline; gap: 10px;
+  padding: 9px 10px; border-radius: var(--r-sm);
+  color: rgba(255, 255, 255, 0.76); font-size: 13.5px;
+  transition: background 0.15s, color 0.15s;
+}
+.nav-item .n { font-family: var(--font-mono); font-size: var(--fs-xs); color: rgba(255, 255, 255, 0.4); width: 22px; flex: none; }
+.nav-item:hover { background: rgba(255, 255, 255, 0.09); color: var(--white); text-decoration: none; }
+.nav-item.is-active { background: var(--mint); color: var(--forest); font-weight: 500; }
+.nav-item.is-active .n { color: var(--brand); }
+.sidebar .foot { margin-top: auto; font-size: 11.5px; color: rgba(255, 255, 255, 0.55); line-height: 1.5; padding: 0 6px; }
+.sidebar .foot a { color: var(--mint); }
+.sidebar .foot code { background: rgba(255, 255, 255, 0.1); color: var(--white); }
+
+/* Contenido */
+.main { min-width: 0; padding: 24px 40px 72px; }
+
+/* Encabezado de página: panel menta con cuadrícula fina */
+.page-header {
+  position: relative;
+  padding: 30px 34px 32px; margin-bottom: var(--s-5);
+  border-radius: var(--r-lg);
+  background-color: var(--mint-soft);
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 34px 34px;
+  background-position: -1px -1px;
+}
+.page-header .kicker { color: var(--brand); }
+.page-header .kicker::before { background: var(--brand); }
+.page-header .lede { color: var(--ink-2); }
+.page-header .row { align-items: flex-end; }
+.page-header h2 { margin-bottom: 6px; }
+.section { margin-top: var(--s-6); }
+.section > .kicker { margin-bottom: var(--s-3); }
+
+@media (max-width: 1000px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; padding: 14px 16px; }
+  .sidebar .brand, .sidebar .brand-sub { width: 100%; margin: 0; }
+  .sidebar .brand-sub { margin-bottom: 6px; }
+  .sidebar .foot { display: none; }
+  .main { padding: 16px 16px 56px; }
+  .page-header { padding: 22px 20px 24px; }
+}
+
+/* Lista de pestañas del menú lateral (la genera js/nav.js) */
+.nav-list { display: flex; flex-direction: column; gap: 2px; }

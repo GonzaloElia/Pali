@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Componentes · Pali</title>
+<link rel="stylesheet" href="css/main.css">
+<script>/* Tema y barra lateral: se aplican antes de pintar para evitar parpadeos */
+(function(){try{var d=document.documentElement,t=localStorage.getItem('pali-theme');
+if(!t&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)t='dark';
+if(t==='dark')d.setAttribute('data-theme','dark');
+if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar','hidden');}catch(e){}})();</script>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar" data-nav="components" data-nav-set="meta">
+    <p class="brand">Pali <em>· prototipo</em></p>
+    <p class="brand-sub">galería de componentes</p>
+    <script src="js/nav.js"></script>
+    <div class="foot">Cada componente tiene su CSS en <code>css/components/</code> y su markup de referencia en <code>components/</code>.</div>
+  </aside>
+
+  <main class="main">
+    <header class="page-header">
+      <p class="kicker">Design system</p>
+      <h1>Componentes, <em>uno por uno</em>.</h1>
+      <p class="lede">Blanco, azul y negro. Misma tipografía y mismos tokens en todo el prototipo.</p>
+    </header>
+
+    <section class="section">
+      <p class="kicker">Color</p>
+      <div class="grid-4">
+        <div class="card"><div style="height:44px;border-radius:8px;background:var(--forest)"></div><p class="mt-2"><b>Verde bosque</b> <code>--forest</code><br><span class="muted small">#0f3d2e · barra lateral, abonado</span></p></div>
+        <div class="card"><div style="height:44px;border-radius:8px;background:var(--brand)"></div><p class="mt-2"><b>Verde de marca</b> <code>--brand</code><br><span class="muted small">#1f6f57 · acción principal</span></p></div>
+        <div class="card"><div style="height:44px;border-radius:8px;background:var(--mint)"></div><p class="mt-2"><b>Menta</b> <code>--mint</code><br><span class="muted small">#a9d6c4 · activo sobre verde</span></p></div>
+        <div class="card"><div style="height:44px;border-radius:8px;background:var(--mint-soft)"></div><p class="mt-2"><b>Menta suave</b> <code>--mint-soft</code><br><span class="muted small">#dfeee6 · encabezados</span></p></div>
+        <div class="card"><div style="height:44px;border-radius:8px;background:var(--brand-soft);border:1px solid var(--brand-line)"></div><p class="mt-2"><b>Verde suave</b> <code>--brand-soft</code><br><span class="muted small">#e8f4ee · reservado</span></p></div>
+        <div class="card"><div style="height:44px;border-radius:8px;background:var(--ink)"></div><p class="mt-2"><b>Negro</b> <code>--ink</code><br><span class="muted small">#0d1f18 · texto</span></p></div>
+        <div class="card"><div style="height:44px;border-radius:8px;background:var(--white);border:1px solid var(--line-strong)"></div><p class="mt-2"><b>Blanco</b> <code>--white</code><br><span class="muted small">#ffffff · fondo</span></p></div>
+        <div class="card"><div style="height:44px;border-radius:8px;background:var(--coral)"></div><p class="mt-2"><b>Coral</b> <code>--coral</code><br><span class="muted small">#e5533d · solo cancelar</span></p></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <p class="kicker">Tipografía</p>
+      <div class="card stack">
+        <h1>Título 38 · IBM Plex Sans</h1>
+        <h2>Título 24 con <em>acento azul</em></h2>
+        <h3>Subtítulo 15,5</h3>
+        <p>Texto base 14,5. Usado en tablas, formularios y descripciones.</p>
+        <p class="kicker">Etiqueta en mono</p>
+        <p class="mono">IBM Plex Mono · horarios 10:30–12:00 · $ 7.000</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <p class="kicker">Botones</p>
+      <div class="row wrap">
+        <button class="btn btn--primary">Primario</button>
+        <button class="btn btn--dark">Oscuro</button>
+        <button class="btn btn--neutral">Neutro</button>
+        <button class="btn">Secundario</button>
+        <button class="btn btn--ghost">Fantasma</button>
+        <button class="btn btn--danger">Cancelar turno</button>
+        <button class="btn" disabled>Deshabilitado</button>
+        <button class="btn btn--primary btn--sm">Pequeño</button>
+      </div>
+    </section>
+
+    <section class="section">
+      <p class="kicker">Chips y estados</p>
+      <div class="row wrap">
+        <span class="chip">Neutro</span>
+        <span class="chip chip--soft">Reservado · 2 de 4</span>
+        <span class="chip chip--solid">Completo</span>
+        <span class="chip chip--coral">Cancelado</span>
+        <span class="chip chip--dashed">a confirmar</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <p class="kicker">Campos</p>
+      <div class="grid-3">
+        <div class="field"><label class="label">Nombre</label><input class="input" placeholder="Nombre"></div>
+        <div class="field"><label class="label">Cancha</label><select class="select"><option>Cancha 1</option><option>Cancha 2</option></select></div>
+        <div class="field"><label class="label">Opción</label><label class="check"><input type="checkbox" checked> Opción de ejemplo</label></div>
+      </div>
+      <div class="mt-4">
+        <div class="seg" id="seg">
+          <button class="is-on">Por día</button><button>Por semana</button><button>Por mes</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <p class="kicker">Turnos (slot)</p>
+      <div class="grid-3">
+        <button class="slot slot--free"><span class="t">Libre · 18:00–19:30</span><span class="s">Tocá para reservar</span></button>
+        <button class="slot slot--booked"><span class="t">Reservado · 19:30–21:00</span><span class="s">2 de 4 personas</span></button>
+        <button class="slot slot--full"><span class="t">Completo · 21:00–22:30</span><span class="s">4 de 4 personas</span></button>
+      </div>
+    </section>
+
+    <section class="section">
+      <p class="kicker">Cards y KPI</p>
+      <div class="grid-3">
+        <div class="card kpi kpi--brand"><span class="dom">Este mes</span><span class="value">$ 420.000</span><span class="sub">acumulado</span></div>
+        <div class="card"><span class="dom">Card</span><h3>Título de card</h3><p>Texto de apoyo breve.</p></div>
+        <div class="note"><b>Nota.</b> Aclaración o dato importante dentro de una pantalla.</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <p class="kicker">Tabla</p>
+      <table class="table">
+        <thead><tr><th>Día</th><th>Hora</th><th>Cancha</th><th class="num">Monto</th></tr></thead>
+        <tbody>
+          <tr><td>Jue 1 oct</td><td class="mono">18:00–19:30</td><td>Cancha 1</td><td class="num">$ 7.000</td></tr>
+          <tr><td>Jue 1 oct</td><td class="mono">19:30–21:00</td><td>Cancha 2</td><td class="num">$ 7.000</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <p class="kicker">Modal</p>
+      <button class="btn btn--primary" data-act="open">Abrir modal de ejemplo</button>
+      <div id="scrim" class="scrim" hidden data-act="scrim">
+        <div class="modal">
+          <div class="modal-head"><div><h3>Reservar turno</h3><p class="sub">Cancha 1 · 18:00–19:30</p></div><button class="modal-close" data-act="close" aria-label="Cerrar">×</button></div>
+          <div class="field"><label class="label">Persona</label><input class="input" placeholder="Nombre y apellido"></div>
+          <div class="modal-foot"><button class="btn btn--primary" data-act="close">Reservar</button></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  var scrim = document.getElementById('scrim');
+  document.addEventListener('click', function (e) {
+    var seg = e.target.closest('#seg button');
+    if (seg) document.querySelectorAll('#seg button').forEach(function (b) { b.classList.toggle('is-on', b === seg); });
+    var el = e.target.closest('[data-act]');
+    if (!el) return;
+    if (el.dataset.act === 'open') scrim.hidden = false;
+    if (el.dataset.act === 'close') scrim.hidden = true;
+    if (el.dataset.act === 'scrim' && e.target === scrim) scrim.hidden = true;
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') scrim.hidden = true; });
+})();
+</script>
+<script>
+/* Controles del shell (iguales en todas las pantallas): tema claro/oscuro con onda y ocultar la barra lateral. */
+(function () {
+  var root = document.documentElement;
+  function save(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  var SUN = '<svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+  var MOON = '<svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>';
+  var CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
+  var MENU = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
+
+  function isDark() { return root.getAttribute('data-theme') === 'dark'; }
+  function paintTheme() {
+    var b = document.getElementById('themeToggle');
+    b.setAttribute('aria-label', isDark() ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro');
+    b.title = isDark() ? 'Tema claro' : 'Tema oscuro';
+  }
+  function setTheme(dark) {
+    if (dark) root.setAttribute('data-theme', 'dark'); else root.removeAttribute('data-theme');
+    save('pali-theme', dark ? 'dark' : 'light'); paintTheme();
+  }
+  function toggleTheme(ev) {
+    var next = !isDark(), btn = ev.currentTarget, r = btn.getBoundingClientRect();
+    var x = ev.clientX || r.left + r.width / 2, y = ev.clientY || r.top + r.height / 2;
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !document.startViewTransition) { setTheme(next); return; }
+    var ring = document.createElement('div'); ring.className = 'theme-ripple';
+    ring.style.left = x + 'px'; ring.style.top = y + 'px'; document.body.appendChild(ring);
+    setTimeout(function () { ring.remove(); }, 700);
+    var end = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    var t = document.startViewTransition(function () { setTheme(next); });
+    t.ready.then(function () {
+      root.animate(
+        { clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + end + 'px at ' + x + 'px ' + y + 'px)'] },
+        { duration: 650, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', pseudoElement: '::view-transition-new(root)' }
+      );
+    });
+  }
+
+  function setSidebar(hidden) {
+    if (hidden) root.setAttribute('data-sidebar', 'hidden'); else root.removeAttribute('data-sidebar');
+    save('pali-sidebar', hidden ? 'hidden' : 'shown');
+    var o = document.getElementById('navOpen'); if (o) o.setAttribute('aria-expanded', String(!hidden));
+  }
+
+  var theme = document.createElement('button');
+  theme.id = 'themeToggle'; theme.className = 'shell-btn theme-toggle'; theme.innerHTML = MOON + SUN;
+  theme.addEventListener('click', toggleTheme); document.body.appendChild(theme); paintTheme();
+
+  var side = document.querySelector('.sidebar');
+  if (side) {
+    /* Ocultar menú: ícono chico arriba a la derecha de la barra lateral */
+    var hide = document.createElement('button');
+    hide.className = 'nav-hide'; hide.innerHTML = CHEV;
+    hide.setAttribute('aria-label', 'Ocultar menú'); hide.title = 'Ocultar menú';
+    hide.addEventListener('click', function () { setSidebar(true); });
+    side.appendChild(hide);
+
+    /* Menú de usuario al pie: rol de quien ingresó y, por ahora, solo "Cerrar sesión" (simulado) */
+    var who = 'admin@tuclub.com';
+    try { who = sessionStorage.getItem('pali-session') || who; } catch (e) {}
+    var UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>';
+    var OUT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>';
+    var menu = document.createElement('div'); menu.className = 'user-menu';
+    menu.innerHTML =
+      '<div class="user-pop" role="menu" hidden><button type="button" class="user-item" role="menuitem" data-logout>' + OUT + '<span>Cerrar sesión</span></button></div>' +
+      '<button type="button" class="user-btn" aria-haspopup="menu" aria-expanded="false">' +
+        '<span class="avatar" aria-hidden="true">A</span>' +
+        '<span class="user-info"><b>Administrador</b><small></small></span>' + UP + '</button>';
+    menu.querySelector('small').textContent = who;
+    var pop = menu.querySelector('.user-pop'), ubtn = menu.querySelector('.user-btn');
+    function togglePop(show) { pop.hidden = !show; ubtn.setAttribute('aria-expanded', String(show)); menu.classList.toggle('is-open', show); }
+    ubtn.addEventListener('click', function (e) { e.stopPropagation(); togglePop(pop.hidden); });
+    menu.querySelector('[data-logout]').addEventListener('click', function () {
+      try { sessionStorage.removeItem('pali-session'); } catch (e) {}
+      location.href = 'login.html';
+    });
+    document.addEventListener('click', function (e) { if (!menu.contains(e.target)) togglePop(false); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') togglePop(false); });
+    side.appendChild(menu);
+    var open = document.createElement('button');
+    open.id = 'navOpen'; open.className = 'shell-btn nav-open'; open.innerHTML = MENU;
+    open.setAttribute('aria-label', 'Mostrar menú'); open.title = 'Mostrar menú';
+    open.setAttribute('aria-expanded', String(root.getAttribute('data-sidebar') !== 'hidden'));
+    open.addEventListener('click', function () { setSidebar(false); });
+    document.body.appendChild(open);
+  }
+})();
+</script>
+</body>
+</html>
