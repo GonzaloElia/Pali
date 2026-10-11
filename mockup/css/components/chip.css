@@ -15,3 +15,8 @@
 .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; background: var(--line-strong); }
 .dot--brand { background: var(--brand); }
 .dot--ink { background: var(--ink); }
+
+/* Secundarios fríos. Azul cielo: datos e información (canchas, "precio base"). Lavanda: detalle (categoría del jugador, promos). Nunca para cancelar. */
+.chip--sky { border-color: var(--sky-100); color: var(--sky-700); background: var(--sky-50); }
+.chip--lav { border-color: var(--lav-100); color: var(--lav-700); background: var(--lav-50); }
+.chip--lav-solid { border-color: var(--lav-500); color: var(--ink-on-lav, #0d1f18); background: var(--lav-500); }

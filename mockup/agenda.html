@@ -131,7 +131,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     var list = people(), el = $('#plist');
     el.innerHTML = list.length
       ? '<ul class="plist">' + list.map(function (p) {
-          return '<li><span class="row" style="gap:10px">' + esc(p.name) + (p.category ? '<span class="chip chip--soft">' + esc(p.category) + '</span>' : '') + '</span>' +
+          return '<li><span class="row" style="gap:10px">' + esc(p.name) + (p.category ? '<span class="chip chip--lav">' + esc(p.category) + '</span>' : '') + '</span>' +
             '<span class="row" style="gap:4px">' +
             '<button class="btn btn--ghost btn--tiny" data-act="editPerson" data-id="' + p.id + '" aria-label="Editar perfil de ' + esc(p.name) + '" title="Editar perfil">' + PENCIL + '</button>' +
             '<button class="btn btn--ghost btn--sm" data-act="removePerson" data-id="' + p.id + '">Quitar</button></span></li>';
@@ -147,7 +147,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
   function renderCombo() {
     var el = $('#comboList');
     var html = S.results.map(function (p) {
-      return '<button type="button" class="combo-item" data-act="addPerson" data-id="' + p.id + '"><span class="row" style="gap:10px">' + esc(pname(p)) + (p.category ? '<span class="chip chip--soft">' + esc(p.category) + '</span>' : '') + '</span><small>' + esc(p.phone) + '</small></button>';
+      return '<button type="button" class="combo-item" data-act="addPerson" data-id="' + p.id + '"><span class="row" style="gap:10px">' + esc(pname(p)) + (p.category ? '<span class="chip chip--lav">' + esc(p.category) + '</span>' : '') + '</span><small>' + esc(p.phone) + '</small></button>';
     }).join('');
     if (canCreate()) html += '<button type="button" class="combo-item combo-item--create" data-act="startCreate"><span>' + (S.results.length ? 'Crear otra persona' : 'Crear persona') + ' “' + esc(S.q.trim()) + '”</span><small>' + (S.results.length ? 'con alias' : '+ nueva') + '</small></button>';
     el.innerHTML = html;
@@ -163,13 +163,13 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     var editing = !!np.id;
     el.innerHTML =
       (editing ? '<p class="kicker">Editar perfil</p>' : '') +
-      '<div class="grid-2" style="gap:12px"><div class="field"><label class="label">Nombre</label><input id="npFirst" class="input" value="' + esc(np.firstName) + '"></div>' +
-      '<div class="field"><label class="label">Apellido</label><input id="npLast" class="input" value="' + esc(np.lastName) + '"></div></div>' +
-      '<div class="field"><label class="label" for="npPhone">Teléfono</label><input id="npPhone" class="input" placeholder="Ej: 2284-363702" value="' + esc(np.phone || '') + '"></div>' +
+      '<div class="grid-2" style="gap:12px"><div class="field"><label class="label" for="npFirst">Nombre<span class="req" role="img" aria-label="obligatorio"></span></label><input id="npFirst" class="input" value="' + esc(np.firstName) + '"></div>' +
+      '<div class="field"><label class="label" for="npLast">Apellido<span class="req" role="img" aria-label="obligatorio"></span></label><input id="npLast" class="input" value="' + esc(np.lastName) + '"></div></div>' +
+      '<div class="field"><label class="label" for="npPhone">Teléfono<span class="req" role="img" aria-label="obligatorio"></span></label><input id="npPhone" class="input" placeholder="Ej: 2284-363702" value="' + esc(np.phone || '') + '"></div>' +
       '<div class="grid-2" style="gap:12px"><div class="field"><label class="label" for="npAlias">Alias <span class="hint">(opcional)</span></label><input id="npAlias" class="input" placeholder="Ej: Tincho" autocomplete="off" title="Para distinguir a dos personas con el mismo nombre y apellido" value="' + esc(np.alias || '') + '"></div>' +
-      '<div class="field"><label class="label" for="npCat">Categoría</label><select id="npCat" class="select"><option value="" disabled' + (np.categoryId ? '' : ' selected') + '>Elegí una categoría</option>' +
+      '<div class="field"><label class="label" for="npCat">Categoría<span class="req" role="img" aria-label="obligatorio"></span></label><select id="npCat" class="select"><option value="" disabled' + (np.categoryId ? '' : ' selected') + '>Elegí una categoría</option>' +
       S.cats.map(function (c) { return '<option value="' + c.id + '"' + (c.id === np.categoryId ? ' selected' : '') + '>' + esc(c.name) + '</option>'; }).join('') + '</select></div></div>' +
-      '<p id="npErr" class="field-error" hidden></p>' +
+      '<p id="npErr" class="field-error" role="alert" hidden></p>' +
       '<div class="modal-foot"><button class="btn btn--neutral" data-act="cancelNew">Cancelar</button>' +
       '<button class="btn btn--dark" data-act="saveNewPerson">' + (editing ? 'Guardar cambios' : 'Agregar') + '</button></div>';
   }
@@ -178,7 +178,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     var req = [['npFirst', 'Nombre'], ['npLast', 'Apellido'], ['npPhone', 'Teléfono'], ['npCat', 'Categoría']], missing = [], first = null;
     req.forEach(function (r) {
       var el = $('#' + r[0]), empty = !el.value.trim(), f = el.closest('.field'), m = f.querySelector('.field-error');
-      f.classList.toggle('field--error', empty);
+      f.classList.toggle('field--error', empty); el.setAttribute('aria-invalid', String(empty));
       if (empty) {
         if (!m) { m = document.createElement('p'); m.className = 'field-error'; f.appendChild(m); }
         m.textContent = 'Falta completar el campo ' + r[1] + ': es obligatorio.';

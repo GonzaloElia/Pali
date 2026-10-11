@@ -51,6 +51,20 @@
   --fs-lg: 20px;
   --fs-xl: 28px;
   --fs-2xl: 42px;
+  --fs-display: 48px;       /* cifra grande de un panel de datos */
+
+  /* Datos (gráficos): la serie principal, la de apoyo y la línea de referencia */
+  --chart-main: var(--brand);
+  --chart-soft: var(--brand-line);
+  --chart-ref: var(--sky-600);   /* promedio: línea de referencia en azul (dato comparativo) */
+  --chart-compare: var(--sky-400);   /* segunda serie: período anterior, comparaciones */
+
+  /* Color · secundarios fríos (propuesta; todavía ningún componente los usa)
+     Azul cielo: intermedio, para datos e información. Lavanda: de detalle, para promos, novedades y acentos.
+     Nunca para cancelar ni para reemplazar al verde en la acción. Lavanda 500 lleva texto oscuro (5,9 : 1), no blanco. */
+  --sky-700: #1b4f8e; --sky-600: #2f6fc0; --sky-400: #6baee8; --sky-100: #bfddf7; --sky-50: #e8f2fc;
+  --lav-on-dark: #d0c7f6;   /* lavanda claro para texto sobre verde oscuro: ~7 : 1 sobre bosque */
+  --lav-700: #4a3c8c; --lav-500: #9c8ddd; --lav-100: #e4dff7; --lav-50: #f1eefb;
 
   /* Espaciado (escala de 4) */
   --s-1: 4px;
@@ -75,6 +89,7 @@
 
   /* Layout */
   --nav-w: 232px;
+  --header-pad: 34px;       /* margen interno del encabezado de página; la leyenda se alinea a este eje */
 }
 
 /* ==========================================================================
@@ -105,6 +120,9 @@ html[data-theme="dark"] {
   --brand-hover: #54c29b;
   --brand-soft: #123426;
   --brand-line: #24604a;
+
+  --sky-700: #d4e9fb; --sky-600: #a6d2f5; --sky-400: #8cc4f2; --sky-100: #12263f; --sky-50: #0e1b2d;
+  --lav-on-dark: #e6e0fb; --lav-700: #e0daf8; --lav-500: #b8acec; --lav-100: #241f3f; --lav-50: #1a1730;
 
   --coral: #f0705b;
   --coral-hover: #f58773;

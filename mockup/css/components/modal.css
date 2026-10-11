@@ -9,6 +9,8 @@
   background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
   box-shadow: var(--shadow-pop); padding: 22px 22px 18px;
 }
+.modal--wide { max-width: 680px; }
+.modal-scroll { max-height: 38vh; overflow: auto; margin-top: var(--s-3); }
 .modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: var(--s-4); }
 .modal-head h3 { font-size: 18px; }
 .modal-head .sub { font-size: var(--fs-sm); color: var(--mute); margin-top: 2px; }

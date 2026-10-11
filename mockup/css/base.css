@@ -18,6 +18,8 @@ h3 { font-size: var(--fs-md); }
 h1 em, h2 em { font-style: normal; color: var(--brand); }
 p { margin: 0; }
 code, kbd, .mono { font-family: var(--font-mono); font-size: 0.88em; }
+/* Cifras alineadas: los dígitos ocupan el mismo ancho, así los importes se comparan de un vistazo */
+.tnum, .kpi .value, .table td.num, .table th.num, .mono { font-variant-numeric: tabular-nums; }
 code { background: var(--bg-soft); padding: 0.08em 0.35em; border-radius: 4px; }
 ::selection { background: var(--mint); color: var(--forest); }
 :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
@@ -40,6 +42,8 @@ code { background: var(--bg-soft); padding: 0.08em 0.35em; border-radius: 4px; }
   vertical-align: middle;
   margin-right: 8px;
 }
+.kicker--lav { color: var(--lav-700); }
+.kicker--lav::before { background: var(--lav-500); }
 .lede { font-size: var(--fs-md); color: var(--ink-2); max-width: 74ch; }
 h1 + .lede, h2 + .lede { margin-top: 12px; }
 .muted { color: var(--mute); }

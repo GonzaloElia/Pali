@@ -17,6 +17,10 @@ Hay un competidor conocido: **Clubo**. La intención es proponer algo diferente.
 
 El prototipo en `mockup/` cubre **solo el backoffice** del administrador. El chatbot de WhatsApp queda fuera del diseño de pantallas por ahora; su definición sigue vigente en este documento.
 
+- **Marca (definido, ver `Diseño/Manual de marca Pali.pptx`):** dirección visual moderna, mínima y con razón de ser, válida para la marca y el backoffice; no depende de un solo deporte. Tono directo y amigable, sin perder la cordialidad y sin formalismos (voseo, frases cortas).
+- **Colores secundarios (definidos, valores a validar):** azul cielo (intermedio: datos, comparaciones, información) y lavanda (de detalle: promos, novedades, acentos). Ninguno sirve para cancelar. Lavanda de relleno lleva texto oscuro por contraste. Detalle en `Diseño/DESIGN-SYSTEM.md`.
+- **Identidad (definido):** el jugador nunca ve Pali. El chatbot habla con la identidad del club y no lleva publicidad de Pali. Pali es un entorno para el administrador. El chatbot tendría una base común con cierta personalización por club (a confirmar). En el backoffice, la identidad del club tendría más presencia, con un diseño tipo marca blanca (a definir).
+- **Cobros:** panel de caja con la cifra del mes, su variación contra el mismo tramo del mes anterior (propuesta, a confirmar), hoy y esta semana; gráfico con eje, promedio y pico. Tiene estados de carga, vacío y error. No hay tabla de períodos: al **tocar una barra** (día, semana o mes) se abre debajo del gráfico el detalle de reservas de ese período, con las columnas Día, Hora, Cancha, Personas y Estado (Completo / Reservado). Sin filtros Próximas/Pasadas/estado ni botón Cancelar, y sin canceladas, porque todavía no existe ese estado. La tabla tiene loader de carga, paginado (Anterior / números / Siguiente, rango “1–10 de N”) y selector “Mostrar 10 / 20 / 50 / 100 por página” como Personas; el estado se muestra solo como “Reservado”, sin “2 de 4”. La barra elegida queda resaltada y el detalle no se cierra: al cambiar de barra o de vista (día/semana/mes) se actualiza (primera iteración). Al pasar el mouse por una barra (día, semana o mes) aparece una viñeta corta: período, importe, variación contra el anterior y un mini indicador con el **% de ocupación** de las canchas (turnos con al menos 1 persona sobre turnos disponibles de las canchas activas, solo días ya transcurridos; definición propuesta, a confirmar). Un botón con ojo junto a «Este mes · estimado» oculta todos los importes (panel, eje, tabla y tooltips) reemplazándolos por asteriscos; la preferencia se recuerda en el navegador. Las variaciones en % siguen visibles (propuesta, a confirmar).
 - **Pantallas:** Cobros, Agenda (reservar en 2 clics), Personas, Reservas y Configuración, más un **Login simulado** (`mockup/login.html`: email y contraseña obligatorios, o Microsoft; no hay autenticación real). Al pie del menú lateral hay un desplegable con el rol (Administrador) y la opción **Cerrar sesión**, que vuelve al login.
 - **Diseño:** tema claro y oscuro (botón arriba a la derecha, con animación de onda) y barra lateral que se puede ocultar. Paleta blanco, verde y negro (verde bosque `#0f3d2e`, verde de marca `#1f6f57`, menta, negro verdoso `#0d1f18`), coral solo para cancelar, IBM Plex. Inspirado en el caso Crezco de Behance; el verde alude al tenis y al paddle. Detalle en `DESIGN-SYSTEM.md`.
 - **Técnica:** HTML con su JavaScript dentro de cada página, sin librerías, funciona sin internet. Los datos pasan por una capa simulada (`PaliApi`) pensada para reemplazarse por los endpoints reales cuando se definan; los endpoints son candidatos.
@@ -56,8 +60,10 @@ El prototipo en `mockup/` cubre **solo el backoffice** del administrador. El cha
 - Guardar la información de las **personas que se suman al evento**.
 - **Buscador único** de personas: con nombre y apellido se busca; si existe se asigna a la cancha, si no se crea y se piden sus datos.
 - Reconocer **en qué canchas jugó cada persona**.
+- **Buscador único en Personas:** filtra la tabla mientras se escribe (definido); si no hay coincidencia o es otra persona, se ofrece “Crear persona”.
+- **Paginación:** la tabla de personas (y toda lista que pueda crecer) se carga **por página**, no entera: se pide al backend solo la página que se ve, cada vez que se cambia de página, filtro o cantidad. El administrador elige **10, 20, 50 o 100** registros por pantalla (definido). Valor por defecto 10 y aplicarlo a otras listas: a confirmar.
 - Apartado más administrativo de **cobros**: cuánto se cobró por **día, semana y mes**, con filtro por **año**.
-- **Configuración**: el administrador carga el **precio del turno**. Un único precio, no varía por cancha ni por horario. Estimado en **7k** (a confirmar, moneda a confirmar).
+- **Configuración**: el administrador carga el **precio por jugador** (precio por persona por turno), único: no varía por cancha ni por horario. Estimado en **7k** (a confirmar, moneda a confirmar). El turno completo se calcula: 4 personas × 7k = 28k. También **ajusta los parámetros de los turnos** (duración y último turno; las reservas existentes no se modifican) y define **promos o descuentos** (precio promo fijo por jugador o porcentaje, para un rango de turnos, con días y fechas opcionales; si aplican varias gana el menor precio; una promo solo baja el precio; propuesta, a confirmar). Caso de uso: un club al que no le funciona el turno de las 22:30 pone un precio más barato. Marca cada **cancha como activa o inactiva**: una cancha inactiva no aparece en la agenda y **el chatbot no la sugiere**. **El club no agrega canchas**: las agrega el equipo de Pali desde el back, a pedido del club.
 - **Principio de diseño:** reservar desde el backoffice con **muy pocos clics**. Hoy los clubes anotan todo a mano; un paso a paso corto rompe la fricción de entrar a un sistema.
 - Habrá un **roadmap**: no todo tiene por qué salir junto. Qué entra en la primera entrega está por definir.
 
@@ -84,7 +90,8 @@ El prototipo en `mockup/` cubre **solo el backoffice** del administrador. El cha
 - **Mismo esquema** en todas las bases.
 - El **deporte es un dato**, no una estructura (`sport`); sumar deportes no cambia el esquema. Atributos propios por deporte en `court_attribute`.
 - Entidades: `sport`, `court`, `court_attribute`, `setting`, `person`, `booking`, `booking_participant`, `payment`, `staff_user`.
-- Parámetros en `setting`: duración del turno (90 min), último turno (22:30), precio del turno, zona horaria.
+- Parámetros en `setting`: duración del turno (90 min, ajustable), último turno (22:30, ajustable), precio por jugador, zona horaria.
+- Promos y descuentos: tablas `price_rule` y `price_rule_weekday`. El precio efectivo de un turno es el base o el de la promo que aplique (gana el menor); la reserva guarda el precio con el que se hizo.
 - La **reserva guarda inicio y fin**. Una cancha no puede tener dos reservas activas en el mismo horario.
 - La **disponibilidad se calcula** (parámetros menos reservas), no se guarda.
 - **Capa de acceso a datos con un adaptador por motor**, tipos y consultas estándar, para poder cambiar de base de datos.
@@ -118,7 +125,7 @@ Tipo de cambio supuesto: 1.500 ARS por USD. Ingreso del primer cliente: 30.000 A
 | Quiénes usan el backoffice (hoy un solo administrador) y si se usará desde el celular | A consultar |
 | Si el chatbot debe avisar por su cuenta (recordatorios) | A consultar |
 | Qué funciones del backoffice entran en la primera entrega del roadmap | A definir |
-| Precio exacto del turno y moneda (estimado 7k) | A definir |
+| Precio exacto por jugador y moneda (estimado 7k) | A definir |
 | Comparación concreta contra Clubo | A definir |
 | Confirmar PostgreSQL y validar la arquitectura de datos | A definir |
 | Proveedor intermediario de WhatsApp o conexión directa a Meta; tarifa de plantillas | A definir |
@@ -130,7 +137,7 @@ Tipo de cambio supuesto: 1.500 ARS por USD. Ingreso del primer cliente: 30.000 A
 | Ruta | Qué es |
 |---|---|
 | `CONTEXTO.md` | Este documento |
-| `DESIGN-SYSTEM.md` | Design system (blanco, azul, negro; IBM Plex) |
+| `Diseño/DESIGN-SYSTEM.md` | Design system (blanco, verde, negro; IBM Plex). En `Diseño/` también está el manual de marca y los logos |
 | `docs/producto-reserva-canchas.html` | Documento de producto completo con diagramas, tablas y calculadora |
 | `mockup/` | Prototipo navegable del backoffice (HTML con su JavaScript, estilos componetizados, capa de datos simulada) |
 | `agenda/` | Reportes diarios en markdown (uno por jornada, ej. `Reporte 8-10.md`) |
@@ -138,6 +145,10 @@ Tipo de cambio supuesto: 1.500 ARS por USD. Ingreso del primer cliente: 30.000 A
 
 ## Reglas para quien continúe
 
+- **Regla de diseño:** todo campo obligatorio lleva asterisco (`*`) y los opcionales no, en todas las pantallas. Detalle en `DESIGN-SYSTEM.md`, principio 7.
+- **Trabajar siempre en esta carpeta (`Desktop\Pali`).** Todo archivo nuevo o cambio va acá: documentos, prototipo, reportes y README. No dejar versiones sueltas en otras carpetas.
 - No inventar reglas de negocio: lo no definido va como pregunta abierta.
 - Lo marcado como **propuesta** o **a confirmar** no es decisión.
 - El detalle visual vive en el prototipo. Solo se actualiza el documento de producto cuando cambia una regla de negocio o una definición técnica.
+- **Colores secundarios en el backoffice (propuesta):** azul cielo para datos e información (canchas jugadas, “Precio base”, promedio de Cobros, botón del ojo) y lavanda, más escasa, para detalles (categoría del jugador, insignia “Promo”). El verde sigue dominando; la dosis se decide con criterio de diseño, no con porcentaje. Ver `Diseño/DESIGN-SYSTEM.md`.
+- **Secundarios, segunda vuelta (propuesta):** azul para datos (chip “Total” y tarjeta “Veces que jugó”, etiquetas Hoy y Esta semana del panel de Cobros, en lavanda claro y sin guión) y lavanda para detalles (etiqueta “Pico” del gráfico y el título “Promos y descuentos”). El verde sigue en acciones, barras, menú y estados.

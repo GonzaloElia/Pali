@@ -25,16 +25,16 @@
   <main class="login-main">
     <form class="login-card stack--form" id="loginForm" novalidate>
       <div class="field">
-        <label class="label" for="email">Email <span class="req">*</span></label>
+        <label class="label" for="email">Email</label>
         <input id="email" class="input" type="email" placeholder="nombre@tuclub.com" autocomplete="off">
       </div>
       <div class="field">
-        <label class="label" for="pass">Contraseña <span class="req">*</span></label>
+        <label class="label" for="pass">Contraseña</label>
         <input id="pass" class="input" type="password" placeholder="Ingresá tu contraseña" autocomplete="off">
       </div>
       <button type="button" class="login-link" data-act="forgot" style="margin-top:-6px">¿Olvidaste tu contraseña?</button>
 
-      <p id="formErr" class="field-error" hidden></p>
+      <p id="formErr" class="field-error" role="alert" hidden></p>
 
       <div class="stack" style="gap:14px">
         <button type="button" class="btn btn--lg btn--block" data-act="microsoft"><span class="ms-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Ingresar con Microsoft</button>
@@ -64,7 +64,7 @@
       var msg = '';
       if (empty) msg = 'Falta completar el campo ' + r[1] + ': es obligatorio.';
       else if (r[0] === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim())) { msg = 'El Email no tiene un formato válido.'; badFormat = true; }
-      f.classList.toggle('field--error', !!msg);
+      f.classList.toggle('field--error', !!msg); el.setAttribute('aria-invalid', String(!!msg));
       if (msg) {
         if (!m) { m = document.createElement('p'); m.className = 'field-error'; f.appendChild(m); }
         m.textContent = msg; if (empty) missing.push(r[1]); if (!first) first = el;

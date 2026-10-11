@@ -275,10 +275,10 @@ p.lede strong{color:var(--ink);font-weight:500}
     <tbody>
       <tr><td>Turnos</td><td>Gestionar y crear turnos. Un turno se reserva con <b>al menos 1 persona</b> y se pueden sumar las demás después, hasta 4. Un turno con 0 personas está Libre</td><td><span class="chip b">definido</span></td></tr>
       <tr><td>Reservas</td><td>Pestaña con las reservas ya creadas: ver si el turno está <b>completo o incompleto</b> (faltan personas) y <b>cancelar turnos</b></td><td><span class="chip b">definido</span></td></tr>
-      <tr><td>Personas</td><td>Guardar la información de las personas que se suman al evento. Un <b>buscador único</b>: con nombre y apellido se busca; si la persona existe se asigna a la cancha, y si no existe se la <b>crea y se le piden sus datos</b>, entre ellos una <b>categoría obligatoria</b> (1ra a 8va, una lista que depende del club y del deporte), el teléfono y un <b>alias</b> opcional para distinguir a dos personas con el mismo nombre y apellido. Al sumar una persona a un turno se muestra como “Juan Pérez (alias)”</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Personas</td><td>Guardar la información de las personas que se suman al evento. Un <b>buscador único</b>: con nombre y apellido se busca; si la persona existe se asigna a la cancha, y si no existe se la <b>crea y se le piden sus datos</b>, entre ellos una <b>categoría obligatoria</b> (1ra a 8va, una lista que depende del club y del deporte), el teléfono y un <b>alias</b> opcional para distinguir a dos personas con el mismo nombre y apellido. Al sumar una persona a un turno se muestra como “Juan Pérez (alias)”. En la pantalla de Personas el buscador único <b>filtra la tabla mientras se escribe</b>; si la persona no existe, se ofrece crearla. La tabla de personas <b>se pagina</b>: carga solo la página que se ve y el administrador elige cuántos registros ver por pantalla (10, 20, 50 o 100)</td><td><span class="chip b">definido</span></td></tr>
       <tr><td>Historial</td><td>Reconocer en qué canchas jugó cada persona</td><td><span class="chip b">definido</span></td></tr>
-      <tr><td>Cobros (apartado más administrativo)</td><td>Ver cuánto se cobró en el mes y cuánto entró <b>por día, por semana y por mes</b>, con filtro por <b>año</b>. Como el pago en caja no se registra por turno, hoy el prototipo lo estima como turnos no cancelados por el precio del turno</td><td><span class="chip b">definido</span> <span class="chip a">cálculo a confirmar</span></td></tr>
-      <tr><td>Configuración</td><td>El <b>administrador carga el precio del turno</b> desde un apartado de configuración. Es un único precio: <b>no varía por cancha ni por horario</b>. El valor estimado es de <b>7k</b></td><td><span class="chip b">definido</span> <span class="chip a">monto a confirmar</span></td></tr>
+      <tr><td>Cobros (apartado más administrativo)</td><td>Ver cuánto se cobró en el mes y cuánto entró <b>por día, por semana y por mes</b>, con filtro por <b>año</b>. Como el pago en caja no se registra, hoy el prototipo lo estima: por cada turno no cancelado, las personas anotadas por el precio por jugador. La pantalla muestra un resumen de caja con la cifra del mes, la <b>variación contra el período anterior</b> y el detalle por período con su participación en el total</td><td><span class="chip b">definido</span> <span class="chip a">cálculo a confirmar</span></td></tr>
+      <tr><td>Configuración</td><td>El <b>administrador carga el precio por jugador</b>. Es un único precio base: <b>no varía por cancha ni por horario</b>. El valor estimado es de <b>7k por persona por turno</b>; el turno completo (4 personas) se calcula solo, hoy 28k. También <b>ajusta los parámetros de los turnos</b> (duración y horario del último turno) y define <b>promos o descuentos</b> para ciertos horarios, por ejemplo un precio más barato en el turno de las 22:30 si no se llena. Marca cada <b>cancha como activa o inactiva</b>: una cancha inactiva no aparece en la agenda y <b>el chatbot no la sugiere</b>. <b>Agregar una cancha no lo hace el club</b>: lo hace el equipo de Pali desde el back, a pedido del club</td><td><span class="chip b">definido</span> <span class="chip a">monto a confirmar</span></td></tr>
     </tbody>
   </table>
   <p class="note"><b>Principio de diseño: reservar con muy pocos clics.</b> Hoy los clubes anotan todo a mano y se sienten cómodos así. Si el paso a paso para reservar una cancha desde el backoffice es muy corto, se rompe la fricción de tener que entrar a un sistema. Es el flujo más importante del backoffice.</p>
@@ -289,7 +289,9 @@ p.lede strong{color:var(--ink);font-weight:500}
     <thead><tr><th>Tema</th><th>Definición</th><th>Estado</th></tr></thead>
     <tbody>
       <tr><td>Canal</td><td>API de WhatsApp Business</td><td><span class="chip a">propuesta</span></td></tr>
+      <tr><td>Identidad del chatbot</td><td>El chatbot <b>habla con la identidad del club</b> y no muestra la marca Pali ni publicidad de Pali: el jugador nunca ve Pali. Tendría una <b>base común de respuestas</b> con cierta <b>personalización por club</b></td><td><span class="chip b">definido</span> <span class="chip a">personalización a confirmar</span></td></tr>
       <tr><td>Disponibilidad</td><td>Consulta la base de datos antes de ofrecer opciones</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Canchas inactivas</td><td>El chatbot <b>no sugiere canchas inactivas</b>: consulta la disponibilidad solo sobre las canchas activas. El administrador activa o inactiva cada cancha desde Configuración</td><td><span class="chip b">definido</span></td></tr>
       <tr><td>Pedir turnos</td><td>El jugador puede <b>pedir un turno</b> a través del chatbot</td><td><span class="chip b">definido</span></td></tr>
       <tr><td>Cancelación</td><td>Una reserva puede cancelarla el <b>jugador</b> (por el chatbot) y el <b>administrador</b> (desde el backoffice)</td><td><span class="chip b">definido</span></td></tr>
       <tr><td>Turno ya cancelado por el administrador</td><td>Si el jugador consulta o intenta operar sobre un turno, el chatbot <b>lee el estado del turno en la base de datos</b>; si está cancelado, responde que <b>el turno ya fue cancelado</b></td><td><span class="chip b">definido</span></td></tr>
@@ -464,6 +466,8 @@ p.lede strong{color:var(--ink);font-weight:500}
     <tbody>
       <tr><td>Lo que usan solo algunos clubes es opcional</td><td>El campo admite vacío (<code>NULL</code>). Un vacío significa “no se registra”; nunca se rellena con un valor que afirme algo que no se sabe</td><td><span class="chip a">propuesta</span></td></tr>
       <tr><td>Lo obligatorio es obligatorio</td><td>Un campo obligatorio no se puede dejar vacío: el formulario no avanza y avisa qué campo falta completar. Hoy en una persona: nombre, apellido, teléfono y categoría</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>El precio de un turno se calcula</td><td>Es el precio por jugador base, o el de una promo activa que aplique al horario y al día. Si aplican varias, gana la de <b>menor precio</b>. Una promo solo puede bajar el precio, no subirlo. La reserva guarda el precio con el que se hizo</td><td><span class="chip a">propuesta</span></td></tr>
+      <tr><td>Las listas largas se cargan por página</td><td>Una lista que puede crecer (empezando por Personas) no se carga entera: el backend devuelve solo la página pedida, con el total de registros, y se vuelve a pedir cada vez que se cambia de página, de filtro o de cantidad por pantalla. El administrador elige 10, 20, 50 o 100 registros por página. Así la pantalla no se vuelve lenta cuando hay muchos registros</td><td><span class="chip b">definido</span></td></tr>
       <tr><td>Lo que cambia entre clubes va en <code>setting</code></td><td>Por ejemplo, si el club registra pagos. El esquema es el mismo en todas las bases; cambia la configuración</td><td><span class="chip a">propuesta</span></td></tr>
       <tr><td>El estado del turno se calcula</td><td>Se guarda solo si la reserva está activa o cancelada. Libre (0 personas), Reservado (1 a 3) y Completo (4) salen de contar las personas</td><td><span class="chip a">propuesta</span></td></tr>
       <tr><td>Las listas cerradas (enum) son tablas por club y deporte</td><td>La categoría tiene sus valores en <code>category</code>, no escritos en el código: cada club y cada deporte puede tener los suyos sin cambiar el esquema</td><td><span class="chip a">propuesta</span></td></tr>
@@ -497,7 +501,7 @@ p.lede strong{color:var(--ink);font-weight:500}
   <p class="kicker" style="margin-top:44px">DER</p>
   <p class="lede">Diagrama entidad-relación de la base de cada club. <b>PK</b> es la clave primaria, <b>FK</b> una clave que apunta a otra tabla y <b>opcional</b> un campo que admite vacío. <code>setting</code> y <code>staff_user</code> no se relacionan con otras tablas. El registro de clubes queda fuera de las bases de los clubes (sección 04).</p>
   <div class="graph er-wrap">
-<svg viewBox="0 0 940 610" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama entidad-relación del backoffice">
+<svg viewBox="0 0 940 810" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama entidad-relación del backoffice">
 <g class="er-g"><rect class="er-box" x="30" y="20" width="230" height="88" rx="8"/>
 <path class="er-hd" d="M30 46 V28 a8 8 0 0 1 8 -8 H252 a8 8 0 0 1 8 8 V46 Z"/>
 <text class="er-en" x="42" y="37">sport</text>
@@ -535,7 +539,7 @@ p.lede strong{color:var(--ink);font-weight:500}
 <text class="er-fn" x="352" y="284">end_at</text>
 <text class="er-fn" x="352" y="302">status</text>
 <text class="er-fn" x="352" y="320">source</text>
-<text class="er-fn" x="352" y="338">price</text>
+<text class="er-fn" x="352" y="338">player_price</text>
 <text class="er-fn er-opt" x="352" y="356">contact_phone</text>
 <text class="er-ot" x="580" y="356" text-anchor="end">opcional</text>
 <text class="er-fn er-opt" x="352" y="374">cancelled_by</text>
@@ -621,6 +625,32 @@ p.lede strong{color:var(--ink);font-weight:500}
 <text class="er-cd" x="157.0" y="121">1</text><text class="er-cd" x="157.0" y="145">N</text>
 <path class="er-rel" d="M30 203.0 L12 203.0 L12 510.0 L30 510.0"/>
 <text class="er-cd" x="40" y="197.0">1</text><text class="er-cd" x="40" y="504.0">N</text>
+<g class="er-g"><rect class="er-box" x="340" y="570" width="250" height="196" rx="8"/>
+<path class="er-hd" d="M340 596 V578 a8 8 0 0 1 8 -8 H582 a8 8 0 0 1 8 8 V596 Z"/>
+<text class="er-en" x="352" y="587">price_rule</text>
+<text class="er-fn" x="352" y="610">id</text>
+<text class="er-kt" x="580" y="610" text-anchor="end">PK</text>
+<text class="er-fn er-opt" x="352" y="628">name</text>
+<text class="er-ot" x="580" y="628" text-anchor="end">opcional</text>
+<text class="er-fn" x="352" y="646">kind</text>
+<text class="er-fn" x="352" y="664">value</text>
+<text class="er-fn" x="352" y="682">time_from</text>
+<text class="er-fn" x="352" y="700">time_to</text>
+<text class="er-fn er-opt" x="352" y="718">valid_from</text>
+<text class="er-ot" x="580" y="718" text-anchor="end">opcional</text>
+<text class="er-fn er-opt" x="352" y="736">valid_to</text>
+<text class="er-ot" x="580" y="736" text-anchor="end">opcional</text>
+<text class="er-fn" x="352" y="754">active</text>
+</g>
+<g class="er-g"><rect class="er-box" x="670" y="570" width="240" height="70" rx="8"/>
+<path class="er-hd" d="M670 596 V578 a8 8 0 0 1 8 -8 H902 a8 8 0 0 1 8 8 V596 Z"/>
+<text class="er-en" x="682" y="587">price_rule_weekday</text>
+<text class="er-fn" x="682" y="610">rule_id</text>
+<text class="er-kt" x="900" y="610" text-anchor="end">FK</text>
+<text class="er-fn" x="682" y="628">weekday</text>
+</g>
+<path class="er-rel" d="M590 620 L670 620"/>
+<text class="er-cd" x="600" y="614" text-anchor="middle">1</text><text class="er-cd" x="658" y="614" text-anchor="middle">0..N</text>
 </svg>
   </div>
   <p class="note"><b>Cómo leerlo:</b> una cancha tiene muchas reservas y una reserva tiene muchas personas (<code>booking_participant</code>). Una persona puede jugar en muchas reservas, lo que da el historial de canchas. Cada deporte tiene sus categorías y cada persona tiene una (obligatoria). El pago es opcional: una reserva puede tener cero o más filas en <code>payment</code>.</p>
@@ -657,7 +687,7 @@ p.lede strong{color:var(--ink);font-weight:500}
       <tr><td><code>id</code></td><td>identificador</td><td>Sí</td><td>Clave primaria</td></tr>
       <tr><td><code>sport_id</code></td><td>identificador</td><td>Sí</td><td>Deporte de la cancha (apunta a <code>sport</code>)</td></tr>
       <tr><td><code>name</code></td><td>texto</td><td>Sí</td><td>“Cancha 1”, “Cancha 2”</td></tr>
-      <tr><td><code>active</code></td><td>verdadero/falso</td><td>Sí</td><td>Si la cancha se puede reservar</td></tr>
+      <tr><td><code>active</code></td><td>verdadero/falso</td><td>Sí</td><td>Si la cancha está activa. El administrador la activa o inactiva desde Configuración; las canchas nuevas las agrega el equipo de Pali. <b>Una cancha inactiva no se ofrece para reservar: no aparece en la agenda y el chatbot no la sugiere</b></td></tr>
     </tbody>
   </table>
   <p class="kicker" style="margin-top:34px"><code>court_attribute</code></p>
@@ -676,7 +706,7 @@ p.lede strong{color:var(--ink);font-weight:500}
     <thead><tr><th>Campo</th><th>Tipo</th><th>¿Obligatorio?</th><th>Qué guarda</th></tr></thead>
     <tbody>
       <tr><td><code>key</code></td><td>texto</td><td>Sí</td><td>Nombre del parámetro. Clave primaria</td></tr>
-      <tr><td><code>value</code></td><td>texto</td><td>Sí</td><td>Valor del parámetro. Claves hoy: <code>slot_minutes</code> (90), <code>last_slot_start</code> (22:30), <code>turn_price</code> (estimado 7000), <code>currency</code>, <code>timezone</code> y <code>track_payments</code> (falso)</td></tr>
+      <tr><td><code>value</code></td><td>texto</td><td>Sí</td><td>Valor del parámetro. Claves hoy: <code>slot_minutes</code> (90, ajustable por el administrador), <code>last_slot_start</code> (22:30, ajustable), <code>player_price</code> (precio por jugador, estimado 7000), <code>currency</code>, <code>timezone</code> y <code>track_payments</code> (falso)</td></tr>
     </tbody>
   </table>
   <p class="kicker" style="margin-top:34px"><code>person</code></p>
@@ -704,7 +734,7 @@ p.lede strong{color:var(--ink);font-weight:500}
       <tr><td><code>end_at</code></td><td>fecha y hora</td><td>Sí</td><td>Fin del turno. Se guarda para que un cambio de duración no altere las reservas pasadas</td></tr>
       <tr><td><code>status</code></td><td>texto</td><td>Sí</td><td>Solo <code>active</code> o <code>cancelled</code>. Libre, Reservado y Completo no se guardan</td></tr>
       <tr><td><code>source</code></td><td>texto</td><td>Sí</td><td>Quién la creó: <code>backoffice</code> o <code>chatbot</code></td></tr>
-      <tr><td><code>price</code></td><td>importe</td><td>Sí</td><td>Precio del turno al momento de reservar, tomado de <code>setting</code>. Propuesta: así un cambio de precio no altera los totales pasados</td></tr>
+      <tr><td><code>player_price</code></td><td>importe</td><td>Sí</td><td>Precio por jugador al momento de reservar, tomado de <code>setting</code>. Propuesta: así un cambio de precio no altera los totales pasados. El valor del turno es este precio por la cantidad de personas</td></tr>
       <tr><td><code>contact_phone</code></td><td>texto</td><td><span class="chip a">opcional</span></td><td>WhatsApp de quien reservó por el chatbot</td></tr>
       <tr><td><code>cancelled_by</code></td><td>texto</td><td><span class="chip a">opcional</span></td><td>Quién canceló: jugador o administrador</td></tr>
       <tr><td><code>cancelled_at</code></td><td>fecha y hora</td><td><span class="chip a">opcional</span></td><td>Cuándo se canceló</td></tr>
@@ -731,6 +761,31 @@ p.lede strong{color:var(--ink);font-weight:500}
       <tr><td><code>method</code></td><td>texto</td><td>Sí</td><td>Cómo se pagó: caja, Mercado Pago, otro. Permite sumar el pago online sin cambiar el esquema</td></tr>
       <tr><td><code>amount</code></td><td>importe</td><td>Sí</td><td>Monto cobrado</td></tr>
       <tr><td><code>paid_at</code></td><td>fecha y hora</td><td>Sí</td><td>Cuándo se cobró</td></tr>
+    </tbody>
+  </table>
+  <p class="kicker" style="margin-top:34px"><code>price_rule</code></p>
+  <p class="lede" style="margin-top:6px;font-size:14px">Una promo o descuento: un precio especial para un rango de turnos. Puede no tener ninguna fila. Aplica a todas las canchas.</p>
+  <table class="tbl bk">
+    <thead><tr><th>Campo</th><th>Tipo</th><th>¿Obligatorio?</th><th>Qué guarda</th></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>identificador</td><td>Sí</td><td>Clave primaria</td></tr>
+      <tr><td><code>name</code></td><td>texto</td><td><span class="chip a">opcional</span></td><td>Nombre de la promo (ejemplo: “Promo último turno”)</td></tr>
+      <tr><td><code>kind</code></td><td>texto</td><td>Sí</td><td><code>fixed</code> (precio promo por jugador) o <code>percent</code> (descuento en porcentaje)</td></tr>
+      <tr><td><code>value</code></td><td>importe</td><td>Sí</td><td>El precio promo por jugador, o el porcentaje de descuento (1 a 100)</td></tr>
+      <tr><td><code>time_from</code></td><td>hora</td><td>Sí</td><td>Primer turno al que aplica, por su hora de inicio</td></tr>
+      <tr><td><code>time_to</code></td><td>hora</td><td>Sí</td><td>Último turno al que aplica. Igual a <code>time_from</code> si es un solo turno</td></tr>
+      <tr><td><code>valid_from</code></td><td>fecha</td><td><span class="chip a">opcional</span></td><td>Desde cuándo vale. Vacío = ya vale</td></tr>
+      <tr><td><code>valid_to</code></td><td>fecha</td><td><span class="chip a">opcional</span></td><td>Hasta cuándo vale. Vacío = sin fecha de fin</td></tr>
+      <tr><td><code>active</code></td><td>verdadero/falso</td><td>Sí</td><td>Si la promo está activa. El administrador la activa o inactiva sin borrarla</td></tr>
+    </tbody>
+  </table>
+  <p class="kicker" style="margin-top:34px"><code>price_rule_weekday</code></p>
+  <p class="lede" style="margin-top:6px;font-size:14px">Días de la semana en que aplica una promo. Una promo sin filas acá vale todos los días.</p>
+  <table class="tbl bk">
+    <thead><tr><th>Campo</th><th>Tipo</th><th>¿Obligatorio?</th><th>Qué guarda</th></tr></thead>
+    <tbody>
+      <tr><td><code>rule_id</code></td><td>identificador</td><td>Sí</td><td>Promo. Junto con <code>weekday</code> forma la clave</td></tr>
+      <tr><td><code>weekday</code></td><td>entero</td><td>Sí</td><td>Día de la semana, de 1 (lunes) a 7 (domingo)</td></tr>
     </tbody>
   </table>
   <p class="kicker" style="margin-top:34px"><code>staff_user</code></p>
@@ -783,7 +838,7 @@ p.lede strong{color:var(--ink);font-weight:500}
     <tbody>
       <tr><td>slot_minutes</td><td>90</td></tr>
       <tr><td>last_slot_start</td><td>22:30</td></tr>
-      <tr><td>turn_price</td><td>7000</td></tr>
+      <tr><td>player_price</td><td>7000</td></tr>
       <tr><td>currency</td><td>ARS</td></tr>
       <tr><td>timezone</td><td>America/Argentina/Buenos_Aires</td></tr>
       <tr><td>track_payments</td><td>false</td></tr>
@@ -806,7 +861,7 @@ p.lede strong{color:var(--ink);font-weight:500}
   <p class="note" style="margin-top:12px"><b>Dos “Martín Gómez”:</b> las personas 1 y 8 tienen el mismo nombre y apellido. En el backoffice se muestran como “Martín Gómez” y “Martín Gómez (Tincho)”, así se las distingue al sumarlas a un turno. El alias se puede dejar vacío.</p>
   <p class="kicker" style="margin-top:30px"><code>booking</code> · sin <code>created_at</code> para que entre en pantalla</p>
   <div class="mockwrap"><table class="tbl mock">
-    <thead><tr><th>id</th><th>court_id</th><th>start_at</th><th>end_at</th><th>status</th><th>source</th><th>price</th><th>contact_phone</th><th>cancelled_by</th><th>cancelled_at</th></tr></thead>
+    <thead><tr><th>id</th><th>court_id</th><th>start_at</th><th>end_at</th><th>status</th><th>source</th><th>player_price</th><th>contact_phone</th><th>cancelled_by</th><th>cancelled_at</th></tr></thead>
     <tbody>
       <tr><td>1</td><td>1</td><td>2026-10-10 10:30</td><td>2026-10-10 12:00</td><td>active</td><td>backoffice</td><td>7000</td><td class="nul">NULL</td><td class="nul">NULL</td><td class="nul">NULL</td></tr>
       <tr><td>2</td><td>2</td><td>2026-10-10 12:00</td><td>2026-10-10 13:30</td><td>active</td><td>chatbot</td><td>7000</td><td>11 5555-1111</td><td class="nul">NULL</td><td class="nul">NULL</td></tr>
@@ -828,6 +883,15 @@ p.lede strong{color:var(--ink);font-weight:500}
       <tr><td>4</td><td>6</td><td class="nul">NULL</td></tr>
     </tbody>
   </table></div>
+  <p class="kicker" style="margin-top:30px"><code>price_rule</code> · ejemplo de un club al que no le funciona el turno de las 22:30</p>
+  <div class="mockwrap"><table class="tbl mock">
+    <thead><tr><th>id</th><th>name</th><th>kind</th><th>value</th><th>time_from</th><th>time_to</th><th>valid_from</th><th>valid_to</th><th>active</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Promo último turno</td><td>fixed</td><td>5000</td><td>22:30</td><td>22:30</td><td>NULL</td><td>NULL</td><td>true</td></tr>
+    </tbody>
+  </table></div>
+  <p class="kicker" style="margin-top:30px"><code>price_rule_weekday</code> · sin filas</p>
+  <p class="lede" style="margin-top:6px;font-size:14px">La promo de arriba no tiene días cargados, así que vale todos los días. Con el precio base en 7000, el turno de las 22:30 cuesta 5000 por jugador (20.000 el turno completo) y los demás 7000. Es un dato de ejemplo, no una definición.</p>
   <p class="kicker" style="margin-top:30px"><code>payment</code> · sin filas</p>
   <p class="lede" style="margin-top:6px;font-size:14px">Este club cobra en caja y no registra el pago en la aplicación, así que la tabla está vacía.</p>
 
@@ -851,7 +915,7 @@ p.lede strong{color:var(--ink);font-weight:500}
       <tr><td>1</td><td>1</td><td>true</td></tr><tr><td>1</td><td>2</td><td>true</td></tr><tr><td>1</td><td>3</td><td>false</td></tr><tr><td>1</td><td>7</td><td>true</td></tr>
     </tbody>
   </table></div>
-  <p class="note amber"><b>Pendiente de definir:</b> cómo se reparte el precio del turno entre las personas, qué muestra Cobros sin registro de pago y otras dudas del backend están en la sección 08, Preguntas abiertas.</p>
+  <p class="note amber"><b>Pendiente de definir:</b> qué muestra Cobros sin registro de pago, qué pasa con las reservas de una cancha que se inactiva y otras dudas del backend están en la sección 08, Preguntas abiertas.</p>
 </section>
 
 <!-- ================================================== 06 FINANCIERO -->
@@ -966,10 +1030,10 @@ p.lede strong{color:var(--ink);font-weight:500}
       <tr><td>Reservas</td><td>Reservas ya creadas, completas o incompletas, y cancelar turnos</td><td><span class="chip b">definido</span></td></tr>
       <tr><td>Personas</td><td>Buscador único por nombre y apellido; si no existe se crea y se piden sus datos (teléfono, categoría obligatoria y alias opcional); historial de canchas donde jugó</td><td><span class="chip b">definido</span></td></tr>
       <tr><td>Cobros</td><td>Cuánto entró por día, semana y mes, con filtro por año (estimado: turnos no cancelados por el precio)</td><td><span class="chip b">definido</span></td></tr>
-      <tr><td>Configuración</td><td>Precio del turno (único, lo carga el administrador), parámetros de turnos y canchas</td><td><span class="chip b">definido</span></td></tr>
+      <tr><td>Configuración</td><td>Precio por jugador (único, lo carga el administrador; el turno completo se calcula), parámetros de turnos ajustables, promos y descuentos por horario, y canchas activas o inactivas</td><td><span class="chip b">definido</span></td></tr>
     </tbody>
   </table>
-  <p class="note"><b>Datos de ejemplo:</b> las personas y reservas del prototipo son inventadas y se guardan en el navegador. El precio del turno que usa es el estimado de 7k.</p>
+  <p class="note"><b>Datos de ejemplo:</b> las personas y reservas del prototipo son inventadas y se guardan en el navegador. El precio por jugador que usa es el estimado de 7k.</p>
 
   <p class="kicker" style="margin-top:44px">Design system</p>
   <table class="tbl tri">
@@ -989,18 +1053,19 @@ p.lede strong{color:var(--ink);font-weight:500}
   <table class="tbl tri">
     <thead><tr><th>Grupo</th><th>Endpoints candidatos</th><th>Estado</th></tr></thead>
     <tbody>
-      <tr><td>Configuración</td><td><code>GET /settings</code>, <code>PATCH /settings</code></td><td><span class="chip a">candidato</span></td></tr>
-      <tr><td>Canchas</td><td><code>GET /courts</code>, <code>POST /courts</code></td><td><span class="chip a">candidato</span></td></tr>
+      <tr><td>Configuración</td><td><code>GET /settings</code>, <code>PATCH /settings</code> (precio por jugador, duración y último turno)</td><td><span class="chip a">candidato</span></td></tr>
+      <tr><td>Canchas</td><td><code>GET /courts</code>, <code>PATCH /courts/:id</code> (activar o inactivar). <code>POST /courts</code> lo usa solo el equipo de Pali, no el administrador</td><td><span class="chip a">candidato</span></td></tr>
+      <tr><td>Promos y precios</td><td><code>GET /price-rules</code>, <code>POST /price-rules</code>, <code>PATCH /price-rules/:id</code>, <code>DELETE /price-rules/:id</code>, <code>GET /prices?date=</code> (precio por jugador y del turno completo de cada horario)</td><td><span class="chip a">candidato</span></td></tr>
       <tr><td>Disponibilidad</td><td><code>GET /availability?date=</code> (calculada desde los parámetros y las reservas activas)</td><td><span class="chip a">candidato</span></td></tr>
       <tr><td>Reservas</td><td><code>GET /bookings</code>, <code>GET /bookings/:id</code>, <code>POST /bookings</code>, <code>POST /bookings/:id/cancel</code>, <code>POST</code> y <code>DELETE</code> de participantes</td><td><span class="chip a">candidato</span></td></tr>
-      <tr><td>Personas</td><td><code>GET /people?q=</code>, <code>POST /people</code>, <code>GET /people/:id</code>, <code>PATCH /people/:id</code> (editar perfil), <code>GET /people/:id/history</code></td><td><span class="chip a">candidato</span></td></tr>
-      <tr><td>Cobros</td><td><code>GET /income</code> (día, semana o mes, con año), <code>GET /income/summary</code></td><td><span class="chip a">candidato</span></td></tr>
+      <tr><td>Personas</td><td><code>GET /people?q=</code>, <code>POST /people</code>, <code>GET /people/:id</code>, <code>PATCH /people/:id</code> (editar perfil), <code>GET /people/stats?q=&amp;page=&amp;pageSize=</code> (veces que jugó, última vez y canchas, con filtros; devuelve una página y el total), <code>GET /people/:id/history</code></td><td><span class="chip a">candidato</span></td></tr>
+      <tr><td>Cobros</td><td><code>GET /income</code> (día, semana o mes, con año), <code>GET /income/summary</code> (hoy, semana y mes, con los valores del período anterior para comparar)</td><td><span class="chip a">candidato</span></td></tr>
     </tbody>
   </table>
   <p class="note amber"><b>Coherencia con la arquitectura de datos:</b> el prototipo ya respeta una base por club con el mismo esquema, disponibilidad calculada, reserva con inicio y fin, reservas que siempre tienen al menos una persona, estado del turno calculado por cantidad de personas (Libre, Reservado, Completo) y un campo de pago opcional que admite más métodos a futuro. Detalle en la sección 05.</p>
 
   <p class="kicker" style="margin-top:44px">Dónde está todo</p>
-  <p class="lede">En la carpeta <code>Pali</code> de la computadora: <code>CONTEXTO.md</code> (resumen de todo lo definido), <code>DESIGN-SYSTEM.md</code>, <code>docs/producto-reserva-canchas.html</code> (este documento) y <code>mockup/</code> (el prototipo, con <code>index.html</code> como punto de entrada).</p>
+  <p class="lede">En la carpeta <code>Pali</code> de la computadora: <code>CONTEXTO.md</code> (resumen de todo lo definido), <code>Diseño/DESIGN-SYSTEM.md</code> (sistema de diseño), <code>Diseño/Manual de marca Pali.pptx</code>, <code>docs/producto-reserva-canchas.html</code> (este documento) y <code>mockup/</code> (el prototipo, con <code>index.html</code> como punto de entrada).</p>
 </section>
 
 <section class="sec reveal" id="preguntas">
@@ -1015,7 +1080,7 @@ p.lede strong{color:var(--ink);font-weight:500}
     <div class="qitem"><span class="who">A consultar</span><div><div class="q">¿El chatbot debe avisar por su cuenta, por ejemplo con un recordatorio antes del turno?</div><div class="ctx">Con el flujo actual el costo de WhatsApp es 0. Un mensaje de plantilla fuera de la ventana de 24 h tiene costo por mensaje (ver sección 06).</div></div></div>
     <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Qué funciones del backoffice entran en la primera entrega del roadmap?</div><div class="ctx">Las funciones de la sección 01 son lo que se imagina; el orden y el corte de la primera entrega no están definidos.</div></div></div>
     <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Se mantiene 15.000 ARS por cancha o se sube el precio?</div><div class="ctx">El mercado publica abonos de $40.000 a $50.000 por 1 a 3 canchas. Con 2 canchas, 15k por cancha da 30k. Falta confirmar los datos de Padelink, Quiero Jugar y Clubo.</div></div></div>
-    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Cuál es el precio exacto del turno y en qué moneda?</div><div class="ctx">Estimado en 7k. Lo carga el administrador en configuración y es único para todas las canchas y horarios.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Cuál es el precio exacto por jugador y en qué moneda?</div><div class="ctx">Estimado en 7k por persona por turno. Lo carga el administrador en configuración y es único para todas las canchas y horarios; con 4 personas el turno suma 28k.</div></div></div>
     <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Cómo se compara el producto concretamente con Clubo?</div><div class="ctx">Hoy solo está definido que Clubo es un competidor conocido y que se propone algo diferente.</div></div></div>
     <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Se confirma PostgreSQL como motor inicial y la propuesta de arquitectura de datos?</div><div class="ctx">Recomendación y propuesta de las secciones 04, a validar con Ivan.</div></div></div>
     <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Se quiere que el sistema avise por WhatsApp al jugador cuando el administrador cancela su turno?</div><div class="ctx">Técnicamente es posible con una plantilla aprobada por Meta. Hace falta el teléfono de la persona y su consentimiento para recibir mensajes. Si el turno se creó desde el backoffice y la persona no tiene teléfono cargado, no se la puede avisar.</div></div></div>
@@ -1028,8 +1093,18 @@ p.lede strong{color:var(--ink);font-weight:500}
   <p class="lede">Dudas que salen de las definiciones de la sección 05.</p>
   <div class="qa">
     <div class="qitem"><span class="who w-iv">Consultar con Ivan</span><div><div class="q">¿Se confirma que “abonó” sea un campo opcional (vacío si el club no registra pagos) y no siempre verdadero?</div><div class="ctx">Propuesta: <code>booking_participant.paid</code> opcional, con <code>setting.track_payments</code> en falso para el club de hoy. La alternativa de dejarlo siempre en verdadero no se recomienda porque afirma pagos que nadie registró.</div></div></div>
-    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿El precio del turno es por cancha o se reparte entre las personas?</div><div class="ctx">Estimado en 7k, pero no está definido si es el total del turno o lo que paga cada jugador. Afecta el cálculo de Cobros y el sentido del campo “abonó” por jugador.</div></div></div>
-    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Qué debe mostrar Cobros si el pago en caja no se registra?</div><div class="ctx">Propuesta, mientras tanto: turnos no cancelados por el precio del turno, como estimación. Otra opción es contar solo los turnos Completos. Hay que definir si el administrador necesita cierre de caja real.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Qué partes del chatbot puede personalizar cada club y quién las configura?</div><div class="ctx">Definido: el chatbot habla con la identidad del club, sin marca Pali, con una base común de respuestas. Falta definir qué se personaliza (nombre del asistente, saludo, tono, textos de cada mensaje) y si lo carga el administrador o lo configura el equipo de Pali.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Cómo se ve la identidad del club dentro del backoffice?</div><div class="ctx">Idea: que el nombre y el logo del club tengan más presencia, con un diseño tipo marca blanca, mientras Pali define su propia identidad. Falta decidir si el club sube su logo, si elige un color de acento y dónde aparece su nombre.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿El logo de Pali (una pelota de tenis y paddle) sirve para otros deportes?</div><div class="ctx">La marca no debe depender de un solo deporte. Falta decidir si la pelota se mantiene como símbolo general de Pali o si hace falta un símbolo más neutro.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Contra qué período se compara la variación de Cobros?</div><div class="ctx">Propuesta: hoy contra ayer, la semana contra el mismo tramo de la semana pasada y el mes contra el mismo tramo del mes anterior (por ejemplo, del 1 al 9). Falta confirmar si el club prefiere comparar contra el mismo período del año anterior o contra el promedio.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Cómo se calcula el porcentaje de ocupación que se ve en la viñeta de Cobros?</div><div class="ctx">Propuesta: turnos con al menos 1 persona anotada sobre los turnos disponibles de las canchas activas, contando solo los días del período que ya pasaron. Alternativa: medir por personas anotadas sobre la capacidad total (4 por turno). Falta que el club confirme cuál le sirve más.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Cuántos registros se muestran por defecto y qué otras listas se paginan?</div><div class="ctx">Definido: la tabla de personas se carga por página y el administrador elige 10, 20, 50 o 100 registros por pantalla. Propuesta: arrancar en 10 y aplicar lo mismo a Reservas y Cobros cuando crezcan. Falta confirmar el valor por defecto y si la elección se recuerda.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Cómo funcionan las promos y los descuentos?</div><div class="ctx">Propuesta: un precio promo fijo por jugador o un porcentaje de descuento, para un rango de turnos, con días y fechas de vigencia opcionales. Si aplican varias gana la de menor precio y una promo solo puede bajar el precio. Falta confirmar si hace falta una promo por cancha, un recargo para horarios de mucha demanda o un límite de turnos con promo.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿El chatbot informa el precio promo al ofrecer un turno y la agenda marca los turnos con promo?</div><div class="ctx">El precio de cada turno se calcula con las promos activas. Falta definir si el chatbot lo menciona al ofrecer opciones y si la agenda lo muestra.</div></div></div>
+    <div class="qitem"><span class="who w-iv">Consultar con Ivan</span><div><div class="q">¿Qué pasa con las reservas existentes si el administrador cambia la duración del turno o el horario del último turno?</div><div class="ctx">Definido: ambos parámetros se ajustan desde Configuración y la grilla se recalcula. Las reservas guardan su inicio y fin, así que pueden quedar fuera de la nueva grilla. Falta definir si se avisa, se bloquea el cambio con reservas futuras o se mantienen igual.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Cómo se pide una cancha nueva al equipo de Pali y cómo impacta en la cuota?</div><div class="ctx">Definido: el club no agrega canchas por su cuenta; lo hace el equipo de Pali desde el back a pedido del club. Como el plan es de 15k por cancha, falta definir el circuito de pedido y desde cuándo se cobra la cancha nueva.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Qué pasa con las reservas ya hechas de una cancha que pasa a inactiva?</div><div class="ctx">Definido: una cancha inactiva no aparece en la agenda y el chatbot no la sugiere. Falta definir si sus reservas futuras se mantienen, se cancelan o se avisa a los jugadores.</div></div></div>
+    <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Qué debe mostrar Cobros si el pago en caja no se registra?</div><div class="ctx">Propuesta, mientras tanto: por cada turno no cancelado, las personas anotadas por el precio por jugador, como estimación. Otra opción es contar solo los turnos Completos. Hay que definir si el administrador necesita cierre de caja real.</div></div></div>
     <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Qué pasa cuando se quita a la última persona de un turno?</div><div class="ctx">Como con 0 personas el turno está Libre, el prototipo libera la reserva (la borra) en vez de dejarla vacía. Falta definir si debe pedir confirmación, y cómo cuenta quien reserva por el chatbot: se propone que se sume como la primera persona del turno.</div></div></div>
     <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Un turno puede tener más de 4 personas o debe bloquearse en 4?</div><div class="ctx">El prototipo bloquea al llegar a 4 (la cantidad sale de <code>players_required</code>). También falta definir si el chatbot puede ofrecer un turno Reservado (de 1 a 3 personas) a otras personas que quieran sumarse.</div></div></div>
     <div class="qitem"><span class="who">A definir</span><div><div class="q">¿Qué categoría se le asigna a quien reserva por el chatbot si todavía no está en la base?</div><div class="ctx">Como la categoría es obligatoria al crear una persona, el chatbot tendría que preguntarla o dejar la persona pendiente de completar desde el backoffice. También falta definir si el administrador puede cambiar la categoría después y quién decide la categoría de cada jugador.</div></div></div>

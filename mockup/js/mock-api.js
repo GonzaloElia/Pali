@@ -15,7 +15,7 @@
 (function () {
   "use strict";
 
-  var STORE_KEY = "pali-mock-v7";
+  var STORE_KEY = "pali-mock-v10";
 
   /* ---------- utilidades de fecha y hora ---------- */
   function pad(n) { return (n < 10 ? "0" : "") + n; }
@@ -49,7 +49,7 @@
       firstSlotNear: "11:00",   // el primer turno cae cerca de las 11:00
       playersPerBooking: 4,     // parámetro: personas para que un turno esté completo (paddle = 4)
       trackPayments: false,     // este club cobra en caja: el prototipo no registra quién abonó
-      turnPrice: 7000,          // estimado; lo carga el administrador
+      playerPrice: 7000,        // precio por jugador por turno (estimado); lo carga el administrador. Turno completo = playerPrice × playersPerBooking
       currency: "ARS"
     };
   }
@@ -66,12 +66,20 @@
     var categories = ["1ra", "2da", "3ra", "4ta", "5ta", "6ta", "7ma", "8va"].map(function (n, i) {
       return { id: "cat" + (i + 1), sport: "Paddle", name: n, order: i + 1 };
     });
+    /* Más personas de ejemplo (137 en total) para probar la paginación de la tabla de Personas */
+    var firsts = ["Matías","Lucas","Federico","Ignacio","Franco","Gonzalo","Diego","Pablo","Sebastián","Maximiliano","Emiliano","Bruno","Andrés","Ramiro","Leandro","Ezequiel","Mariano","Hernán","Damián","Rodrigo","Carolina","Florencia","Paula","Micaela","Daniela","Romina","Luciana","Natalia","Marina","Carla","Belén","Antonella","Victoria","Milagros","Rocío","Candela","Noelia","Gabriela","Verónica","Mercedes"];
+    var lasts = ["Pérez","Rodríguez","López","Martínez","Díaz","Sánchez","Romero","Álvarez","Torres","Ruiz","Ramírez","Flores","Castro","Vega","Medina","Suárez","Giménez","Peralta","Sosa","Cabrera","Aguirre","Luna","Ibáñez","Domínguez","Correa","Figueroa","Maldonado","Cáceres","Ledesma","Arias","Moreno","Bravo","Campos","Franco","Godoy","Quiroga","Rojas","Villalba","Méndez","Bustos"];
+    for (var k = 0; k < 124; k++) names.push([firsts[(k * 7) % firsts.length], lasts[(k * 11 + Math.floor(k / 40)) % lasts.length]]);
     var people = names.map(function (n, i) {
       /* La categoría es obligatoria: toda persona tiene una */
-      return { id: "p" + (i + 1), firstName: n[0], lastName: n[1], phone: "11 5555-" + (1000 + i * 37), categoryId: categories[(i * 3) % 8].id, alias: i === 12 ? "Tincho" : "", createdAt: addDays(today(), -300 + i * 20) };
+      return { id: "p" + (i + 1), firstName: n[0], lastName: n[1], phone: "11 5555-" + (1000 + i * 37), categoryId: categories[(i * 3 + Math.floor(i / 8)) % 8].id, alias: i === 12 ? "Tincho" : "", createdAt: addDays(today(), -300 + (i * 20) % 295) };
     });
     var s = {
       settings: defaultSettings(),
+      /* Promos y descuentos: precio especial para un rango de turnos (ejemplo: el de las 22:30) */
+      priceRules: [
+        { id: "pr1", name: "Promo último turno", kind: "fixed", value: 5000, from: "22:30", to: "22:30", weekdays: [], validFrom: "", validTo: "", active: true }
+      ],
       courts: [
         { id: "c1", name: "Cancha 1", sport: "Paddle", active: true },
         { id: "c2", name: "Cancha 2", sport: "Paddle", active: true }
@@ -79,7 +87,7 @@
       categories: categories,
       people: people,
       bookings: [],
-      seq: { booking: 1, person: people.length + 1, court: 3 }
+      seq: { booking: 1, person: people.length + 1, court: 3, rule: 2 }
     };
     var times = buildTimes(s.settings);
     var t0 = today();
@@ -92,14 +100,14 @@
             var n = r() < 0.45 ? 4 : 1 + Math.floor(r() * 3);   // 1 a 3 personas = Reservado; 4 = Completo (con 0 el turno está Libre)
             var ids = [];
             while (ids.length < n) {
-              var pid = people[Math.floor(r() * people.length)].id;
+              var pid = people[Math.floor(r() * 115)].id;   // las últimas personas cargadas todavía no jugaron
               if (ids.indexOf(pid) < 0) ids.push(pid);
             }
             s.bookings.push({
               id: "b" + (s.seq.booking++), date: date, courtId: c.id, start: tm.start, end: tm.end,
               status: "active", source: "backoffice",
               participantIds: ids,
-              amount: s.settings.turnPrice
+              playerPrice: s.settings.playerPrice
             });
           }
         });
@@ -128,6 +136,26 @@
     var out = [];
     for (var m = last; m >= minStart; m -= step) out.unshift({ start: toHHMM(m), end: toHHMM(m + step) });
     return out;
+  }
+
+  /* Precio por jugador de un turno: el base, o el de la promo activa que aplique (gana la de menor precio) */
+  function ruleApplies(r, date, start) {
+    if (!r.active) return false;
+    if (r.validFrom && date < r.validFrom) return false;
+    if (r.validTo && date > r.validTo) return false;
+    var wd = (parseDate(date).getDay() + 6) % 7;   // 0 = lunes
+    if (r.weekdays.length && r.weekdays.indexOf(wd) < 0) return false;
+    var m = toMin(start);
+    return m >= toMin(r.from) && m <= toMin(r.to);
+  }
+  function priceFor(st, date, start) {
+    var base = st.settings.playerPrice, best = { price: base, rule: null };
+    st.priceRules.forEach(function (r) {
+      if (!ruleApplies(r, date, start)) return;
+      var p = r.kind === "fixed" ? r.value : Math.round(base * (1 - r.value / 100));
+      if (p < best.price) best = { price: p, rule: r };
+    });
+    return best;
   }
 
   function personName(p) { return p ? p.firstName + " " + p.lastName : ""; }
@@ -180,6 +208,49 @@
 
     /* Canchas · GET /courts (candidato) */
     listCourts: function () { return done(ensure().courts); },
+    /* Grilla de horarios para unos parámetros (sin guardarlos) · uso: vista previa en Configuración */
+    previewGrid: function (patch) { var st = ensure(); return done(buildTimes(Object.assign({}, st.settings, patch || {}))); },
+
+    /* Promos · GET /price-rules (candidato) */
+    listPriceRules: function () { return done(ensure().priceRules); },
+    /* POST /price-rules · PATCH /price-rules/:id (candidato) */
+    savePriceRule: function (r) {
+      var st = ensure(), base = st.settings.playerPrice;
+      if (!r.from || !r.to) return fail("Falta completar los turnos desde y hasta");
+      if (toMin(r.from) > toMin(r.to)) return fail("El turno final no puede ser anterior al inicial");
+      if (r.kind === "fixed" && !(r.value >= 0 && r.value < base)) return fail("El precio promo tiene que ser menor al precio por jugador");
+      if (r.kind === "percent" && !(r.value > 0 && r.value <= 100)) return fail("El descuento tiene que estar entre 1 y 100");
+      var rule = { id: r.id || "pr" + (st.seq.rule++), name: r.name || "", kind: r.kind, value: r.value, from: r.from, to: r.to,
+                   weekdays: r.weekdays || [], validFrom: r.validFrom || "", validTo: r.validTo || "", active: r.active !== false };
+      var i = st.priceRules.map(function (x) { return x.id; }).indexOf(rule.id);
+      if (i >= 0) st.priceRules[i] = rule; else st.priceRules.push(rule);
+      save(); return done(rule);
+    },
+    /* PATCH /price-rules/:id { active } (candidato) */
+    setPriceRuleActive: function (id, active) {
+      var r = ensure().priceRules.filter(function (x) { return x.id === id; })[0];
+      if (!r) return fail("Promo inexistente");
+      r.active = !!active; save(); return done(r);
+    },
+    /* DELETE /price-rules/:id (candidato). Las reservas ya hechas conservan el precio con el que se hicieron */
+    deletePriceRule: function (id) {
+      var st = ensure(); st.priceRules = st.priceRules.filter(function (x) { return x.id !== id; }); save(); return done(true);
+    },
+    /* GET /prices?date= (candidato): precio por jugador y del turno completo para cada horario de un día */
+    previewPrices: function (q) {
+      var st = ensure(), n = st.settings.playersPerBooking;
+      return done(buildTimes(st.settings).map(function (tm) {
+        var pr = priceFor(st, q.date, tm.start);
+        return { start: tm.start, end: tm.end, price: pr.price, total: pr.price * n, rule: pr.rule ? (pr.rule.name || "Promo " + pr.rule.from) : null };
+      }));
+    },
+
+    /* PATCH /courts/:id { active } (candidato). Una cancha inactiva no aparece en la agenda ni la sugiere el chatbot */
+    setCourtActive: function (id, active) {
+      var st = ensure(), c = st.courts.filter(function (x) { return x.id === id; })[0];
+      if (!c) return fail("Cancha inexistente");
+      c.active = !!active; save(); return done(c);
+    },
     /* POST /courts (candidato) */
     addCourt: function (name) {
       var st = ensure();
@@ -232,7 +303,8 @@
       var b = {
         id: "b" + (st.seq.booking++), date: p.date, courtId: p.courtId, start: p.start, end: end,
         status: "active", source: p.source || "backoffice", participantIds: p.personIds || [],
-        amount: st.settings.turnPrice
+        playerPrice: priceFor(st, p.date, p.start).price,   // precio por jugador al reservar (con promo si aplica)
+        priceRule: priceFor(st, p.date, p.start).rule ? priceFor(st, p.date, p.start).rule.name || "Promo" : null
       };
       st.bookings.push(b); save(); return done(view(b));
     },
@@ -286,16 +358,52 @@
       ["firstName", "lastName", "alias", "phone", "categoryId"].forEach(function (k) { if (k in patch) p[k] = patch[k]; });
       save(); return done(pview(p));
     },
-    /* GET /people/:id/history (candidato): en qué canchas jugó */
-    getPersonHistory: function (personId) {
-      var st = ensure();
-      var list = st.bookings.filter(function (b) { return b.status === "active" && b.participantIds.indexOf(personId) >= 0; })
+    /* Tabla de jugadores · GET /people/stats?categoryId=&courtId=&from=&to=&q=&page=&pageSize= (candidato)
+       Por persona: veces que jugó (turnos activos hasta hoy), última vez y veces por cancha.
+       Con filtro de cancha o período solo quedan quienes jugaron en ese filtro. */
+    listPlayers: function (q) {
+      q = q || {};
+      var st = ensure(), t = today(), stats = {};
+      st.bookings.forEach(function (b) {
+        if (b.status !== "active" || b.date > t) return;
+        if (q.from && b.date < q.from) return;
+        if (q.courtId && b.courtId !== q.courtId) return;
+        b.participantIds.forEach(function (pid) {
+          var s = stats[pid] || (stats[pid] = { plays: 0, last: "", courts: {} });
+          s.plays++; if (b.date > s.last) s.last = b.date;
+          s.courts[b.courtId] = (s.courts[b.courtId] || 0) + 1;
+        });
+      });
+      var filtering = !!(q.courtId || q.from);
+      var nq = norm(q.q || "");
+      var list = st.people.filter(function (p) {
+        return (!q.categoryId || p.categoryId === q.categoryId) && (!filtering || stats[p.id]) && (!nq || norm(personLabel(p)).indexOf(nq) >= 0);
+      }).map(function (p) {
+        var s = stats[p.id] || { plays: 0, last: "", courts: {} }, v = pview(p);
+        v.plays = s.plays; v.lastPlayed = s.last || null;
+        v.courts = Object.keys(s.courts).map(function (cid) {
+          var c = st.courts.filter(function (x) { return x.id === cid; })[0];
+          return { courtId: cid, courtName: c ? c.name : "", count: s.courts[cid] };
+        }).sort(function (a, b) { return a.courtName < b.courtName ? -1 : 1; });
+        return v;
+      });
+      list.sort(function (a, b) { return b.plays - a.plays || (personLabel(a) < personLabel(b) ? -1 : 1); });
+      /* Paginación: devuelve solo la página pedida, no todo junto. pageSize permitido: 10, 20, 50 o 100 */
+      var size = [10, 20, 50, 100].indexOf(Number(q.pageSize)) >= 0 ? Number(q.pageSize) : 10;
+      var pages = Math.max(1, Math.ceil(list.length / size));
+      var page = Math.min(Math.max(1, Number(q.page) || 1), pages);
+      return done({ items: list.slice((page - 1) * size, page * size), total: list.length, page: page, pageSize: size, totalPages: pages });
+    },
+    /* GET /people/:id/history (candidato): en qué canchas jugó. { playedOnly: true } deja solo los turnos hasta hoy */
+    getPersonHistory: function (personId, opts) {
+      var st = ensure(), only = opts && opts.playedOnly, t = today();
+      var list = st.bookings.filter(function (b) { return b.status === "active" && b.participantIds.indexOf(personId) >= 0 && (!only || b.date <= t); })
         .sort(function (a, b) { return a.date < b.date ? 1 : -1; }).map(view);
       return done(list);
     },
 
     /* Cobros · GET /income?granularity=&year= (candidato)
-       Sin registro de pago por turno: suma turnos no cancelados hasta hoy × precio (estimado).
+       Sin registro de pago: suma, por cada turno no cancelado hasta hoy, las personas anotadas × el precio por jugador (estimado).
        granularity: day (últimos 7 días) | week (últimas 8 semanas) | month (12 meses del año) */
     getIncome: function (q) {
       var st = ensure();
@@ -314,19 +422,40 @@
       paid.forEach(function (b) {
         var key = q.granularity === "day" ? b.date : q.granularity === "week" ? mondayOf(b.date) : b.date.slice(0, 7);
         var idx = keys.indexOf(key);
-        if (idx >= 0) values[idx] += b.amount;
+        if (idx >= 0) values[idx] += b.participantIds.length * b.playerPrice;
       });
-      return done({ granularity: q.granularity, labels: labels, keys: keys, values: values, total: values.reduce(function (a, b) { return a + b; }, 0) });
+      /* Ocupación (propuesta, a confirmar): turnos con al menos 1 persona anotada sobre los turnos disponibles de las canchas activas,
+         contando solo los días del período que ya pasaron (hasta hoy). null si el período todavía no empezó. */
+      var perDay = buildTimes(st.settings).length * st.courts.filter(function (c) { return c.active; }).length;
+      var occupancy = keys.map(function (k) {
+        var from = q.granularity === "month" ? k + "-01" : k;
+        var to = q.granularity === "day" ? k : q.granularity === "week" ? addDays(k, 6) : (function () { var y = Number(k.slice(0, 4)), m = Number(k.slice(5, 7)); return k + "-" + pad(new Date(y, m, 0).getDate()); })();
+        if (from > t) return null;
+        if (to > t) to = t;
+        var days = Math.round((parseDate(to) - parseDate(from)) / 86400000) + 1;
+        var used = st.bookings.filter(function (b) { return b.status === "active" && b.participantIds.length >= 1 && b.date >= from && b.date <= to; }).length;
+        return perDay && days > 0 ? Math.min(100, Math.round(used / (perDay * days) * 100)) : null;
+      });
+      return done({ granularity: q.granularity, labels: labels, keys: keys, values: values, occupancy: occupancy, total: values.reduce(function (a, b) { return a + b; }, 0) });
     },
     /* GET /income/summary (candidato): hoy, esta semana, este mes */
     getIncomeSummary: function () {
       var st = ensure(), t = today(), mon = mondayOf(t), ym = t.slice(0, 7);
-      var sum = { today: 0, week: 0, month: 0 };
+      var sum = { today: 0, week: 0, month: 0, prevToday: 0, prevWeek: 0, prevMonth: 0 };
+      /* Comparación con el período anterior en el mismo tramo transcurrido: ayer, la semana pasada hasta el mismo día
+         y el mes pasado hasta el mismo día del mes (propuesta, a confirmar) */
+      var yest = addDays(t, -1), prevMon = addDays(mon, -7), prevSame = addDays(t, -7);
+      var py = Number(ym.slice(0, 4)), pm = Number(ym.slice(5, 7)) - 1; if (pm === 0) { pm = 12; py--; }
+      var prevYm = py + "-" + pad(pm), dom = t.slice(8);
       st.bookings.forEach(function (b) {
         if (b.status !== "active") return;
-        if (b.date === t) sum.today += b.amount;
-        if (b.date >= mon && b.date <= t) sum.week += b.amount;
-        if (b.date.slice(0, 7) === ym && b.date <= t) sum.month += b.amount;
+        var amt = b.participantIds.length * b.playerPrice;   // cada persona anotada paga el precio por jugador
+        if (b.date === t) sum.today += amt;
+        if (b.date === yest) sum.prevToday += amt;
+        if (b.date >= mon && b.date <= t) sum.week += amt;
+        if (b.date >= prevMon && b.date <= prevSame) sum.prevWeek += amt;
+        if (b.date.slice(0, 7) === ym && b.date <= t) sum.month += amt;
+        if (b.date.slice(0, 7) === prevYm && b.date.slice(8) <= dom) sum.prevMonth += amt;
       });
       return done(sum);
     },

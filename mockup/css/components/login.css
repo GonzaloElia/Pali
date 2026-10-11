@@ -36,7 +36,6 @@
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.28);
 }
 .login-card .label { font-family: var(--font-sans); font-size: 14px; letter-spacing: 0; text-transform: none; color: var(--ink-2); }
-.login-card .req { color: var(--brand); margin-left: 2px; }
 .login-link { font-size: 13px; font-weight: 500; color: var(--brand); background: none; border: 0; padding: 0; cursor: pointer; font-family: inherit; text-align: left; }
 .login-link:hover { text-decoration: underline; }
 .login-sep { height: 1px; background: var(--line-strong); width: 40%; margin: 4px auto; }

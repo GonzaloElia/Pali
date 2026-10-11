@@ -52,7 +52,7 @@ Cancelado se guarda aparte y el horario vuelve a Libre. Un turno no se reserva v
 - Lo que usan solo algunos clubes es **campo opcional**; lo que cambia entre clubes va en configuración (`setting`), no en el esquema.
 - La **disponibilidad se calcula** (parámetros menos reservas activas); no se guarda.
 - **Capa de acceso a datos con un adaptador por motor**, para poder cambiar de base de datos. Motor inicial recomendado: PostgreSQL.
-- Entidades: `sport`, `category`, `court`, `court_attribute`, `setting`, `person`, `booking`, `booking_participant`, `payment`, `staff_user`.
+- Entidades: `sport`, `category`, `court`, `court_attribute`, `setting`, `person`, `booking`, `booking_participant`, `payment`, `staff_user`, `price_rule`, `price_rule_weekday`.
 
 El detalle de campos, el DER y tablas de ejemplo están en la sección **05 · Backend** de [`docs/producto-reserva-canchas.html`](docs/producto-reserva-canchas.html).
 
@@ -71,11 +71,11 @@ Abrí `mockup/login.html` (o `mockup/index.html`, el mapa de flujos) con doble c
 ### Pantallas
 | Pantalla | Qué resuelve |
 |---|---|
-| Cobros | Cuánto entró por día, semana y mes, con filtro por año (hoy estimado) |
+| Cobros | Resumen de caja y cuánto entró por día, semana y mes, con variación y filtro por año (hoy estimado) |
 | Agenda | Grilla de turnos por cancha y día; reservar en 2 clics |
 | Personas | Buscador único, alta de persona e historial de canchas |
 | Reservas | Reservas creadas, completas o incompletas, cancelar |
-| Configuración | Precio del turno, parámetros y canchas |
+| Configuración | Precio por jugador, parámetros de turnos, promos y canchas activas o inactivas |
 | Login | Inicio de sesión simulado |
 
 Los nombres de las pestañas son provisorios: se cambian en un solo lugar, `mockup/js/nav.js`.
@@ -84,7 +84,7 @@ Los nombres de las pestañas son provisorios: se cambian en un solo lugar, `mock
 Las pantallas nunca tocan los datos directo: piden todo a `PaliApi` (`mockup/js/mock-api.js`). Cuando se definan los endpoints, cada método se reemplaza por una llamada real con la misma forma de respuesta y las pantallas no cambian. Los endpoints candidatos están en [`mockup/README.md`](mockup/README.md).
 
 ### Diseño
-Paleta **blanco, verde y negro**, con tema claro y oscuro y barra lateral ocultable. Tokens y componentes documentados en [`DESIGN-SYSTEM.md`](DESIGN-SYSTEM.md).
+Paleta **blanco, verde y negro**, con tema claro y oscuro y barra lateral ocultable. Tokens y componentes documentados en [`DESIGN-SYSTEM.md`](Diseño/DESIGN-SYSTEM.md).
 
 ---
 
@@ -94,7 +94,7 @@ Paleta **blanco, verde y negro**, con tema claro y oscuro y barra lateral oculta
 Pali/
 ├─ README.md                        Este documento
 ├─ CONTEXTO.md                      Resumen vivo de todo lo definido
-├─ DESIGN-SYSTEM.md                 Sistema de diseño
+├─ Diseño/                          Sistema de diseño, manual de marca y logos (SVG)
 ├─ docs/
 │  └─ producto-reserva-canchas.html Documento de producto: alcance, backend, preguntas abiertas
 ├─ mockup/                          Prototipo navegable del backoffice
@@ -115,7 +115,7 @@ Pali/
 |---|---|
 | [`docs/producto-reserva-canchas.html`](docs/producto-reserva-canchas.html) | Fuente de verdad del producto. Incluye las **preguntas abiertas** (sección 08) |
 | [`CONTEXTO.md`](CONTEXTO.md) | Resumen de lo definido, para retomar rápido |
-| [`DESIGN-SYSTEM.md`](DESIGN-SYSTEM.md) | Colores, tipografía, componentes y patrones |
+| [`DESIGN-SYSTEM.md`](Diseño/DESIGN-SYSTEM.md) | Colores, tipografía, componentes y patrones |
 | [`mockup/README.md`](mockup/README.md) | Capa de datos simulada y endpoints candidatos |
 | [`Roadmap/README.md`](Roadmap/README.md) | Cómo usar el roadmap |
 | [`agenda/`](agenda/) | Un reporte por jornada: decisiones de negocio y mejoras del prototipo |

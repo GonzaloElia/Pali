@@ -75,6 +75,9 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
         <span class="chip chip--soft">Reservado · 2 de 4</span>
         <span class="chip chip--solid">Completo</span>
         <span class="chip chip--coral">Cancelado</span>
+        <span class="chip chip--sky">Cancha 1 · 4 veces</span>
+        <span class="chip chip--lav">8ª</span>
+        <span class="chip chip--lav-solid">Promo</span>
         <span class="chip chip--dashed">a confirmar</span>
       </div>
     </section>
@@ -108,6 +111,28 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
         <div class="card kpi kpi--brand"><span class="dom">Este mes</span><span class="value">$ 420.000</span><span class="sub">acumulado</span></div>
         <div class="card"><span class="dom">Card</span><h3>Título de card</h3><p>Texto de apoyo breve.</p></div>
         <div class="note"><b>Nota.</b> Aclaración o dato importante dentro de una pantalla.</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <p class="kicker">Datos: variación, panel de caja y gráfico</p>
+      <div class="hero">
+        <div><p class="kicker">Este mes · estimado</p><span class="hero-value">$ 1.372.000</span><div class="hero-row"><span class="delta">▲ 9 %</span><span>vs. el mismo tramo del mes anterior</span></div></div>
+        <div class="hero-side">
+          <div class="hero-stat"><p class="kicker">Hoy</p><span><span class="v">$ 77.000</span><span class="delta">= 0 %</span></span></div>
+          <div class="hero-stat"><p class="kicker">Esta semana</p><span><span class="v">$ 770.000</span><span class="delta">▼ 6 %</span></span></div>
+        </div>
+      </div>
+      <p class="mt-4"><span class="delta delta--up">▲ 12 %</span> <span class="delta delta--down">▼ 8 %</span> <span class="delta delta--flat">= 0 %</span> <span class="delta delta--flat">— sin comparar</span></p>
+      <p class="hint mt-2">La variación siempre lleva flecha y texto. Una baja va en gris oscuro, no en coral.</p>
+    </section>
+
+    <section class="section">
+      <p class="kicker">Estados: vacío, error y carga</p>
+      <div class="grid-3">
+        <div class="card"><div class="state"><span class="state-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><p class="state-title">Todavía no hay datos</p><p class="state-hint">Explica qué falta y cuándo se va a ver contenido.</p></div></div>
+        <div class="card"><div class="state state--error"><span class="state-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/></svg></span><p class="state-title">No pudimos cargar</p><p class="state-hint">Dice qué pasó y ofrece reintentar.</p><button class="btn btn--neutral" type="button">Reintentar</button></div></div>
+        <div class="card" aria-busy="true"><span class="skel" style="width:40%"></span><br><span class="skel"></span><br><span class="skel" style="width:85%"></span><br><span class="skel" style="width:60%"></span></div>
       </div>
     </section>
 

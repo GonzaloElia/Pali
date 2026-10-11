@@ -41,3 +41,13 @@
 .btn--icon { padding: 8px 10px; }
 .btn--tiny { padding: 5px 6px; line-height: 0; border-radius: 6px; }   /* botón de ícono chico, ej: editar */
 .btn--tiny svg { width: 14px; height: 14px; display: block; }
+
+/* Botón de ícono (cuadrado, solo ícono): acciones de herramientas como elegir columnas */
+.icon-btn {
+  width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center;
+  color: var(--ink-2); background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r);
+  cursor: pointer; transition: color .15s, background .15s, border-color .15s, box-shadow .15s;
+}
+.icon-btn:hover { color: var(--ink); border-color: var(--ink-2); background: var(--bg-soft); }
+.icon-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.icon-btn[aria-expanded="true"] { color: var(--brand); border-color: var(--brand); background: var(--brand-soft, var(--bg-soft)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 14%, transparent); }

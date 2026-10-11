@@ -46,7 +46,7 @@
 /* Encabezado de página: panel menta con cuadrícula fina */
 .page-header {
   position: relative;
-  padding: 30px 34px 32px; margin-bottom: var(--s-5);
+  padding: 30px var(--header-pad) 32px; margin-bottom: var(--s-5);
   border-radius: var(--r-lg);
   background-color: var(--mint-soft);
   background-image:
@@ -70,7 +70,8 @@
   .sidebar .brand-sub { margin-bottom: 6px; }
   .sidebar .foot { display: none; }
   .main { padding: 16px 16px 56px; }
-  .page-header { padding: 22px 20px 24px; }
+  .page-header { padding: 22px var(--header-pad) 24px; }
+  :root { --header-pad: 20px; }
 }
 
 /* Lista de pestañas del menú lateral (la genera js/nav.js) */

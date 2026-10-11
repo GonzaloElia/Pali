@@ -52,6 +52,39 @@
 .seg button:hover { background: var(--bg-soft); color: var(--ink); }
 .seg button.is-on { background: var(--ink); color: var(--bg); }
 
+/* Botones de opción múltiple (por ejemplo, los días de la semana) */
+.toggle-group { display: flex; flex-wrap: wrap; gap: 6px; }
+.toggle {
+  min-width: 46px; height: 34px; padding: 0 10px; font: inherit; font-size: 13px; cursor: pointer;
+  border: 1px solid var(--line-strong); border-radius: var(--r-sm); background: var(--surface); color: var(--ink-2);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.toggle:hover { border-color: var(--ink-2); }
+.toggle[aria-pressed="true"] { background: var(--brand-soft); border-color: var(--brand); color: var(--brand); font-weight: 500; }
+
+/* Interruptor (activo / inactivo) */
+.switch {
+  position: relative; width: 40px; height: 23px; flex: none; padding: 0; border-radius: var(--r-pill);
+  border: 1px solid var(--line-strong); background: var(--bg-muted); cursor: pointer; transition: background 0.2s, border-color 0.2s;
+}
+.switch::after {
+  content: ""; position: absolute; top: 2px; left: 2px; width: 17px; height: 17px; border-radius: 50%;
+  background: var(--surface); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25); transition: transform 0.2s var(--ease);
+}
+.switch[aria-checked="true"] { background: var(--brand); border-color: var(--brand); }
+.switch[aria-checked="true"]::after { transform: translateX(17px); }
+.switch-row { display: flex; align-items: center; gap: 10px; }
+
 /* Campo obligatorio sin completar */
 .field--error .input, .field--error .select { border-color: var(--coral); }
 .field-error { font-size: var(--fs-sm); color: var(--coral); line-height: 1.4; }
+
+/* Asterisco de campo obligatorio: solo los obligatorios lo llevan; los opcionales no.
+   Se dibuja con una máscara (no con el carácter "*") para que quede centrado en la altura de las
+   mayúsculas y pegado al título, igual en todas las pantallas sin importar la tipografía del título. */
+.label .req {
+  display: inline-block; width: 0.62em; height: 0.62em; margin-left: 0.3em; vertical-align: 0.06em;
+  background: var(--brand);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 0.6v8.8M1.2 2.8l7.6 4.4M1.2 7.2l7.6-4.4' stroke='black' stroke-width='1.7' stroke-linecap='round' fill='none'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 0.6v8.8M1.2 2.8l7.6 4.4M1.2 7.2l7.6-4.4' stroke='black' stroke-width='1.7' stroke-linecap='round' fill='none'/%3E%3C/svg%3E") center / contain no-repeat;
+}

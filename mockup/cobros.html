@@ -26,18 +26,26 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     <header class="page-header">
       <p class="kicker">Backoffice · Cobros</p>
       <h2>Cuánto entró, <em>por día, semana y mes</em>.</h2>
-      <p class="lede">Suma los turnos reservados y no cancelados por el precio del turno <span class="chip chip--dashed">a confirmar</span>. El pago se hace en caja y no se registra por turno. El filtro por año aplica a la vista mensual.</p>
+      <p class="lede">Suma, por cada turno no cancelado, las personas anotadas por el precio por jugador <span class="chip chip--dashed">a confirmar</span>. El pago se hace en caja y no se registra por turno.</p>
     </header>
 
-    <div class="grid-3">
-      <div class="card kpi kpi--brand"><span class="dom">Hoy</span><span class="value" id="kToday">—</span><span class="sub">turnos de hoy</span></div>
-      <div class="card kpi"><span class="dom">Esta semana</span><span class="value" id="kWeek">—</span><span class="sub">desde el lunes</span></div>
-      <div class="card kpi"><span class="dom">Este mes</span><span class="value" id="kMonth">—</span><span class="sub">acumulado del mes</span></div>
-    </div>
+    <!-- Resumen de caja -->
+    <section class="hero" id="hero" aria-label="Resumen de caja">
+      <div>
+        <p class="kicker row" style="gap:10px;align-items:center">Este mes · estimado
+          <button type="button" class="hero-eye" id="eye" aria-pressed="false" aria-label="Ocultar importes" title="Ocultar importes"></button></p>
+        <span class="hero-value" id="kMonth"><span class="skel" style="width:60%;height:44px"></span></span>
+        <div class="hero-row" id="kMonthRow"></div>
+      </div>
+      <div class="hero-side">
+        <div class="hero-stat"><p class="kicker">Hoy</p><span><span class="v" id="kToday">—</span><span id="dToday"></span></span></div>
+        <div class="hero-stat"><p class="kicker">Esta semana</p><span><span class="v" id="kWeek">—</span><span id="dWeek"></span></span></div>
+      </div>
+    </section>
 
     <section class="section">
       <div class="row between wrap">
-        <div class="seg" id="seg">
+        <div class="seg" id="seg" role="group" aria-label="Agrupar ingresos">
           <button data-act="gran" data-v="day">Por día</button>
           <button data-act="gran" data-v="week">Por semana</button>
           <button data-act="gran" data-v="month" class="is-on">Por mes</button>
@@ -48,24 +56,40 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
         </div>
       </div>
 
-      <div class="card mt-4">
+      <div class="card mt-4" id="chartCard" aria-busy="true">
         <div class="row between wrap">
           <p class="kicker" id="title" style="margin:0"></p>
-          <span class="chip chip--soft" id="total"></span>
+          <span class="chip chip--sky" id="total"></span>
         </div>
-        <div class="bars mt-4" id="bars"></div>
-        <div class="bar-labels" id="labels"></div>
+        <div class="mt-4" id="chartBody"></div>
       </div>
 
-      <div class="table-wrap mt-5">
-        <table class="table">
-          <thead><tr><th>Período</th><th class="num">Ingresos</th></tr></thead>
-          <tbody id="rows"></tbody>
-        </table>
+      <!-- Detalle: reservas del día, semana o mes de la barra elegida. Aparece al tocar una barra y no se cierra -->
+      <div class="mt-5" id="detail" hidden aria-live="polite">
+        <div class="row between wrap">
+          <p class="kicker" id="dTitle" style="margin:0"></p>
+          <span class="chip chip--soft" id="dCount"></span>
+        </div>
+        <div class="pager pager--top mt-3" id="dPagerTop">
+          <label class="pager-size">Mostrar
+            <select id="dSize" class="select" aria-label="Reservas por página"><option>10</option><option>20</option><option>50</option><option>100</option></select>
+            por página</label>
+        </div>
+        <div class="table-wrap" id="dWrap">
+          <table class="table">
+            <thead><tr><th>Día</th><th>Hora</th><th>Cancha</th><th>Personas</th><th>Estado</th></tr></thead>
+            <tbody id="dRows"></tbody>
+          </table>
+          <p id="dEmpty" class="empty" hidden>No hay reservas en este período.</p>
+        </div>
+        <nav class="pager" id="dPager" aria-label="Paginación de reservas" hidden>
+          <span class="pager-range" id="dRange"></span>
+          <div class="pager-nav" id="dPages"></div>
+        </nav>
       </div>
     </section>
 
-    <p class="note mt-5"><b>Datos de ejemplo.</b> Es una estimación: turnos no cancelados × precio. El importe de cada turno es el precio cargado en Configuración (estimado en 7k).</p>
+    <p class="note mt-5"><b>Datos de ejemplo.</b> Es una estimación: personas anotadas en turnos no cancelados × precio por jugador cargado en Configuración (estimado en 7k). Las variaciones comparan con el mismo tramo del período anterior <span class="chip chip--dashed">a confirmar</span>.</p>
   </main>
 </div>
 
@@ -75,37 +99,228 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
   var $ = function (s) { return document.querySelector(s); };
   var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
   var thisYear = new Date().getFullYear();
-  var S = { gran: 'month', year: thisYear };
-  var money = function (n) { return '$ ' + Math.round(n).toLocaleString('es-AR'); };
+  var S = { gran: 'month', year: thisYear, sel: null, opened: false, keys: [], rows: [], page: 1, size: 10 };
+  /* Ocultar importes: se reemplazan por asteriscos. La preferencia se recuerda en este navegador. */
+  var hidden = false;
+  try { hidden = localStorage.getItem('pali-hide-amounts') === '1'; } catch (e) {}
+  var MASK = '*******';
+  var money = function (n) { return hidden ? '$ ' + MASK : '$ ' + Math.round(n).toLocaleString('es-AR'); };
+  /* Importe corto para el eje: 1,2 M · 400 k */
+  var short = function (n) { return hidden ? '***' : n >= 1e6 ? (n / 1e6).toLocaleString('es-AR', { maximumFractionDigits: 1 }) + ' M' : n >= 1e3 ? Math.round(n / 1e3) + ' k' : String(Math.round(n)); };
+  var ICON_EMPTY = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>';
+  var ICON_ERR = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/></svg>';
 
+  var EYE = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+  var EYE_OFF = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18M10.6 5.1A10.7 10.7 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4M6.5 6.6C3.7 8.4 2 12 2 12s3.6 7 10 7a10 10 0 0 0 4.3-1M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+  var lastD = null, lastS = null;
+  function paintEye() {
+    var b = $('#eye');
+    b.innerHTML = hidden ? EYE_OFF : EYE;
+    b.setAttribute('aria-pressed', hidden ? 'true' : 'false');
+    var t = hidden ? 'Mostrar importes' : 'Ocultar importes';
+    b.setAttribute('aria-label', t); b.title = t;
+  }
   $('#year').innerHTML = [thisYear, thisYear - 1].map(function (y) { return '<option value="' + y + '">' + y + '</option>'; }).join('');
 
+  /* Variación: ▲ 12 % · ▼ 8 % · = 0 %. Sin período anterior con datos no hay variación que mostrar. */
+  function pct(cur, prev) { return prev > 0 ? Math.round((cur - prev) / prev * 100) : null; }
+  function delta(cur, prev, label) {
+    var p = pct(cur, prev);
+    if (p === null) return '<span class="delta delta--flat" title="Sin datos del período anterior para comparar">— sin comparar</span>';
+    var cls = p > 0 ? 'up' : p < 0 ? 'down' : 'flat', arrow = p > 0 ? '▲' : p < 0 ? '▼' : '=';
+    return '<span class="delta delta--' + cls + '" title="' + esc(label || 'Contra el período anterior') + '">' + arrow + ' ' + Math.abs(p) + ' %</span>';
+  }
+
+  /* Eje: tope redondeado a 1, 2 o 5 por una potencia de 10, con 4 tramos */
+  function niceMax(v) {
+    if (v <= 0) return 1;
+    var p = Math.pow(10, Math.floor(Math.log10(v))), n = v / p;
+    return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p;
+  }
+
+  function showLoading() {
+    $('#chartCard').setAttribute('aria-busy', 'true');
+    var sk = ''; for (var i = 0; i < 8; i++) sk += '<span class="skel" style="flex:1;width:auto;height:' + (30 + (i * 37) % 60) + '%;border-radius:5px 5px 0 0"></span>';
+    $('#chartBody').innerHTML = '<div style="display:flex;align-items:flex-end;gap:10px;height:240px;padding:0 6px">' + sk + '</div>';
+  }
+
+  function showError() {
+    $('#chartCard').removeAttribute('aria-busy');
+    $('#chartBody').innerHTML = '<div class="state state--error" role="alert"><span class="state-icon">' + ICON_ERR + '</span><p class="state-title">No pudimos cargar los ingresos</p><p class="state-hint">Revisá tu conexión e intentá de nuevo. Si sigue pasando, avisale al equipo de Pali.</p><button type="button" class="btn btn--neutral" data-act="retry">Reintentar</button></div>';
+  }
+
   async function load() {
-    var d = await PaliApi.getIncome({ granularity: S.gran, year: S.year });
-    var max = Math.max.apply(null, d.values.concat([1]));
-    var peak = d.values.indexOf(Math.max.apply(null, d.values));
+    showLoading();
+    var d;
+    try {
+      d = await PaliApi.getIncome({ granularity: S.gran, year: S.year });
+      await new Promise(function (ok) { setTimeout(ok, 350); });   // simula la espera de la respuesta (solo prototipo)
+    } catch (e) { showError(); return; }
+    S.keys = d.keys;
+    if (S.opened && S.keys.indexOf(S.sel) < 0) S.sel = currentKey(d);
+    lastD = d; paint(d);
+    if (S.opened) loadDetail();
+  }
+
+  /* ---------- Detalle de reservas del período elegido ---------- */
+  function currentKey(d) {
+    var t = PaliApi.util.today();
+    var k = S.gran === 'day' ? t : S.gran === 'week' ? null : t.slice(0, 7);
+    if (S.gran === 'week') return d.keys[d.keys.length - 1];
+    return d.keys.indexOf(k) >= 0 ? k : d.keys[0];
+  }
+  function rangeOf(key) {
+    var A = PaliApi.util.addDays, from = key, to = key;
+    if (S.gran === 'week') to = A(key, 6);
+    if (S.gran === 'month') { from = key + '-01'; to = key + '-' + String(new Date(+key.slice(0, 4), +key.slice(5, 7), 0).getDate()).padStart(2, '0'); }
+    return { from: from, to: to };
+  }
+  function dayLabel(b) {
+    var x = PaliApi.util.parseDate(b.date).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' });
+    return x.charAt(0).toUpperCase() + x.slice(1);
+  }
+  function stateChip(b) {
+    return b.state === 'full' ? '<span class="chip chip--solid">Completo</span>' : '<span class="chip chip--soft">Reservado</span>';
+  }
+  var D = { rows: [], page: 1, size: 10 };
+  function showDetailLoading() {
+    $('#dWrap').setAttribute('aria-busy', 'true'); $('#dSize').disabled = true; $('#dEmpty').hidden = true; $('#dPager').hidden = true;
+    var sk = ''; for (var i = 0; i < Math.min(D.size, 10); i++) sk += '<tr class="skel-row">' + new Array(6).join('<td><span class="skel"></span></td>') + '</tr>';
+    $('#dRows').innerHTML = sk;
+  }
+  function pageList(c, n) {
+    if (n <= 7) { var all = []; for (var i = 1; i <= n; i++) all.push(i); return all; }
+    var out = [1]; if (c > 3) out.push('…');
+    for (var j = Math.max(2, c - 1); j <= Math.min(n - 1, c + 1); j++) out.push(j);
+    if (c < n - 2) out.push('…'); out.push(n); return out;
+  }
+  function renderDetail() {
+    var total = D.rows.length, n = Math.max(1, Math.ceil(total / D.size));
+    D.page = Math.min(Math.max(1, D.page), n);
+    var from = (D.page - 1) * D.size, list = D.rows.slice(from, from + D.size);
+    $('#dWrap').removeAttribute('aria-busy'); $('#dSize').disabled = false; $('#dSize').value = String(D.size);
+    $('#dRows').innerHTML = list.map(function (b) {
+      return '<tr><td>' + esc(dayLabel(b)) + '</td><td class="mono">' + b.start + '–' + b.end + '</td><td>' + esc(b.courtName) + '</td><td>' +
+        esc(b.participants.length ? b.participants.map(function (p) { return p.name; }).join(', ') : 'Sin personas') + '</td><td>' + stateChip(b) + '</td></tr>';
+    }).join('');
+    $('#dEmpty').hidden = total > 0;
+    $('#dPager').hidden = total === 0;
+    $('#dRange').textContent = (from + 1) + '–' + Math.min(total, from + D.size) + ' de ' + total;
+    $('#dPages').innerHTML = '<button type="button" class="pager-btn" data-act="dgoto" data-page="' + (D.page - 1) + '"' + (D.page === 1 ? ' disabled' : '') + ' aria-label="Página anterior">Anterior</button>' +
+      pageList(D.page, n).map(function (x) {
+        return x === '…' ? '<span class="pager-gap">…</span>' : '<button type="button" class="pager-btn" data-act="dgoto" data-page="' + x + '"' + (x === D.page ? ' aria-current="page"' : '') + ' aria-label="Página ' + x + '">' + x + '</button>';
+      }).join('') +
+      '<button type="button" class="pager-btn" data-act="dgoto" data-page="' + (D.page + 1) + '"' + (D.page === n ? ' disabled' : '') + ' aria-label="Página siguiente">Siguiente</button>';
+  }
+  function pick(key) {
+    S.sel = key; S.opened = true;
+    document.querySelectorAll('#bars .bar').forEach(function (b) { var on = b.dataset.key === key; b.classList.toggle('is-sel', on); b.setAttribute('aria-pressed', on); });
+    var first = $('#detail').hidden;
+    loadDetail();
+    if (first) $('#detail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  async function loadDetail() {
+    var R = rangeOf(S.sel), t = PaliApi.util.today(), i = S.keys.indexOf(S.sel), lab = lastD ? lastD.labels[i] : S.sel;
+    var seq = (loadDetail.seq = (loadDetail.seq || 0) + 1);
+    $('#detail').hidden = false;
+    $('#dTitle').textContent = S.gran === 'day' ? 'Reservas del ' + lab : S.gran === 'week' ? 'Reservas de la semana del ' + lab : 'Reservas de ' + lab + ' de ' + S.sel.slice(0, 4);
+    showDetailLoading();
+    var rows;
+    try {
+      rows = await PaliApi.listBookings({ from: R.from, to: R.to > t ? t : R.to });
+      await new Promise(function (ok) { setTimeout(ok, 450); });   // simula la espera de la respuesta (solo prototipo)
+    } catch (e) { rows = []; }
+    if (seq !== loadDetail.seq) return;   // llegó una respuesta vieja: se ignora
+    D.rows = rows.filter(function (b) { return b.status === 'active'; });
+    D.page = 1;
+    $('#dCount').textContent = D.rows.length + (D.rows.length === 1 ? ' reserva' : ' reservas');
+    renderDetail();
+  }
+
+  function paint(d) {
+    $('#chartCard').removeAttribute('aria-busy');
+    $('#year').disabled = S.gran !== 'month';
     $('#title').textContent = S.gran === 'day' ? 'Últimos 7 días' : S.gran === 'week' ? 'Últimas 8 semanas (desde el lunes)' : 'Meses de ' + S.year;
     $('#total').textContent = 'Total ' + money(d.total);
-    $('#bars').innerHTML = d.values.map(function (v, i) {
-      return '<div class="bar' + (i === peak && v > 0 ? ' is-peak' : '') + '" title="' + esc(d.labels[i]) + ': ' + money(v) + '"><div class="fill" style="height:' + Math.round(v / max * 100) + '%"></div></div>';
+
+    if (d.total === 0) {
+      $('#chartBody').innerHTML = '<div class="state"><span class="state-icon">' + ICON_EMPTY + '</span><p class="state-title">Todavía no hay ingresos en este período</p><p class="state-hint">Cuando haya turnos con personas anotadas, vas a ver acá cuánto entró.</p></div>';
+      return;
+    }
+
+    var vals = d.values, max = niceMax(Math.max.apply(null, vals));
+    var peak = vals.indexOf(Math.max.apply(null, vals));
+    var withData = vals.filter(function (v) { return v > 0; });
+    var avg = withData.length ? withData.reduce(function (a, b) { return a + b; }, 0) / withData.length : 0;
+    var nowKey = S.gran === 'day' ? PaliApi.util.today() : S.gran === 'week' ? null : PaliApi.util.today().slice(0, 7);
+    var y = '', grid = '';
+    for (var g = 0; g <= 4; g++) {
+      var pos = g * 25;
+      y += '<span style="bottom:' + pos + '%">' + short(max * g / 4) + '</span>';
+      if (g > 0) grid += '<div class="chart-grid" style="bottom:' + pos + '%"></div>';
+    }
+    var bars = vals.map(function (v, i) {
+      var isPeak = i === peak && v > 0;
+      return '<div class="bar' + (isPeak ? ' is-peak' : '') + (v === 0 ? ' is-empty' : '') + (d.keys[i] === S.sel ? ' is-sel' : '') + '" tabindex="0" role="button" aria-pressed="' + (d.keys[i] === S.sel) + '" data-i="' + i + '" data-key="' + d.keys[i] + '" aria-label="' + esc(d.labels[i]) + ': ' + money(v) + '">' +
+        (isPeak ? '<span class="peak">Pico</span>' : '') + '<div class="fill" style="height:' + (v / max * 100) + '%"></div></div>';
     }).join('');
-    $('#labels').innerHTML = d.labels.map(function (l) { return '<span>' + esc(l) + '</span>'; }).join('');
-    $('#rows').innerHTML = d.labels.map(function (l, i) { return '<tr><td>' + esc(l) + '</td><td class="num">' + money(d.values[i]) + '</td></tr>'; }).join('');
-    $('#year').disabled = S.gran !== 'month';
+    var labels = d.labels.map(function (l, i) { return '<span' + (d.keys[i] === nowKey ? ' class="is-now"' : '') + '>' + esc(l) + '</span>'; }).join('');
+    $('#chartBody').innerHTML =
+      '<div class="chart"><div class="chart-y">' + y + '</div>' +
+      '<div class="chart-plot" id="plot">' + grid +
+      (avg ? '<div class="chart-avg" style="bottom:' + (avg / max * 100) + '%"><span>Promedio ' + short(avg) + '</span></div>' : '') +
+      '<div class="bars" id="bars">' + bars + '</div><div class="chart-tip" id="tip" hidden></div></div>' +
+      '<div class="bar-labels">' + labels + '</div></div>' +
+      '<div class="chart-legend"><span><i class="k-bar"></i>Ingresos del período</span><span><i class="k-peak"></i>Pico</span><span><i class="k-avg"></i>Promedio de los períodos con datos</span></div>';
+
+    /* Tooltip de cada barra (con mouse o teclado) */
+    var plot = $('#plot'), tip = $('#tip');
+    function showTip(el) {
+      var i = Number(el.dataset.i), r = el.getBoundingClientRect(), pr = plot.getBoundingClientRect();
+      var p = pct(vals[i], i > 0 ? vals[i - 1] : 0), occ = d.occupancy[i];
+      tip.innerHTML = '<small>' + esc(d.labels[i]) + '</small><b>' + money(vals[i]) + '</b>' +
+        (i > 0 && p !== null && vals[i] > 0 ? '<small>' + (p >= 0 ? '▲ ' : '▼ ') + Math.abs(p) + ' % vs. anterior</small>' : '') +
+        (occ === null ? '' : '<span class="tip-occ" title="Turnos ocupados sobre turnos disponibles"><i style="--p:' + occ + '%"></i>' + occ + ' %</span>');
+      tip.hidden = false;
+      var h = vals[i] / max * pr.height;
+      tip.style.left = Math.min(Math.max(r.left + r.width / 2 - pr.left, 70), pr.width - 70) + 'px';
+      tip.style.top = (pr.height - h) + 'px';
+    }
+    $('#bars').addEventListener('mouseover', function (e) { var b = e.target.closest('.bar'); if (b) showTip(b); });
+    $('#bars').addEventListener('mouseleave', function () { tip.hidden = true; });
+    $('#bars').addEventListener('focusin', function (e) { var b = e.target.closest('.bar'); if (b) showTip(b); });
+    $('#bars').addEventListener('focusout', function () { tip.hidden = true; });
+    $('#bars').addEventListener('click', function (e) { var b = e.target.closest('.bar'); if (b) pick(b.dataset.key); });
+    $('#bars').addEventListener('keydown', function (e) { var b = e.target.closest('.bar'); if (b && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); pick(b.dataset.key); } });
   }
 
   document.addEventListener('click', function (e) {
-    var el = e.target.closest('[data-act="gran"]');
+    var el = e.target.closest('[data-act]');
     if (!el) return;
+    if (el.dataset.act === 'retry') { load(); return; }
+    if (el.dataset.act === 'dgoto') { D.page = Number(el.dataset.page); renderDetail(); return; }
+    if (el.dataset.act !== 'gran') return;
     S.gran = el.dataset.v;
     document.querySelectorAll('#seg button').forEach(function (b) { b.classList.toggle('is-on', b === el); });
     load();
   });
+  $('#dSize').addEventListener('change', function () { D.size = Number(this.value); D.page = 1; renderDetail(); });
   $('#year').addEventListener('change', function () { S.year = +this.value; load(); });
 
-  PaliApi.getIncomeSummary().then(function (s) {
-    $('#kToday').textContent = money(s.today); $('#kWeek').textContent = money(s.week); $('#kMonth').textContent = money(s.month);
+  function paintSummary() {
+    var s = lastS; if (!s) return;
+    $('#kMonth').textContent = money(s.month);
+    $('#kMonthRow').innerHTML = delta(s.month, s.prevMonth, 'Contra el mismo tramo del mes anterior') + '<span>vs. el mismo tramo del mes anterior (' + money(s.prevMonth) + ')</span>';
+    $('#kToday').textContent = money(s.today); $('#dToday').innerHTML = delta(s.today, s.prevToday, 'Contra ayer');
+    $('#kWeek').textContent = money(s.week); $('#dWeek').innerHTML = delta(s.week, s.prevWeek, 'Contra el mismo tramo de la semana pasada');
+  }
+  $('#eye').addEventListener('click', function () {
+    hidden = !hidden;
+    try { localStorage.setItem('pali-hide-amounts', hidden ? '1' : '0'); } catch (e) {}
+    paintEye(); paintSummary(); if (lastD) paint(lastD);
   });
+  paintEye();
+  PaliApi.getIncomeSummary().then(function (s) { lastS = s; paintSummary(); });
   load();
 })();
 </script>

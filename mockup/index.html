@@ -36,7 +36,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
           <span class="dom">Flujo A · Cobros</span>
           <h3>Ver cuánto entró (estimado)</h3>
           <ol class="steps">
-            <li>Mirar hoy, esta semana y este mes.</li>
+            <li>Mirar la cifra del mes, hoy y esta semana, con su variación.</li>
             <li>Cambiar entre vista por día, semana y mes.</li>
             <li>Filtrar por año.</li>
           </ol>
@@ -59,8 +59,8 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
           <h3>Buscar o crear una persona</h3>
           <ol class="steps">
             <li>Escribir nombre y apellido en el buscador único.</li>
-            <li>Si existe, se abre su ficha; si no, se crea y se piden sus datos.</li>
-            <li>Ver en qué canchas jugó.</li>
+            <li>Filtrar la tabla de jugadores por categoría, cancha o período, y mostrar u ocultar columnas (Cancha arranca oculta).</li>
+            <li>Tocar un jugador: ver su categoría actual, cuántas veces fue y en qué canchas jugó. Si no existe, se crea.</li>
           </ol>
           <span class="chip chip--soft">Abrir personas →</span>
         </a>
@@ -77,11 +77,12 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
 
         <a class="card card--link" href="configuracion.html">
           <span class="dom">Flujo E · Configuración</span>
-          <h3>Cargar el precio del turno</h3>
+          <h3>Precio, promos y canchas</h3>
           <ol class="steps">
             <li>Entrar a Configuración.</li>
-            <li>Cargar el precio (único para todo el club).</li>
-            <li>Ver los parámetros de los turnos y las canchas.</li>
+            <li>Cargar el precio por jugador (único para todo el club). El turno completo se calcula.</li>
+            <li>Ajustar duración y último turno, y agregar una promo o descuento para un horario.</li>
+            <li>Marcar cada cancha como activa o inactiva (las canchas nuevas las agrega el equipo de Pali).</li>
           </ol>
           <span class="chip chip--soft">Abrir configuración →</span>
         </a>
@@ -94,11 +95,11 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
         <table class="table">
           <thead><tr><th>Pantalla</th><th>Qué resuelve</th></tr></thead>
           <tbody>
-            <tr><td><a href="cobros.html">Cobros</a></td><td>Ingresos por día, semana y mes; filtro por año</td></tr>
+            <tr><td><a href="cobros.html">Cobros</a></td><td>Resumen de caja, ingresos por día, semana y mes con variación; filtro por año</td></tr>
             <tr><td><a href="agenda.html">Agenda</a></td><td>Grilla de turnos por cancha y día; reservar y gestionar un turno</td></tr>
-            <tr><td><a href="personas.html">Personas</a></td><td>Buscador único, alta de persona e historial por cancha</td></tr>
+            <tr><td><a href="personas.html">Personas</a></td><td>Tabla de jugadores con filtros, columnas a elección y paginación (10, 20, 50 o 100 por página), buscador único, alta de persona y ficha con categoría, veces que jugó e historial</td></tr>
             <tr><td><a href="reservas.html">Reservas</a></td><td>Reservas creadas, completas o incompletas, cancelar</td></tr>
-            <tr><td><a href="configuracion.html">Configuración</a></td><td>Precio del turno, parámetros y canchas</td></tr>
+            <tr><td><a href="configuracion.html">Configuración</a></td><td>Precio por jugador, parámetros de turnos, promos y canchas (activas o inactivas)</td></tr>
             <tr><td><a href="login.html">Login</a></td><td>Inicio de sesión (simulado): email y contraseña, o Microsoft</td></tr>
           </tbody>
         </table>

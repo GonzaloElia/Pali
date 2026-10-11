@@ -14,6 +14,8 @@ Sistema de diseño del prototipo y del producto. Parte de la tipografía del doc
 4. **El negro es el texto.** Un negro verdoso (`--ink`) para texto y énfasis; grises con matiz verde para lo secundario.
 5. **El coral solo cancela.** Es el único color cálido y se usa únicamente en acciones y estados destructivos (cancelar, cancelado).
 6. **Datos reales en mono.** Horarios, importes y teléfonos van en IBM Plex Mono para alinearse y leerse rápido.
+7. **Obligatorio se marca, y opcional no.** Regla para todo el producto: en todo formulario, **cada campo obligatorio lleva un asterisco verde** pegado a su título (`<span class="req" role="img" aria-label="obligatorio"></span>`), y **los campos opcionales no llevan ninguno** (pueden decir “(opcional)”). Un campo obligatorio vacío no deja avanzar: se marca en coral y avisa “Falta completar el campo X: es obligatorio”. Al agregar un campo a cualquier pantalla se define primero si es obligatorio u opcional. Un paso necesario del flujo que no es un dato del formulario (por ejemplo, buscar y sumar una persona al reservar) **no es obligatorio ni opcional** y no lleva asterisco. El asterisco se dibuja con una máscara, no con el carácter `*`, para que quede centrado en la altura de las mayúsculas y a la misma altura en todas las pantallas.
+8. **Los números se leen de un vistazo.** Importes y cifras van en mono con dígitos de ancho fijo (`tabular-nums`), y una cifra importante se acompaña de su variación contra el período anterior, siempre con flecha y texto, nunca solo con color.
 
 ---
 
@@ -51,6 +53,28 @@ Se activa con `<html data-theme="dark">` y **solo redefine tokens** (`css/tokens
 
 **Cambio de tema:** el botón de la esquina superior derecha usa la API View Transitions: el tema nuevo se revela como una onda circular desde el punto del clic, más un anillo que sale del clic. Si el navegador no la soporta, o el usuario pidió menos movimiento, el cambio es instantáneo.
 
+### Secundarios fríos: azul cielo y lavanda (definidos; valores a validar)
+
+Dos colores fuera de la gama del verde y que **no sirven para cancelar**. Cubren lo que el verde no puede: datos, comparaciones, promos y novedades. Siempre son secundarios: no reemplazan al verde en la acción principal.
+
+| Color | Rol | Escala (token · valor) | Uso |
+|---|---|---|---|
+| Azul cielo | Intermedio (primario/secundario) | `--sky-700` `#1b4f8e` · `--sky-600` `#2f6fc0` · `--sky-400` `#6baee8` · `--sky-100` `#bfddf7` · `--sky-50` `#e8f2fc` | Datos y comparaciones (`--chart-compare`), avisos informativos, texto y líneas (600, 5,1 : 1 sobre blanco), series y rellenos (400), fondos (100 y 50) |
+| Lavanda | De detalle | `--lav-700` `#4a3c8c` · `--lav-500` `#9c8ddd` · `--lav-100` `#e4dff7` · `--lav-50` `#f1eefb` | Promos y descuentos, novedades y acentos puntuales |
+
+Contraste: el relleno lavanda (500) lleva **texto oscuro** (`--ink`, 5,9 : 1); con texto blanco solo da 3,6 : 1 y no se usa. Texto lavanda sobre blanco: 700 (9,1 : 1). Azul cielo y verde de marca se parecen en luminosidad, así que en un gráfico nunca se distinguen solo por color. Tienen su contraparte en el tema oscuro (`css/tokens.css`). Todavía no hay componentes que los usen.
+
+### Datos y gráficos
+
+| Token | Valor | Uso |
+|---|---|---|
+| `--chart-main` | `--brand` | Serie principal, pico y barra enfocada |
+| `--chart-soft` | `--brand-line` | Resto de las barras |
+| `--chart-ref` | `--ink-2` | Línea de referencia (promedio), siempre punteada |
+| `--chart-compare` | `--sky-400` | Segunda serie: período anterior o comparación |
+
+Reglas: una serie no se distingue **solo por el color** (se suma etiqueta directa, línea punteada o marca de “Pico”); el gráfico va acompañado de una **tabla con los mismos datos**; una baja se muestra en gris oscuro, no en coral (el coral es solo para cancelar). Siguen el tema claro y oscuro porque se definen con otros tokens.
+
 ### Estados de negocio
 
 | Estado | Resolución visual |
@@ -74,9 +98,12 @@ Se activa con `<html data-theme="dark">` y **solo redefine tokens** (`css/tokens
 | Título de página (`h1`) | 42 px | 600 | Interlineado 1,1; tracking −0,03 em; palabra de acento en verde con `<em>` |
 | Título de sección (`h2`) | 28 px | 600 | Idem acento verde |
 | Subtítulo (`h3`) | 15,5 px | 600 | |
+| Cifra destacada (`--fs-display`) | 48 px | 600 | Solo en el panel de caja de Cobros; tracking −0,03 em |
 | Texto base | 14,5 px | 400 | Interlineado 1,55 |
 | Texto de apoyo | 12,5 px | 400 | `--mute` |
 | Etiqueta (`.kicker`, `.label`) | 10,5–11 px | 400/500 mono | Mayúsculas, espaciado 0,08–0,1 em |
+
+Las cifras (importes, KPI, tablas) usan `font-variant-numeric: tabular-nums` (clase `.tnum`, ya aplicada en KPI, columnas `num` y `.mono`) para que los dígitos se alineen.
 
 El acento de una frase se marca con `<em>` dentro de `h1`/`h2`: se ve verde y sin cursiva.
 
@@ -111,18 +138,29 @@ Cada componente tiene su CSS en `mockup/css/components/` y su markup de referenc
 | Componente | Clases clave | Notas |
 |---|---|---|
 | Botón | `btn`, `btn--primary`, `btn--dark`, `btn--neutral`, `btn--ghost`, `btn--danger`, `btn--coral`, `btn--sm`, `btn--lg`, `btn--block` | Un solo primario por vista. Cancelar usa `btn--danger` (o `btn--coral` para confirmar) |
-| Campo | `field`, `label`, `input`, `select`, `check`, `hint`, `field--error`, `field-error` | Foco con borde verde. Un campo obligatorio vacío se marca en coral con su mensaje |
+| Campo | `field`, `label`, `input`, `select`, `check`, `hint`, `req`, `field--error`, `field-error` | Foco con borde verde. **Los campos obligatorios llevan un asterisco (`*`) verde en el título; los opcionales no llevan ninguno.** Un campo obligatorio vacío se marca en coral con su mensaje |
 | Buscador único | `combo`, `combo-list`, `combo-item`, `combo-item--create` | Busca persona por nombre y apellido; ofrece “Crear persona” si no existe |
 | Control segmentado | `seg`, `is-on` | Filtros cortos (día/semana/mes). El activo es negro |
+| Interruptor | `switch`, `switch-row` | Activo / inactivo (hoy: canchas y promos en Configuración). Verde cuando está activo, con texto al lado |
+| Selector de opciones | `toggle-group`, `toggle` | Grupo de botones que se activan o no (`aria-pressed`): días de la semana y tipo de promo (precio promo / descuento) |
 | Chip | `chip`, `chip--soft`, `chip--solid`, `chip--ink`, `chip--coral`, `chip--dashed` | Estado del turno (Reservado, Completo, Cancelado), “a confirmar” |
 | Card / KPI | `card`, `kpi`, `kpi--brand`, `dom`, `value`, `sub` | |
 | Tabla | `table`, `num`, `table-wrap`, `empty` | Encabezado en mono mayúsculas |
+| Paginación | `pager`, `pager-size`, `pager-range`, `pager-nav`, `pager-btn` | Arriba de la tabla (`pager--top`): “Mostrar 10 / 20 / 50 / 100 por página” a la izquierda y un botón de ícono (`icon-btn`, solo el ícono de columnas, con tooltip “Elegir columnas”) a la derecha, en el mismo eje. Mientras llega una página se muestran filas de relleno animadas (`skel`). Debajo de la tabla: el rango “1–10 de 137” a la izquierda y los botones Anterior, números de página (con “…”) y Siguiente. Al cambiar filtro o cantidad vuelve a la página 1 (`css/components/pagination.css`) |
 | Agenda y turno | `agenda`, `agenda-head`, `agenda-time`, `slot`, `slot--free`, `slot--booked`, `slot--full` | Una columna por cancha, una fila por horario |
 | Modal | `scrim`, `modal`, `modal-head`, `modal-close`, `modal-foot`, `plist` | Cierra con clic afuera, la X o Esc |
 | Toast | `toast` | Confirmación breve, 2 s |
-| Gráfico de barras | `bars`, `bar`, `fill`, `bar-labels` | CSS puro; la barra pico va en verde |
+| Gráfico de barras | `chart`, `chart-y`, `chart-plot`, `chart-grid`, `chart-avg`, `bars`, `bar`, `fill`, `peak`, `bar-labels`, `chart-tip`, `chart-legend` | CSS puro con eje, línea de promedio punteada, marca de “Pico”, tooltip con mouse y teclado y leyenda. Las barras sin datos van punteadas. Siempre con tabla de respaldo (`css/components/chart.css`) |
+| Variación | `delta`, `delta--up`, `delta--down`, `delta--flat` | Píldora con flecha y porcentaje (▲ 12 %, ▼ 8 %, = 0 %); sin período anterior dice “— sin comparar”. La baja va en gris oscuro, no en coral |
+| Panel destacado | `hero`, `hero-value`, `hero-row`, `hero-side`, `hero-stat` | Cifra principal grande sobre verde con cuadrícula fina y datos secundarios al costado. Hoy solo en Cobros; en móvil se apila |
+| Estados de sección | `state`, `state-icon`, `state-title`, `state-hint`, `state--error` | Vacío (explica qué falta) y error (dice qué pasó y ofrece “Reintentar”, `role="alert"`). La carga usa bloques `skel` y `aria-busy="true"` |
+| Loader (relleno animado) | `skel`, `skel-row` | Bloques grises con brillo que se mueve mientras llega un dato. Respeta `prefers-reduced-motion` |
+| Botón de ícono | `icon-btn` | Cuadrado de 36 px con solo el ícono, tooltip y `aria-label`; verde con halo cuando abre un desplegable |
+| Secundarios en el backoffice | `chip--sky`, `chip--lav`, `chip--lav-solid`, `kpi--lav`, `kpi--sky` | Criterio: el verde, el blanco y el negro dominan; el azul cielo aparece solo donde hay **datos o información** y la lavanda, más escasa, solo en **detalles**. Azul: canchas jugadas, “Precio base”, línea de promedio y su etiqueta (Cobros), botón del ojo. Lavanda: categoría del jugador (Personas, ficha y Agenda) y la insignia “Promo”. Ninguno cancela, confirma ni reemplaza la acción en verde. Cada pantalla suma pocas zonas azules y como mucho un detalle lavanda por bloque; se regula a ojo, sin porcentaje fijo (propuesta, se ajusta con la revisión) |
+| Ocultar importes | `hero-eye` | Botón con ojo (28 px) dentro del panel oscuro de Cobros; con `aria-pressed` y etiqueta “Ocultar/Mostrar importes”. Al activarlo, los importes pasan a `$ *******` (el eje a `***`) y se recuerda en el navegador. Las variaciones en % no se ocultan (propuesta) |
 | Pasos | `steps`, `is-key` | Pasos numerados de un flujo |
 | Nota | `note` | Borde izquierdo verde, fondo gris suave |
+| Barra de filtros y popover | `toolbar`, `pop-wrap`, `pop`, `pop-opt`, `row-link`, `modal--wide` | Filtros sobre una tabla, botón “Columnas” que muestra u oculta columnas, fila que abre una ficha (`css/components/popover.css`) |
 | Controles del shell | `shell-btn`, `theme-toggle`, `nav-open`, `nav-hide`, `user-menu`, `user-btn`, `user-pop`, `theme-ripple` | Cambio de tema y ocultar/mostrar la barra lateral (`css/components/shell.css`). Su JavaScript está en cada página |
 
 ---
@@ -131,8 +169,10 @@ Cada componente tiene su CSS en `mockup/css/components/` y su markup de referenc
 
 - **Agenda:** grilla por cancha y horario; tocar un turno libre abre el modal de reserva; tocar uno reservado abre su gestión. Reservar son 2 clics.
 - **Reserva rápida:** buscador de persona opcional + botón primario “Reservar”. No hay opción de abonado: el club cobra en caja. Con las 4 personas el turno pasa a Completo.
+- **Formularios:** todo campo se declara obligatorio u opcional (principio 7). Hoy llevan asterisco: nombre, apellido, teléfono y categoría de una persona; y precio por jugador, valor, turnos desde y hasta de una promo, y duración y último turno en Configuración. Alias es opcional. El **login no lleva asteriscos** (todos sus campos son obligatorios y es evidente; igual avisa si falta alguno). “Persona” al reservar un turno es un paso necesario del flujo: no lleva asterisco.
 - **Tablas con filtros:** control segmentado arriba, tabla debajo, acciones al final de la fila.
-- **Cobros:** (estimado: turnos no cancelados por el precio) tres KPI arriba, vista por día/semana/mes, gráfico de barras y tabla del mismo dato.
+- **Cobros (panel de caja):** estimado (personas × precio por jugador). Arriba un panel verde (`hero`) con la cifra del mes y su variación contra el mismo tramo del mes anterior, y al costado Hoy y Esta semana con su variación. Debajo, el control día/semana/mes y año, el gráfico con eje, promedio y pico, y, al tocar una barra, el detalle de reservas de ese día, semana o mes (misma tabla que Reservas, sin filtros ni cancelar). La barra elegida queda resaltada (`is-sel`) y el detalle no se cierra. Cubre los tres estados: carga, vacío y error.
+- **Estados de una sección:** carga (bloques `skel`), vacío (`state`) y error (`state--error` con “Reintentar”). Cada sección que depende de datos los define.
 
 ---
 
@@ -143,6 +183,9 @@ Cada componente tiene su CSS en `mockup/css/components/` y su markup de referenc
 - Los estados nunca dependen solo del color: llevan texto (“Libre”, “Reservado”, “Completo”, “Cancelado”) y cambian de relleno o borde.
 - Botones de ícono llevan `aria-label`; el modal cierra con Esc.
 - Se respeta `prefers-reduced-motion`.
+- Formularios: el resumen de errores lleva `role="alert"` (se anuncia solo) y cada campo inválido lleva `aria-invalid`. Hoy el foco va al primer campo con error; llevarlo al resumen con enlaces a cada campo queda como mejora.
+- Gráficos: cada barra se puede enfocar con teclado, muestra su tooltip y tiene `aria-label` con período e importe; la tabla de debajo repite los datos.
+- Tamaño de los controles: 36 px en escritorio. Si el backoffice se usa en el celular, los botones de ícono suben a 44 px.
 
 ---
 
@@ -183,6 +226,6 @@ mockup/
 ## 11. Pendientes del sistema
 
 - Definir diseño móvil del backoffice (hoy está pendiente si se usará desde el celular).
-- Definir estados de carga y de error cuando existan los endpoints reales.
+- Estados de carga, vacío y error: definidos y aplicados en Cobros y en la tabla de Personas. Falta aplicarlos a Agenda y Reservas y validar los textos de error cuando existan los endpoints reales.
 - Definir roles y permisos visibles si hay más de un usuario.
 - Decidir si se suma un detalle amarillo pelota como acento puntual (hoy no se usa).

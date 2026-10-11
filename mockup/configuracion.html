@@ -25,26 +25,67 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
   <main class="main">
     <header class="page-header">
       <p class="kicker">Backoffice · Configuración</p>
-      <h2>Precio y parámetros <em>del club</em>.</h2>
-      <p class="lede">El administrador carga el precio del turno acá. Es un único precio: no varía por cancha ni por horario.</p>
+      <h2>Precios y parámetros <em>del club</em>.</h2>
+      <p class="lede">El administrador carga acá el precio por jugador, ajusta los parámetros de los turnos y define promos o descuentos para los horarios que más lo necesitan.</p>
     </header>
 
     <div class="grid-2" style="align-items:start">
       <div class="card">
-        <p class="kicker">Precio del turno</p>
+        <p class="kicker">Precio por jugador</p>
         <div class="field">
-          <label class="label" for="price">Precio por turno (<span id="cur"></span>)</label>
+          <label class="label" for="price">Precio por jugador (<span id="cur"></span>)<span class="req" role="img" aria-label="obligatorio"></span></label>
           <input id="price" class="input" type="number" min="0" step="100">
-          <p class="hint">Estimado en 7k, a confirmar.</p>
+          <p class="hint">Lo que paga cada persona por turno. Estimado en 7k, a confirmar.</p>
         </div>
+        <p class="note mt-4" id="turnTotal"></p>
         <button class="btn btn--primary mt-4" data-act="savePrice">Guardar precio</button>
       </div>
 
       <div class="card">
-        <p class="kicker">Turnos</p>
-        <table class="table"><tbody id="params"></tbody></table>
+        <p class="kicker">Parámetros de los turnos</p>
+        <div class="stack--form">
+          <div class="grid-2" style="gap:12px">
+            <div class="field">
+              <label class="label" for="pSlot">Duración del turno (minutos)<span class="req" role="img" aria-label="obligatorio"></span></label>
+              <input id="pSlot" class="input" type="number" min="15" max="300" step="5">
+            </div>
+            <div class="field">
+              <label class="label" for="pLast">Inicio del último turno<span class="req" role="img" aria-label="obligatorio"></span></label>
+              <input id="pLast" class="input" type="time">
+            </div>
+          </div>
+          <p class="note" id="gridPreview"></p>
+          <p class="hint">Jugadores por turno completo: <b id="pPlayers"></b> (lo define el deporte). Se alquila todos los días. Cambiar esto no modifica las reservas ya hechas.</p>
+          <div><button class="btn btn--primary" data-act="saveParams">Guardar parámetros</button></div>
+        </div>
       </div>
     </div>
+
+    <section class="section">
+      <div class="row between wrap">
+        <p class="kicker kicker--lav" style="margin:0">Promos y descuentos</p>
+        <button class="btn btn--dark" data-act="newRule">Agregar promo</button>
+      </div>
+      <p class="lede" style="font-size:14px">Para bajar el precio de ciertos turnos, por ejemplo el último de la noche si no se llena. Si aplica más de una promo a un turno, gana la de menor precio.</p>
+      <div class="table-wrap mt-4">
+        <table class="table">
+          <thead><tr><th>Promo</th><th>Turnos</th><th>Días</th><th>Precio</th><th>Vigencia</th><th>Estado</th><th></th></tr></thead>
+          <tbody id="rules"></tbody>
+        </table>
+        <p id="noRules" class="empty" hidden>Todavía no hay promos. Se cobra el precio por jugador en todos los turnos.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <p class="kicker">Precio de cada turno hoy</p>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Turno</th><th class="num">Precio por jugador</th><th class="num">Turno completo</th><th>Origen</th></tr></thead>
+          <tbody id="prices"></tbody>
+        </table>
+      </div>
+      <p class="hint mt-2">Se calcula con el precio por jugador y las promos activas para el día de hoy.</p>
+    </section>
 
     <section class="section">
       <p class="kicker">Canchas</p>
@@ -54,10 +95,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
           <tbody id="courts"></tbody>
         </table>
       </div>
-      <div class="row mt-4">
-        <input id="newCourt" class="input" style="max-width:260px" placeholder="Nombre de la nueva cancha">
-        <button class="btn" data-act="addCourt">Agregar cancha</button>
-      </div>
+      <p class="hint mt-2">Una cancha inactiva no se ofrece para reservar: no aparece en la agenda y el chatbot no la sugiere. Las canchas nuevas las agrega el equipo de Pali cuando el club lo solicita; desde acá solo se activan o inactivan.</p>
     </section>
 
     <section class="section">
@@ -65,6 +103,8 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
       <button class="btn btn--ghost" data-act="reset">Restablecer datos de ejemplo</button>
     </section>
 
+    <!-- Alta / edición de una promo -->
+    <div id="scrim" class="scrim" hidden data-act="scrim"><div id="modal" class="modal modal--wide"></div></div>
     <div id="toast" class="toast" hidden></div>
   </main>
 </div>
@@ -74,35 +114,196 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
 (function () {
   var $ = function (s) { return document.querySelector(s); };
   var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
-  function say(msg) { var t = $('#toast'); t.textContent = msg; t.hidden = false; setTimeout(function () { t.hidden = true; }, 2200); }
+  var money = function (n) { return '$ ' + Math.round(n).toLocaleString('es-AR'); };
+  var DAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+  var REQ = '<span class="req" role="img" aria-label="obligatorio"></span>';
+  var S = { s: null, rules: [], slots: [], edit: null, confirmId: null };
 
+  function say(msg) { var t = $('#toast'); t.textContent = msg; t.hidden = false; setTimeout(function () { t.hidden = true; }, 2400); }
+
+  /* Muestra el error de un campo obligatorio (o lo limpia). Devuelve true si está completo. */
+  function check(id, msg) {
+    var el = $('#' + id), bad = !!msg, f = el.closest('.field'), m = f.querySelector('.field-error');
+    f.classList.toggle('field--error', bad); el.setAttribute('aria-invalid', String(bad));
+    if (bad) { if (!m) { m = document.createElement('p'); m.className = 'field-error'; f.appendChild(m); } m.textContent = msg; }
+    else if (m) m.remove();
+    return !bad;
+  }
+  function empty(id, name) { return check(id, !$('#' + id).value.trim() ? 'Falta completar el campo ' + name + ': es obligatorio.' : ''); }
+
+  /* ---------- carga ---------- */
   async function load() {
     var s = await PaliApi.getSettings(), courts = await PaliApi.listCourts();
+    S.s = s; S.rules = await PaliApi.listPriceRules(); S.slots = await PaliApi.previewGrid({});
     $('#cur').textContent = s.currency;
-    $('#price').value = s.turnPrice;
-    $('#params').innerHTML =
-      '<tr><td>Deporte</td><td>' + esc(s.sport) + '</td></tr>' +
-      '<tr><td>Duración del turno</td><td>' + s.slotMinutes + ' min <span class="chip chip--dashed">parámetro</span></td></tr>' +
-      '<tr><td>Último turno</td><td>' + esc(s.lastSlotStart) + ' <span class="chip chip--dashed">inicio</span></td></tr>' +
-      '<tr><td>Días de alquiler</td><td>Todos los días</td></tr>';
+    $('#price').value = s.playerPrice; turnTotal();
+    $('#pSlot').value = s.slotMinutes; $('#pLast').value = s.lastSlotStart; $('#pPlayers').textContent = s.playersPerBooking;
+    gridPreview();
+    renderRules(); await renderPrices();
     $('#courts').innerHTML = courts.map(function (c) {
-      return '<tr><td>' + esc(c.name) + '</td><td>' + esc(c.sport) + '</td><td><span class="chip chip--soft">Activa</span></td></tr>';
+      return '<tr><td>' + esc(c.name) + '</td><td>' + esc(c.sport) + '</td><td><div class="switch-row">' +
+        '<button type="button" class="switch" role="switch" aria-checked="' + c.active + '" aria-label="Cancha ' + esc(c.name) + ' activa" data-act="toggleCourt" data-id="' + c.id + '"></button>' +
+        '<span>' + (c.active ? 'Activa' : 'Inactiva') + '</span></div></td></tr>';
     }).join('');
   }
 
+  /* El turno completo se calcula: precio por jugador × jugadores por turno */
+  function turnTotal() {
+    var p = Number($('#price').value) || 0, n = S.s ? S.s.playersPerBooking : 4;
+    $('#turnTotal').innerHTML = '<b>Turno completo:</b> ' + n + ' jugadores × ' + money(p) + ' = <b>' + money(p * n) + '</b>';
+  }
+
+  /* Grilla resultante de los parámetros que se están escribiendo */
+  async function gridPreview() {
+    var m = Number($('#pSlot').value), l = $('#pLast').value;
+    if (!m || m < 15 || !l) { $('#gridPreview').textContent = 'Completá la duración y el último turno para ver la grilla.'; return; }
+    var g = await PaliApi.previewGrid({ slotMinutes: m, lastSlotStart: l });
+    $('#gridPreview').innerHTML = '<b>Grilla resultante</b> (' + g.length + ' turnos por cancha y por día): ' + g.map(function (x) { return x.start; }).join(' · ');
+  }
+
+  /* ---------- promos ---------- */
+  function ruleSlots(r) { return r.from === r.to ? r.from : r.from + ' a ' + r.to; }
+  function ruleDays(r) { return r.weekdays.length ? r.weekdays.map(function (d) { return DAYS[d]; }).join(', ') : 'Todos'; }
+  function rulePrice(r) { return r.kind === 'fixed' ? money(r.value) + ' por jugador' : r.value + '% de descuento'; }
+  function ruleValid(r) {
+    var f = function (d) { return PaliApi.util.parseDate(d).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }); };
+    if (r.validFrom && r.validTo) return f(r.validFrom) + ' a ' + f(r.validTo);
+    if (r.validFrom) return 'desde ' + f(r.validFrom);
+    if (r.validTo) return 'hasta ' + f(r.validTo);
+    return 'Sin fecha de fin';
+  }
+  function renderRules() {
+    $('#noRules').hidden = S.rules.length > 0;
+    $('#rules').innerHTML = S.rules.map(function (r) {
+      var conf = S.confirmId === r.id;
+      return '<tr><td>' + esc(r.name || 'Promo ' + ruleSlots(r)) + '</td><td class="mono">' + esc(ruleSlots(r)) + '</td><td>' + esc(ruleDays(r)) + '</td><td>' + esc(rulePrice(r)) + '</td><td>' + esc(ruleValid(r)) + '</td>' +
+        '<td><div class="switch-row"><button type="button" class="switch" role="switch" aria-checked="' + r.active + '" aria-label="Promo activa" data-act="toggleRule" data-id="' + r.id + '"></button><span>' + (r.active ? 'Activa' : 'Inactiva') + '</span></div></td>' +
+        '<td style="text-align:right; white-space:nowrap">' + (conf
+          ? '<button class="btn btn--coral btn--sm" data-act="deleteRule" data-id="' + r.id + '">Sí, eliminar</button> <button class="btn btn--ghost btn--sm" data-act="noDelete">No</button>'
+          : '<button class="btn btn--sm" data-act="editRule" data-id="' + r.id + '">Editar</button> <button class="btn btn--danger btn--sm" data-act="askDelete" data-id="' + r.id + '">Eliminar</button>') + '</td></tr>';
+    }).join('');
+  }
+  async function renderPrices() {
+    var rows = await PaliApi.previewPrices({ date: PaliApi.util.today() });
+    $('#prices').innerHTML = rows.map(function (r) {
+      return '<tr><td class="mono">' + r.start + '–' + r.end + '</td><td class="num">' + money(r.price) + '</td><td class="num">' + money(r.total) + '</td><td>' +
+        (r.rule ? '<span class="chip chip--lav-solid">Promo</span> ' + esc(r.rule) : '<span class="chip chip--sky">Precio base</span>') + '</td></tr>';
+    }).join('');
+  }
+
+  /* ---------- modal de promo ---------- */
+  function openRule(r) {
+    S.edit = r ? JSON.parse(JSON.stringify(r)) : { id: null, name: '', kind: 'fixed', value: '', from: '', to: '', weekdays: [], validFrom: '', validTo: '', active: true };
+    var e = S.edit, opts = function (sel) { return '<option value="" disabled' + (sel ? '' : ' selected') + '>Elegí un turno</option>' + S.slots.map(function (x) { return '<option value="' + x.start + '"' + (x.start === sel ? ' selected' : '') + '>' + x.start + '</option>'; }).join(''); };
+    $('#modal').innerHTML =
+      '<div class="modal-head"><div><h3>' + (e.id ? 'Editar promo' : 'Agregar promo') + '</h3><p class="sub">Un precio especial para ciertos turnos</p></div><button class="modal-close" data-act="closeRule" aria-label="Cerrar">×</button></div>' +
+      '<div class="stack--form">' +
+        '<div class="field"><span class="label">Tipo de promo</span><div class="seg" id="kindSeg"><button type="button" data-act="kind" data-v="fixed" class="' + (e.kind === 'fixed' ? 'is-on' : '') + '">Precio promo</button><button type="button" data-act="kind" data-v="percent" class="' + (e.kind === 'percent' ? 'is-on' : '') + '">Descuento %</button></div></div>' +
+        '<div class="field"><label class="label" for="rValue" id="rValueLabel"></label><input id="rValue" class="input" type="number" min="0" step="any" value="' + esc(e.value) + '"><p class="hint" id="rResult"></p></div>' +
+        '<div class="grid-2" style="gap:12px">' +
+          '<div class="field"><label class="label" for="rFrom">Turnos desde' + REQ + '</label><select id="rFrom" class="select">' + opts(e.from) + '</select></div>' +
+          '<div class="field"><label class="label" for="rTo">Turnos hasta' + REQ + '</label><select id="rTo" class="select">' + opts(e.to) + '</select></div>' +
+        '</div>' +
+        '<div class="field"><span class="label">Días</span><div class="toggle-group" id="days">' + DAYS.map(function (d, i) { return '<button type="button" class="toggle" data-act="day" data-d="' + i + '" aria-pressed="' + (e.weekdays.indexOf(i) >= 0) + '">' + d + '</button>'; }).join('') + '</div><p class="hint">Sin elegir ninguno, vale todos los días.</p></div>' +
+        '<div class="grid-2" style="gap:12px">' +
+          '<div class="field"><label class="label" for="rValidFrom">Desde <span class="hint">(opcional)</span></label><input id="rValidFrom" class="input" type="date" value="' + esc(e.validFrom) + '"></div>' +
+          '<div class="field"><label class="label" for="rValidTo">Hasta <span class="hint">(opcional)</span></label><input id="rValidTo" class="input" type="date" value="' + esc(e.validTo) + '"></div>' +
+        '</div>' +
+        '<div class="field"><label class="label" for="rName">Nombre <span class="hint">(opcional)</span></label><input id="rName" class="input" placeholder="Ej: Promo último turno" value="' + esc(e.name) + '"></div>' +
+        '<p id="rErr" class="field-error" role="alert" hidden></p>' +
+      '</div>' +
+      '<div class="modal-foot"><button class="btn btn--neutral" data-act="closeRule">Cancelar</button><button class="btn btn--dark" data-act="saveRule">Guardar promo</button></div>';
+    kindLabels(); $('#scrim').hidden = false;
+  }
+  function closeRule() { $('#scrim').hidden = true; S.edit = null; }
+  function kindLabels() {
+    var f = S.edit.kind === 'fixed';
+    $('#rValueLabel').innerHTML = (f ? 'Precio por jugador promo (' + esc(S.s.currency) + ')' : 'Descuento (%)') + REQ;
+    resultHint();
+  }
+  /* Resultado en vivo: cuánto pagaría cada jugador y el turno completo */
+  function resultHint() {
+    var v = Number($('#rValue').value), base = S.s.playerPrice, n = S.s.playersPerBooking, el = $('#rResult');
+    if (!$('#rValue').value || isNaN(v)) { el.textContent = 'Precio base por jugador: ' + money(base) + '.'; return; }
+    var p = S.edit.kind === 'fixed' ? v : Math.round(base * (1 - v / 100));
+    el.textContent = 'Cada jugador pagaría ' + money(p) + ' (turno completo ' + money(p * n) + ') en lugar de ' + money(base) + '.';
+  }
+  function saveRule() {
+    var e = S.edit, v = $('#rValue').value, base = S.s.playerPrice, ok = true, miss = [];
+    var vn = Number(v), fname = e.kind === 'fixed' ? 'Precio por jugador promo' : 'Descuento';
+    var vmsg = !v.trim() ? 'Falta completar el campo ' + fname + ': es obligatorio.'
+      : (e.kind === 'fixed' && !(vn >= 0 && vn < base)) ? 'El precio promo tiene que ser menor al precio por jugador (' + money(base) + ').'
+      : (e.kind === 'percent' && !(vn > 0 && vn <= 100)) ? 'El descuento tiene que estar entre 1 y 100.' : '';
+    if (!check('rValue', vmsg)) { ok = false; if (!v.trim()) miss.push(fname); }
+    if (!empty('rFrom', 'Turnos desde')) { ok = false; miss.push('Turnos desde'); }
+    if (!empty('rTo', 'Turnos hasta')) { ok = false; miss.push('Turnos hasta'); }
+    var from = $('#rFrom').value, to = $('#rTo').value;
+    if (from && to && from > to) { check('rTo', 'El turno final no puede ser anterior al inicial.'); ok = false; }
+    var vf = $('#rValidFrom').value, vt = $('#rValidTo').value;
+    if (vf && vt && vf > vt) { check('rValidTo', 'La fecha final no puede ser anterior a la inicial.'); ok = false; } else check('rValidTo', '');
+    var err = $('#rErr'); err.hidden = ok;
+    if (!ok) { err.textContent = miss.length ? 'No se puede continuar: ' + (miss.length > 1 ? 'faltan los campos obligatorios ' : 'falta el campo obligatorio ') + miss.join(', ') + '.' : 'No se puede continuar: revisá los campos marcados.'; return; }
+    PaliApi.savePriceRule({ id: e.id, name: $('#rName').value.trim(), kind: e.kind, value: vn, from: from, to: to, weekdays: e.weekdays.slice().sort(), validFrom: vf, validTo: vt, active: e.active })
+      .then(function () { closeRule(); say(e.id ? 'Promo actualizada' : 'Promo agregada'); return load(); })
+      .catch(function (x) { err.hidden = false; err.textContent = x.message; });
+  }
+
+  /* ---------- campos obligatorios de precio y parámetros ---------- */
+  function validParams() {
+    var m = Number($('#pSlot').value), l = $('#pLast').value;
+    var a = check('pSlot', !$('#pSlot').value.trim() ? 'Falta completar el campo Duración del turno: es obligatorio.' : (!(m >= 15 && m <= 300) ? 'La duración tiene que estar entre 15 y 300 minutos.' : ''));
+    var b = empty('pLast', 'Inicio del último turno');
+    return a && b;
+  }
+
   var actions = {
-    savePrice: async function () { await PaliApi.updateSettings({ turnPrice: Number($('#price').value) || 0 }); say('Precio guardado'); },
-    addCourt: async function () {
-      var n = $('#newCourt').value.trim();
-      if (!n) return;
-      await PaliApi.addCourt(n); $('#newCourt').value = ''; await load(); say('Cancha agregada');
+    savePrice: async function () {
+      if (!empty('price', 'Precio por jugador')) return;
+      await PaliApi.updateSettings({ playerPrice: Number($('#price').value) || 0 }); await load(); say('Precio guardado');
+    },
+    saveParams: async function () {
+      if (!validParams()) return;
+      await PaliApi.updateSettings({ slotMinutes: Number($('#pSlot').value), lastSlotStart: $('#pLast').value }); await load(); say('Parámetros guardados');
+    },
+    newRule: function () { openRule(null); },
+    editRule: function (d) { openRule(S.rules.filter(function (r) { return r.id === d.id; })[0]); },
+    closeRule: closeRule,
+    scrim: function (d, e) { if (e.target.id === 'scrim') closeRule(); },
+    kind: function (d) {
+      S.edit.kind = d.v;
+      document.querySelectorAll('#kindSeg button').forEach(function (b) { b.classList.toggle('is-on', b.dataset.v === d.v); });
+      kindLabels();
+    },
+    day: function (d, e) {
+      var i = Number(d.d), at = S.edit.weekdays.indexOf(i);
+      if (at >= 0) S.edit.weekdays.splice(at, 1); else S.edit.weekdays.push(i);
+      e.target.closest('.toggle').setAttribute('aria-pressed', String(at < 0));
+    },
+    saveRule: saveRule,
+    toggleRule: async function (d) {
+      var r = S.rules.filter(function (x) { return x.id === d.id; })[0];
+      await PaliApi.setPriceRuleActive(d.id, !r.active); await load(); say(r.active ? 'Promo inactiva' : 'Promo activa');
+    },
+    askDelete: function (d) { S.confirmId = d.id; renderRules(); },
+    noDelete: function () { S.confirmId = null; renderRules(); },
+    deleteRule: async function (d) { await PaliApi.deletePriceRule(d.id); S.confirmId = null; await load(); say('Promo eliminada'); },
+    toggleCourt: async function (d) {
+      var courts = await PaliApi.listCourts(), c = courts.filter(function (x) { return x.id === d.id; })[0];
+      await PaliApi.setCourtActive(d.id, !c.active); await load();
+      say(c.active ? 'Cancha inactiva: no se ofrece para reservar' : 'Cancha activa');
     },
     reset: async function () { await PaliApi.reset(); await load(); say('Datos de ejemplo restablecidos'); }
   };
   document.addEventListener('click', function (e) {
     var el = e.target.closest('[data-act]');
-    if (el && actions[el.dataset.act]) actions[el.dataset.act]();
+    if (el && actions[el.dataset.act]) actions[el.dataset.act](el.dataset, e);
   });
+  document.addEventListener('input', function (e) {
+    if (e.target.id === 'price') turnTotal();
+    if (e.target.id === 'pSlot' || e.target.id === 'pLast') gridPreview();
+    if (e.target.id === 'rValue') resultHint();
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('#scrim').hidden) closeRule(); });
   load();
 })();
 </script>

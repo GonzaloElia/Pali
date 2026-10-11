@@ -26,33 +26,61 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     <header class="page-header">
       <p class="kicker">Backoffice · Personas</p>
       <h2>Buscar o crear, <em>desde un solo lugar</em>.</h2>
-      <p class="lede">Con nombre y apellido se busca. Si no existe, se crea en el momento y se le piden sus datos. Cada persona guarda en qué canchas jugó.</p>
+      <p class="lede">Una tabla de jugadores con filtros. El buscador filtra la tabla mientras escribís. Tocá un jugador para ver su categoría actual, cuántas veces fue y en qué canchas jugó. Si no existe, se crea en el momento y se le piden sus datos.</p>
     </header>
 
-    <div class="grid-2" style="align-items:start">
-      <div>
-        <div class="field">
-          <label class="label" for="q">Buscador único</label>
-          <div class="combo">
-            <input id="q" class="input" type="text" placeholder="Nombre y apellido" autocomplete="off">
-            <div id="comboList" class="combo-list" hidden></div>
-          </div>
-        </div>
-
-        <div id="newPerson" class="card mt-4" hidden></div>
-
-        <p class="kicker mt-6">Todas las personas</p>
-        <div class="table-wrap">
-          <table class="table">
-            <thead><tr><th>Nombre</th><th>Categoría</th><th>Teléfono</th></tr></thead>
-            <tbody id="all"></tbody>
-          </table>
-        </div>
+    <div class="toolbar">
+      <div class="field grow" style="max-width:340px">
+        <label class="label" for="q">Buscador único</label>
+        <input id="q" class="input" type="search" placeholder="Nombre y apellido" autocomplete="off">
       </div>
-
-      <div id="detail"></div>
+      <div class="field">
+        <label class="label" for="fCat">Categoría</label>
+        <select id="fCat" class="select"><option value="">Todas</option></select>
+      </div>
+      <div class="field">
+        <label class="label" for="fCourt">Cancha</label>
+        <select id="fCourt" class="select"><option value="">Todas</option></select>
+      </div>
+      <div class="field">
+        <label class="label" for="fPeriod">Jugó en</label>
+        <select id="fPeriod" class="select">
+          <option value="all">Todo el tiempo</option>
+          <option value="30">Últimos 30 días</option>
+          <option value="90">Últimos 90 días</option>
+          <option value="year">Este año</option>
+        </select>
+      </div>
     </div>
 
+    <div id="newPerson" class="card mt-4" hidden></div>
+
+    <section class="section">
+      <div class="pager pager--top" id="pagerTop">
+        <label class="pager-size">Mostrar
+          <select id="pageSize" class="select" aria-label="Registros por página"><option>10</option><option>20</option><option>50</option><option>100</option></select>
+          por página</label>
+      <div class="pop-wrap" id="colsWrap">
+        <button type="button" class="icon-btn" data-act="toggleCols" aria-haspopup="true" aria-expanded="false" id="colsBtn" aria-label="Elegir columnas" title="Elegir columnas"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9.5 4v16M14.5 4v16"/></svg></button>
+        <div class="pop" id="colsPop" role="menu" hidden></div>
+      </div>
+      </div>
+      <div class="table-wrap" id="tableWrap">
+        <table class="table">
+          <thead id="head"></thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <p id="empty" class="empty" hidden>No hay jugadores con estos filtros.</p>
+      </div>
+      <p class="hint mt-2" id="createHint" hidden></p>
+      <nav class="pager" id="pager" aria-label="Paginación" hidden>
+        <span class="pager-range" id="range"></span>
+        <div class="pager-nav" id="pages"></div>
+      </nav>
+    </section>
+
+    <!-- Ficha del jugador -->
+    <div id="scrim" class="scrim" hidden data-act="scrim"><div id="modal" class="modal modal--wide"></div></div>
     <div id="toast" class="toast" hidden></div>
   </main>
 </div>
@@ -63,59 +91,151 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
   var $ = function (s) { return document.querySelector(s); };
   var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
   var pname = PaliApi.util.personLabel;   // “Juan Pérez” o “Juan Pérez (alias)”
-  var S = { cats: [], q: '', results: [], all: [], person: null, history: [], newPerson: null };
+
+  /* Columnas de la tabla (además de "Jugador", que siempre se ve). "Cancha" arranca oculta. */
+  var COLS = [
+    { id: 'category', label: 'Categoría' },
+    { id: 'phone', label: 'Teléfono', mono: true },
+    { id: 'plays', label: 'Veces que jugó', num: true },
+    { id: 'last', label: 'Última vez' },
+    { id: 'courts', label: 'Cancha' }
+  ];
+  var S = { cats: [], courts: [], list: [], total: 0, page: 1, pageSize: 10, totalPages: 1, q: '', newPerson: null, person: null, history: [],
+            cols: { category: true, phone: true, plays: true, last: true, courts: false } };
 
   function say(msg) { var t = $('#toast'); t.textContent = msg; t.hidden = false; setTimeout(function () { t.hidden = true; }, 2200); }
-  function day(b) {
-    var s = PaliApi.util.parseDate(b.date).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  function day(date, long) {
+    var o = long ? { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' } : { weekday: 'short', day: 'numeric', month: 'short' };
+    var s = PaliApi.util.parseDate(date).toLocaleDateString('es-AR', o);
     return s.charAt(0).toUpperCase() + s.slice(1);
   }
 
-  async function init() { S.cats = await PaliApi.listCategories(); S.all = await PaliApi.listPeople(); renderAll(); renderDetail(); }
+  /* ---------- tabla ---------- */
+  function filters() {
+    var t = PaliApi.util.today(), p = $('#fPeriod').value, f = { categoryId: $('#fCat').value || undefined, courtId: $('#fCourt').value || undefined };
+    if (p === '30' || p === '90') f.from = PaliApi.util.addDays(t, -Number(p));
+    if (p === 'year') f.from = t.slice(0, 4) + '-01-01';
+    return f;
+  }
+  /* Carga por página: cada vez que cambia la página, la cantidad por pantalla o un filtro se pide solo esa página */
+  async function load() {
+    showLoading();
+    var f = filters(); f.q = S.q; f.page = S.page; f.pageSize = S.pageSize;
+    var r = await PaliApi.listPlayers(f);
+    await new Promise(function (ok) { setTimeout(ok, 450); });   // simula el tiempo de carga de una página (solo prototipo)
+    S.list = r.items; S.total = r.total; S.page = r.page; S.totalPages = r.totalPages; render();
+  }
+  /* Loader: filas de relleno animadas mientras llega la página */
+  function showLoading() {
+    var cols = COLS.filter(function (c) { return S.cols[c.id]; }).length + 1, rows = '';
+    for (var i = 0; i < Math.min(S.pageSize, 10); i++) { rows += '<tr class="skel-row">' + new Array(cols + 1).join('<td><span class="skel"></span></td>') + '</tr>'; }
+    $('#rows').innerHTML = rows; $('#empty').hidden = true;
+    $('#tableWrap').setAttribute('aria-busy', 'true');
+    $('#pages').querySelectorAll('button').forEach(function (b) { b.disabled = true; });
+    $('#pageSize').disabled = true;
+  }
+  function pageList() {
+    var n = S.totalPages, c = S.page, out = [], i;
+    if (n <= 7) { for (i = 1; i <= n; i++) out.push(i); return out; }
+    out.push(1); if (c > 3) out.push('…');
+    for (i = Math.max(2, c - 1); i <= Math.min(n - 1, c + 1); i++) out.push(i);
+    if (c < n - 2) out.push('…'); out.push(n); return out;
+  }
+  function renderPager() {
+    $('#pager').hidden = S.total === 0;
+    $('#pageSize').value = String(S.pageSize); $('#pageSize').disabled = false; $('#tableWrap').removeAttribute('aria-busy');
+    var from = (S.page - 1) * S.pageSize + 1, to = Math.min(S.total, S.page * S.pageSize);
+    $('#range').textContent = from + '–' + to + ' de ' + S.total;
+    $('#pages').innerHTML = '<button type="button" class="pager-btn" data-act="goto" data-page="' + (S.page - 1) + '"' + (S.page === 1 ? ' disabled' : '') + ' aria-label="Página anterior">Anterior</button>' +
+      pageList().map(function (x) {
+        return x === '…' ? '<span class="pager-gap">…</span>' : '<button type="button" class="pager-btn" data-act="goto" data-page="' + x + '"' + (x === S.page ? ' aria-current="page"' : '') + ' aria-label="Página ' + x + '">' + x + '</button>';
+      }).join('') +
+      '<button type="button" class="pager-btn" data-act="goto" data-page="' + (S.page + 1) + '"' + (S.page === S.totalPages ? ' disabled' : '') + ' aria-label="Página siguiente">Siguiente</button>';
+  }
 
-  function renderAll() {
-    $('#all').innerHTML = S.all.map(function (p) {
-      return '<tr style="cursor:pointer" data-act="select" data-id="' + p.id + '"><td>' + esc(pname(p)) + '</td><td>' + esc(p.category || '—') + '</td><td class="mono">' + esc(p.phone) + '</td></tr>';
+  function cell(c, p) {
+    if (c.id === 'category') return '<td>' + (p.category ? '<span class="chip chip--lav">' + esc(p.category) + '</span>' : '—') + '</td>';
+    if (c.id === 'phone') return '<td class="mono">' + esc(p.phone || '—') + '</td>';
+    if (c.id === 'plays') return '<td class="num">' + p.plays + '</td>';
+    if (c.id === 'last') return '<td>' + (p.lastPlayed ? esc(day(p.lastPlayed, true)) : '—') + '</td>';
+    return '<td>' + (p.courts.length ? p.courts.map(function (x) { return '<span class="chip chip--sky">' + esc(x.courtName) + ' · ' + x.count + '</span>'; }).join(' ') : '—') + '</td>';
+  }
+  function render() {
+    var vis = COLS.filter(function (c) { return S.cols[c.id]; });
+    $('#head').innerHTML = '<tr><th>Jugador</th>' + vis.map(function (c) { return '<th' + (c.num ? ' class="num"' : '') + '>' + c.label + '</th>'; }).join('') + '</tr>';
+    $('#rows').innerHTML = S.list.map(function (p) {
+      return '<tr class="row-link" tabindex="0" data-act="open" data-id="' + p.id + '"><td>' + esc(pname(p)) + '</td>' + vis.map(function (c) { return cell(c, p); }).join('') + '</tr>';
     }).join('');
+    $('#empty').hidden = S.total > 0;
+    renderPager();
+    var ch = $('#createHint');
+    ch.hidden = !S.q;
+    ch.innerHTML = S.q ? (S.total ? '¿No es ninguna de estas personas? ' : '') + '<button type="button" class="btn btn--neutral" data-act="startCreate">Crear persona “' + esc(S.q) + '”</button>' + (S.total ? ' <span>(podés cargar un alias si ya existe otra con el mismo nombre)</span>' : '') : '';
   }
 
-  /* buscador único */
-  function canCreate() {
-    var n = S.q.trim().toLowerCase();
-    return !!n;   // siempre se puede crear: puede haber dos personas con el mismo nombre (se distinguen por el alias)
+  /* ---------- mostrar / ocultar columnas ---------- */
+  function renderCols() {
+    $('#colsPop').innerHTML = '<p class="kicker">Columnas visibles</p>' +
+      COLS.map(function (c) { return '<label class="pop-opt"><input type="checkbox" data-col="' + c.id + '"' + (S.cols[c.id] ? ' checked' : '') + '> ' + c.label + '</label>'; }).join('');
   }
-  function renderCombo() {
-    var el = $('#comboList');
-    var html = S.results.map(function (p) {
-      return '<button type="button" class="combo-item" data-act="select" data-id="' + p.id + '"><span class="row" style="gap:10px">' + esc(pname(p)) + (p.category ? '<span class="chip chip--soft">' + esc(p.category) + '</span>' : '') + '</span><small>' + esc(p.phone) + '</small></button>';
-    }).join('');
-    if (canCreate()) html += '<button type="button" class="combo-item combo-item--create" data-act="startCreate"><span>' + (S.results.length ? 'Crear otra persona' : 'Crear persona') + ' “' + esc(S.q.trim()) + '”</span><small>' + (S.results.length ? 'con alias' : '+ nueva') + '</small></button>';
-    el.innerHTML = html;
-    el.hidden = !S.q.trim().length;
-  }
-  async function onType() { S.q = $('#q').value; S.results = await PaliApi.searchPeople(S.q); renderCombo(); }
+  function colsOpen(show) { $('#colsPop').hidden = !show; $('#colsBtn').setAttribute('aria-expanded', String(show)); }
 
+  /* ---------- ficha del jugador ---------- */
+  async function openPlayer(id) {
+    var p = await PaliApi.getPerson(id);
+    S.person = p; S.history = (await PaliApi.getPersonHistory(id, { playedOnly: true }));
+    var h = S.history, by = {};
+    h.forEach(function (b) { by[b.courtName] = (by[b.courtName] || 0) + 1; });
+    var chips = Object.keys(by).sort().map(function (k) { return '<span class="chip chip--sky">' + esc(k) + ' · ' + by[k] + (by[k] === 1 ? ' vez' : ' veces') + '</span>'; }).join(' ');
+    $('#modal').innerHTML =
+      '<div class="modal-head"><div><h3>' + esc(pname(p)) + '</h3><p class="sub">Tel. ' + esc(p.phone || 'sin cargar') + '</p></div>' +
+      '<button class="modal-close" data-act="closePlayer" aria-label="Cerrar">×</button></div>' +
+      '<div class="grid-3" style="gap:12px">' +
+        '<div class="card kpi kpi--lav"><span class="dom">Categoría actual</span><span class="value">' + esc(p.category || '—') + '</span><span class="sub">hoy</span></div>' +
+        '<div class="card kpi kpi--sky"><span class="dom">Veces que jugó</span><span class="value">' + h.length + '</span><span class="sub">turnos hasta hoy</span></div>' +
+        '<div class="card kpi"><span class="dom">Última vez</span><span class="value" style="font-size:20px">' + (h.length ? esc(day(h[0].date)) : '—') + '</span><span class="sub">' + (h.length ? h[0].start + '–' + h[0].end : 'todavía no jugó') + '</span></div>' +
+      '</div>' +
+      '<p class="kicker mt-5">Canchas donde jugó</p>' +
+      '<div class="row wrap">' + (chips || '<span class="muted small">Todavía no jugó.</span>') + '</div>' +
+      (h.length
+        ? '<div class="modal-scroll"><table class="table"><thead><tr><th>Día</th><th>Hora</th><th>Cancha</th></tr></thead><tbody>' +
+          h.slice(0, 30).map(function (b) { return '<tr><td>' + esc(day(b.date, true)) + '</td><td class="mono">' + b.start + '–' + b.end + '</td><td>' + esc(b.courtName) + '</td></tr>'; }).join('') +
+          '</tbody></table></div>'
+        : '') +
+      '<div class="modal-foot"><button class="btn btn--dark" data-act="closePlayer">Aceptar</button></div>';
+    $('#scrim').hidden = false;
+  }
+  function closePlayer() { $('#scrim').hidden = true; S.person = null; }
+
+  /* ---------- buscador único ---------- */
+  /* Buscador único: filtra la tabla mientras se escribe (con una pausa corta para no pedir datos en cada tecla) */
+  var typing = null;
+  function onType() {
+    clearTimeout(typing);
+    typing = setTimeout(function () { S.q = $('#q').value.trim(); S.page = 1; load(); }, 180);
+  }
+
+  /* ---------- crear persona ---------- */
   function renderNew() {
     var el = $('#newPerson'), np = S.newPerson;
     if (!np) { el.hidden = true; el.innerHTML = ''; return; }
     el.hidden = false;
     el.innerHTML = '<p class="kicker">Nueva persona</p><div class="stack--form">' +
-      '<div class="grid-2" style="gap:12px"><div class="field"><label class="label">Nombre</label><input id="npFirst" class="input" value="' + esc(np.firstName) + '"></div>' +
-      '<div class="field"><label class="label">Apellido</label><input id="npLast" class="input" value="' + esc(np.lastName) + '"></div></div>' +
-      '<div class="field"><label class="label" for="npPhone">Teléfono</label><input id="npPhone" class="input" placeholder="Ej: 2284-363702"></div>' +
+      '<div class="grid-2" style="gap:12px"><div class="field"><label class="label" for="npFirst">Nombre<span class="req" role="img" aria-label="obligatorio"></span></label><input id="npFirst" class="input" value="' + esc(np.firstName) + '"></div>' +
+      '<div class="field"><label class="label" for="npLast">Apellido<span class="req" role="img" aria-label="obligatorio"></span></label><input id="npLast" class="input" value="' + esc(np.lastName) + '"></div></div>' +
+      '<div class="field"><label class="label" for="npPhone">Teléfono<span class="req" role="img" aria-label="obligatorio"></span></label><input id="npPhone" class="input" placeholder="Ej: 2284-363702"></div>' +
       '<div class="grid-2" style="gap:12px"><div class="field"><label class="label" for="npAlias">Alias <span class="hint">(opcional)</span></label><input id="npAlias" class="input" placeholder="Ej: Tincho" autocomplete="off" title="Para distinguir a dos personas con el mismo nombre y apellido"></div>' +
-      '<div class="field"><label class="label" for="npCat">Categoría</label><select id="npCat" class="select"><option value="" disabled selected>Elegí una categoría</option>' +
+      '<div class="field"><label class="label" for="npCat">Categoría<span class="req" role="img" aria-label="obligatorio"></span></label><select id="npCat" class="select"><option value="" disabled selected>Elegí una categoría</option>' +
       S.cats.map(function (c) { return '<option value="' + c.id + '">' + esc(c.name) + '</option>'; }).join('') + '</select></div></div>' +
-      '<p id="npErr" class="field-error" hidden></p>' +
+      '<p id="npErr" class="field-error" role="alert" hidden></p>' +
       '<div class="row"><button class="btn btn--primary" data-act="saveNew">Crear persona</button><button class="btn btn--ghost" data-act="cancelNew">Cancelar</button></div></div>';
   }
-
   /* Campos obligatorios: si falta alguno se marca y se avisa por campo y con un resumen */
   function validatePerson() {
     var req = [['npFirst', 'Nombre'], ['npLast', 'Apellido'], ['npPhone', 'Teléfono'], ['npCat', 'Categoría']], missing = [], first = null;
     req.forEach(function (r) {
       var el = $('#' + r[0]), empty = !el.value.trim(), f = el.closest('.field'), m = f.querySelector('.field-error');
-      f.classList.toggle('field--error', empty);
+      f.classList.toggle('field--error', empty); el.setAttribute('aria-invalid', String(empty));
       if (empty) {
         if (!m) { m = document.createElement('p'); m.className = 'field-error'; f.appendChild(m); }
         m.textContent = 'Falta completar el campo ' + r[1] + ': es obligatorio.';
@@ -130,57 +250,50 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     }
     return !missing.length;
   }
-  function renderDetail() {
-    var el = $('#detail'), p = S.person;
-    if (!p) { el.innerHTML = '<div class="card"><p class="muted">Elegí una persona para ver en qué canchas jugó.</p></div>'; return; }
-    var m = {};
-    S.history.forEach(function (b) { m[b.courtName] = (m[b.courtName] || 0) + 1; });
-    var chips = Object.keys(m).map(function (k) { return '<span class="chip chip--soft">' + esc(k) + ' · ' + m[k] + (m[k] === 1 ? ' vez' : ' veces') + '</span>'; }).join('');
-    el.innerHTML =
-      '<div class="card"><p class="kicker">Persona</p><h3>' + esc(pname(p)) + '</h3>' +
-      '<p class="muted small mt-2">Tel. ' + esc(p.phone || 'sin cargar') + ' · Categoría ' + esc(p.category || 'sin cargar') + '</p></div>' +
-      '<p class="kicker mt-5">Canchas donde jugó</p>' +
-      '<div class="row wrap">' + (chips || '<span class="muted small">Todavía no jugó.</span>') + '</div>' +
-      (S.history.length
-        ? '<div class="table-wrap mt-4"><table class="table"><thead><tr><th>Día</th><th>Hora</th><th>Cancha</th></tr></thead><tbody>' +
-          S.history.slice(0, 12).map(function (b) {
-            return '<tr><td>' + esc(day(b)) + '</td><td class="mono">' + b.start + '–' + b.end + '</td><td>' + esc(b.courtName) + '</td></tr>';
-          }).join('') + '</tbody></table></div>'
-        : '');
-  }
 
-  async function select(id) {
-    var p = S.all.filter(function (x) { return x.id === id; })[0];
-    if (!p) return;
-    S.person = p; S.history = await PaliApi.getPersonHistory(p.id);
-    S.q = ''; S.results = []; $('#q').value = ''; renderCombo(); renderDetail();
-  }
-
+  /* ---------- acciones ---------- */
   var actions = {
-    select: function (d) { select(d.id); },
+    open: function (d) { colsOpen(false); openPlayer(d.id); },
+    closePlayer: closePlayer,
+    scrim: function (d, e) { if (e.target.id === 'scrim') closePlayer(); },
+    goto: function (d) { var n = Number(d.page); if (n >= 1 && n <= S.totalPages && n !== S.page) { S.page = n; load(); } },
+    toggleCols: function () { colsOpen($('#colsPop').hidden); },
     startCreate: function () {
       var parts = S.q.trim().split(/\s+/);
       S.newPerson = { firstName: parts[0] || '', lastName: parts.slice(1).join(' ') };
-      $('#comboList').hidden = true; renderNew();
+      renderNew(); $('#newPerson').scrollIntoView({ block: 'nearest' });
     },
     cancelNew: function () { S.newPerson = null; renderNew(); },
     saveNew: async function () {
       var f = $('#npFirst').value.trim(), l = $('#npLast').value.trim();
       if (!validatePerson()) return;
       var p = await PaliApi.createPerson({ firstName: f, lastName: l, alias: $('#npAlias').value.trim(), phone: $('#npPhone').value.trim(), categoryId: $('#npCat').value });
-      S.newPerson = null; renderNew();
-      S.all = await PaliApi.listPeople(); renderAll();
-      await select(p.id); say('Persona creada');
+      S.newPerson = null; renderNew(); await load();
+      await openPlayer(p.id); say('Persona creada');
     }
   };
   document.addEventListener('click', function (e) {
-    if (!e.target.closest('.combo') && $('#comboList')) $('#comboList').hidden = true;
+    if (!e.target.closest('#colsWrap')) colsOpen(false);
     var el = e.target.closest('[data-act]');
-    if (el && actions[el.dataset.act]) actions[el.dataset.act](el.dataset);
+    if (el && actions[el.dataset.act]) actions[el.dataset.act](el.dataset, e);
+  });
+  document.addEventListener('change', function (e) {
+    if (e.target.dataset && e.target.dataset.col) { S.cols[e.target.dataset.col] = e.target.checked; render(); }
+    if (e.target.id === 'fCat' || e.target.id === 'fCourt' || e.target.id === 'fPeriod') { S.page = 1; load(); }
+    if (e.target.id === 'pageSize') { S.pageSize = Number(e.target.value); S.page = 1; load(); }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { if (!$('#scrim').hidden) closePlayer(); colsOpen(false); }
+    if (e.key === 'Enter' && e.target.matches && e.target.matches('tr.row-link')) openPlayer(e.target.dataset.id);
   });
   $('#q').addEventListener('input', onType);
-  $('#q').addEventListener('focus', function () { if ($('#q').value) onType(); });
 
+  async function init() {
+    S.cats = await PaliApi.listCategories(); S.courts = await PaliApi.listCourts();
+    $('#fCat').innerHTML += S.cats.map(function (c) { return '<option value="' + c.id + '">' + esc(c.name) + '</option>'; }).join('');
+    $('#fCourt').innerHTML += S.courts.map(function (c) { return '<option value="' + c.id + '">' + esc(c.name) + '</option>'; }).join('');
+    renderCols(); await load();
+  }
   init();
 })();
 </script>
