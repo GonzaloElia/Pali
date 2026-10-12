@@ -63,6 +63,9 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
         <button class="btn">Secundario</button>
         <button class="btn btn--ghost">Fantasma</button>
         <button class="btn btn--danger">Cancelar turno</button>
+        <button class="check-btn" aria-pressed="false" aria-label="Marcar como completado" title="Marcar como completado"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 7.5"/></svg></button>
+        <button class="check-btn" aria-pressed="true" aria-label="Completado" title="Completado"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 7.5"/></svg></button>
+        <button class="check-btn" disabled aria-label="Deshabilitado" title="Deshabilitado"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 7.5"/></svg></button>
         <button class="btn" disabled>Deshabilitado</button>
         <button class="btn btn--primary btn--sm">Pequeño</button>
       </div>
@@ -72,7 +75,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
       <p class="kicker">Chips y estados</p>
       <div class="row wrap">
         <span class="chip">Neutro</span>
-        <span class="chip chip--soft">Reservado · 2 de 4</span>
+        <span class="chip chip--soft">Reservado</span>
         <span class="chip chip--solid">Completo</span>
         <span class="chip chip--coral">Cancelado</span>
         <span class="chip chip--sky">Cancha 1 · 4 veces</span>
@@ -100,8 +103,8 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
       <p class="kicker">Turnos (slot)</p>
       <div class="grid-3">
         <button class="slot slot--free"><span class="t">Libre · 18:00–19:30</span><span class="s">Tocá para reservar</span></button>
-        <button class="slot slot--booked"><span class="t">Reservado · 19:30–21:00</span><span class="s">2 de 4 personas</span></button>
-        <button class="slot slot--full"><span class="t">Completo · 21:00–22:30</span><span class="s">4 de 4 personas</span></button>
+        <button class="slot slot--booked"><span class="t">Reservado · 19:30–21:00</span><span class="s">2 personas</span></button>
+        <button class="slot slot--full"><span class="t">Completo · 21:00–22:30</span><span class="s">4 personas</span></button>
       </div>
     </section>
 

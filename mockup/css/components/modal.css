@@ -31,3 +31,25 @@
 /* Lista de personas dentro del modal */
 .plist { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
 .plist li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 2px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+
+/* Alerta de confirmación: pregunta corta con dos salidas. El foco arranca en la opción segura (“No”) */
+.modal--alert { max-width: 440px; padding: 24px; }
+.modal--alert .alert-icon { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; margin-bottom: var(--s-3); background: var(--bg-muted); color: var(--ink); }
+.modal--alert h3 { font-size: 18px; margin-bottom: 8px; }
+.modal--alert p { font-size: var(--fs-md); color: var(--ink-2); }
+.modal--alert .modal-foot { margin-top: var(--s-5); }
+
+/* Ficha del jugador: el modal nunca se pasa del alto de la pantalla; solo la lista scrollea y el pie queda siempre a la vista */
+.player-modal { display: flex; flex-direction: column; max-height: calc(90vh - 44px); min-height: 0; }
+.player-modal .hist { display: flex; flex-direction: column; min-height: 0; flex: 1 1 auto; }
+.player-modal .modal-scroll { max-height: none; flex: 1 1 auto; min-height: 120px; overflow: auto; margin-top: var(--s-3); border: 1px solid var(--line); border-radius: var(--r); }
+.player-modal .modal-scroll .table th { position: sticky; top: 0; z-index: 1; background: var(--surface); }
+.player-modal .modal-foot { margin-top: var(--s-4); flex: none; }
+.pager--mini { margin-top: var(--s-2); }
+
+/* Nota informativa con ícono: tinte celeste suave (es información) y un solo mensaje claro */
+.callout { display: flex; gap: 14px; align-items: flex-start; margin-top: var(--s-4); padding: 14px 16px; border-radius: 12px; background: var(--sky-50); border: 1px solid var(--sky-100); }
+.callout-ico { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--sky-400); color: #0d1f18; }
+.callout-ico svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.callout-t { font-weight: 600; font-size: var(--fs-md); color: var(--ink); line-height: 1.3; }
+.callout-s { margin-top: 2px; font-size: var(--fs-sm); color: var(--ink-2); }

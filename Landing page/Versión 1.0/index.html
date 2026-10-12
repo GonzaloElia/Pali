@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pali · Reservá canchas sin anotar a mano</title>
+<meta name="description" content="Pali es un backoffice para administrar las canchas de tu club y un chatbot de WhatsApp para que tus jugadores reserven solos. Estamos construyéndolo con los primeros clubes de paddle.">
+<meta name="theme-color" content="#0F3D2E">
+<meta property="og:title" content="Pali · Reservá canchas sin anotar a mano">
+<meta property="og:description" content="Backoffice y chatbot de WhatsApp para clubes de paddle. Sumá tu club como uno de los primeros.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cdefs%3E%3CclipPath id='c'%3E%3Ccircle cx='12' cy='12' r='11'/%3E%3C/clipPath%3E%3C/defs%3E%3Ccircle cx='12' cy='12' r='11' fill='%231F6F57'/%3E%3Cg clip-path='url(%23c)' fill='none' stroke='%23fff' stroke-width='1.4'%3E%3Ccircle cx='1' cy='12' r='15.5'/%3E%3Ccircle cx='23' cy='12' r='15.5'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Paleta de marca (Diseño/DESIGN-SYSTEM.md) */
+  --forest: #0F3D2E; --brand: #1F6F57; --mint: #A9D6C4; --mint-soft: #DFEEE6; --brand-soft: #E8F4EE;
+  --ink: #0D1F18; --ink-2: #43544D; --mute: #6A7B74; --line: #DCE5E0; --line-strong: #C3D0C9;
+  --coral: #E5533D; --coral-soft: #FDEEEA;
+  --sky-700: #1B4F8E; --sky-600: #2F6FC0; --sky-400: #6BAEE8; --sky-100: #BFDDF7; --sky-50: #E8F2FC;
+  --lav-700: #4A3C8C; --lav-500: #9C8DDD; --lav-100: #E4DFF7; --lav-50: #F1EEFB; --lav-on-dark: #D0C7F6;
+  --white: #fff;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --wrap: 1180px; --gut: clamp(20px, 5vw, 48px);
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 84px; }
+body { margin: 0; font-family: var(--sans); color: var(--ink); background: var(--white); line-height: 1.55; font-size: 17px; -webkit-font-smoothing: antialiased; }
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; }
+h1, h2, h3, p { margin: 0; }
+.wrap { width: 100%; max-width: calc(var(--wrap) + var(--gut) * 2); margin: 0 auto; padding: 0 var(--gut); }
+.mono { font-family: var(--mono); }
+.kicker { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--brand); display: inline-flex; align-items: center; gap: 10px; }
+.kicker::before { content: ""; width: 22px; height: 1.5px; background: currentColor; }
+.kicker--mint { color: var(--mint); } .kicker--sky { color: var(--sky-700); } .kicker--lav { color: var(--lav-700); }
+.skip { position: absolute; left: -999px; top: 8px; z-index: 100; background: var(--ink); color: #fff; padding: 10px 14px; border-radius: 8px; }
+.skip:focus { left: 8px; }
+:focus-visible { outline: 2px solid var(--sky-600); outline-offset: 3px; border-radius: 4px; }
+
+/* ---------- botones ---------- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; font: 600 16px/1 var(--sans); padding: 15px 24px; border-radius: 10px; border: 1px solid transparent; cursor: pointer; text-decoration: none; transition: background .15s, transform .15s var(--ease), border-color .15s; min-height: 48px; }
+.btn--primary { background: var(--brand); color: #fff; }
+.btn--primary:hover { background: #185a47; }
+.btn--primary:active { transform: scale(.985); }
+.btn--ghost { border-color: rgba(255,255,255,.28); color: #fff; }
+.btn--ghost:hover { background: rgba(255,255,255,.08); }
+.btn--ink { background: var(--ink); color: #fff; }
+.btn--ink:hover { background: #17352a; }
+.btn[disabled] { opacity: .7; cursor: progress; }
+.btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- header ---------- */
+.top { position: sticky; top: 0; z-index: 40; background: rgba(15, 61, 46, .94); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(255,255,255,.08); }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 68px; gap: 20px; }
+.logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; font-weight: 600; font-size: 24px; letter-spacing: -.02em; }
+.logo svg { width: 28px; height: 28px; }
+.nav { display: flex; gap: 28px; }
+.nav a { color: var(--mint); text-decoration: none; font-size: 15px; }
+.nav a:hover { color: #fff; }
+.top .btn { padding: 11px 18px; min-height: 40px; font-size: 14px; }
+@media (max-width: 860px) { .nav { display: none; } }
+
+/* ---------- hero ---------- */
+.hero { position: relative; overflow: hidden; background: var(--forest); color: #fff; }
+.hero .court { position: absolute; right: -8%; top: 50%; width: 78%; max-width: 1100px; transform: translateY(-50%); opacity: .9; pointer-events: none; }
+.hero .wrap { position: relative; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 480px); gap: clamp(32px, 6vw, 80px); align-items: center; padding-top: clamp(48px, 8vw, 96px); padding-bottom: clamp(56px, 8vw, 104px); }
+.hero h1 { font-size: clamp(40px, 6.4vw, 78px); line-height: .98; letter-spacing: -.035em; font-weight: 700; margin-top: 22px; }
+.hero h1 em { font-style: normal; color: var(--mint); }
+.hero .lede { margin-top: 26px; font-size: clamp(17px, 1.6vw, 20px); color: #D3E7DD; max-width: 38em; }
+.hero .points { list-style: none; padding: 0; margin: 30px 0 0; display: grid; gap: 12px; }
+.hero .points li { display: flex; gap: 12px; align-items: flex-start; color: #fff; font-size: 16px; }
+.hero .points svg { flex: none; width: 20px; height: 20px; margin-top: 2px; fill: none; stroke: var(--sky-400); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 34px; }
+.chip { font-family: var(--mono); font-size: 12px; padding: 5px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.22); color: var(--mint); }
+@media (max-width: 960px) { .hero .wrap { grid-template-columns: 1fr; } .hero .court { width: 140%; right: -30%; opacity: .6; } }
+
+/* ---------- formulario ---------- */
+.form-card { background: #fff; color: var(--ink); border-radius: 16px; padding: clamp(22px, 3vw, 32px); box-shadow: 0 24px 60px rgba(0,0,0,.28); }
+.form-card h2 { font-size: 24px; letter-spacing: -.02em; line-height: 1.15; }
+.form-card .sub { margin-top: 6px; font-size: 15px; color: var(--ink-2); }
+.form { display: grid; gap: 14px; margin-top: 20px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 520px) { .row2 { grid-template-columns: 1fr; } }
+.field { display: grid; gap: 6px; }
+.field label, .field .lab { font-size: 14px; font-weight: 500; color: var(--ink); display: flex; align-items: center; gap: 6px; }
+.req { width: 7px; height: 7px; flex: none; background: var(--brand); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 0v10M0.4 2.5l9.2 5M9.6 2.5l-9.2 5' stroke='%23000' stroke-width='1.8'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 0v10M0.4 2.5l9.2 5M9.6 2.5l-9.2 5' stroke='%23000' stroke-width='1.8'/%3E%3C/svg%3E") center / contain no-repeat; }
+.input, .select { width: 100%; font: 400 16px var(--sans); color: var(--ink); background: #fff; border: 1px solid var(--line-strong); border-radius: 10px; padding: 12px 14px; min-height: 48px; transition: border-color .15s, box-shadow .15s; }
+.select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2343544D' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 38px; }
+.input::placeholder { color: #8A9992; }
+.input:hover, .select:hover { border-color: var(--ink-2); }
+.input:focus, .select:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(31,111,87,.18); }
+.input[aria-invalid="true"], .select[aria-invalid="true"] { border-color: var(--coral); box-shadow: 0 0 0 3px rgba(229,83,61,.12); }
+.err { font-size: 13.5px; color: #B63A27; display: none; }
+.err.is-on { display: block; }
+.consent { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--ink-2); }
+.consent input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--brand); flex: none; }
+.hp { position: absolute; left: -5000px; width: 1px; height: 1px; overflow: hidden; }
+.form .btn { width: 100%; margin-top: 4px; }
+.fine { font-size: 13px; color: var(--mute); text-align: center; }
+.ok { display: none; text-align: left; }
+.ok.is-on { display: block; }
+.ok .tick { width: 52px; height: 52px; border-radius: 50%; background: var(--brand-soft); display: grid; place-items: center; }
+.ok .tick svg { width: 26px; height: 26px; fill: none; stroke: var(--brand); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 30; stroke-dashoffset: 30; animation: draw .5s .15s forwards ease; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.ok h3 { font-size: 24px; letter-spacing: -.02em; margin-top: 16px; }
+.ok p { margin-top: 8px; color: var(--ink-2); }
+.ok .btn { width: auto; margin-top: 18px; }
+
+/* ---------- secciones ---------- */
+section { padding: clamp(64px, 9vw, 112px) 0; }
+.h2 { font-size: clamp(32px, 4.6vw, 54px); line-height: 1.03; letter-spacing: -.03em; font-weight: 700; margin-top: 16px; max-width: 18em; }
+.h2 em { font-style: normal; color: var(--brand); }
+.sec-lede { margin-top: 18px; font-size: 19px; color: var(--ink-2); max-width: 40em; }
+.reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s var(--ease), transform .6s var(--ease); }
+.reveal.is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .reveal { opacity: 1; transform: none; transition: none; } .ok .tick svg { animation: none; stroke-dashoffset: 0; } }
+
+/* problema */
+.problem { background: var(--white); }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 48px; border: 1px solid var(--ink); }
+.tile { padding: 28px 26px 30px; display: flex; flex-direction: column; gap: 12px; min-height: 260px; }
+.tile + .tile { border-left: 1px solid var(--ink); }
+.tile .n { font-size: clamp(64px, 8vw, 104px); line-height: .9; font-weight: 700; letter-spacing: -.05em; }
+.tile h3 { font-size: 20px; letter-spacing: -.01em; margin-top: auto; }
+.tile p { font-size: 15.5px; }
+.tile--1 { background: var(--forest); color: #fff; } .tile--1 .n { color: var(--mint); } .tile--1 p { color: #D3E7DD; }
+.tile--2 { background: var(--mint-soft); } .tile--2 .n { color: var(--brand); } .tile--2 p { color: var(--ink-2); }
+.tile--3 { background: var(--sky-50); } .tile--3 .n { color: var(--sky-600); } .tile--3 p { color: var(--ink-2); }
+@media (max-width: 860px) { .tiles { grid-template-columns: 1fr; } .tile + .tile { border-left: 0; border-top: 1px solid var(--ink); } .tile { min-height: 0; } }
+
+/* cómo funciona */
+.how { background: var(--mint-soft); }
+.how-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: clamp(32px, 6vw, 80px); margin-top: 52px; align-items: start; }
+.steps { list-style: none; padding: 0; margin: 0; display: grid; }
+.steps li { display: grid; grid-template-columns: 56px 1fr; gap: 18px; padding: 26px 0; border-top: 1.5px solid var(--ink); }
+.steps li:last-child { border-bottom: 1.5px solid var(--ink); }
+.steps .num { font-family: var(--mono); font-weight: 500; font-size: 15px; color: var(--brand); padding-top: 4px; }
+.steps h3 { font-size: 22px; letter-spacing: -.015em; }
+.steps p { margin-top: 6px; color: var(--ink-2); font-size: 16px; }
+@media (max-width: 960px) { .how-grid { grid-template-columns: 1fr; } }
+
+/* mock de chat */
+.chat { background: var(--sky-50); border: 1px solid var(--sky-100); border-radius: 18px; overflow: hidden; max-width: 460px; margin-left: auto; box-shadow: 0 18px 44px rgba(15,61,46,.12); }
+@media (max-width: 960px) { .chat { margin: 0; } }
+.chat-head { background: var(--forest); color: #fff; display: flex; align-items: center; gap: 12px; padding: 14px 18px; }
+.avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--mint); color: var(--forest); display: grid; place-items: center; font-weight: 700; }
+.chat-head b { display: block; font-size: 15px; line-height: 1.2; } .chat-head small { font-family: var(--mono); font-size: 10.5px; color: var(--mint); letter-spacing: .04em; }
+.chat-body { padding: 20px 18px 22px; display: grid; gap: 12px; }
+.msg { max-width: 82%; padding: 10px 14px; border-radius: 14px; font-size: 15px; line-height: 1.4; }
+.msg--bot { background: #fff; border: 1px solid var(--sky-100); border-top-left-radius: 4px; justify-self: start; }
+.msg--me { background: var(--brand); color: #fff; border-top-right-radius: 4px; justify-self: end; }
+.slots { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.slot { font-family: var(--mono); font-size: 12px; font-weight: 500; background: var(--sky-400); color: var(--ink); border-radius: 999px; padding: 6px 12px; }
+.chat-note { font-family: var(--mono); font-size: 10.5px; color: var(--sky-700); padding: 0 18px 14px; letter-spacing: .04em; }
+
+/* producto */
+.product { background: var(--white); }
+.pgrid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 0; margin-top: 52px; border: 1px solid var(--ink); }
+.pcell { padding: clamp(22px, 3vw, 34px); min-width: 0; }
+.pcell h3 { font-size: 22px; letter-spacing: -.015em; margin-top: 12px; }
+.pcell p { margin-top: 8px; font-size: 15.5px; }
+.pcell .tag { font-family: var(--mono); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; }
+.p-agenda { grid-column: span 7; background: var(--brand-soft); border-bottom: 1px solid var(--ink); border-right: 1px solid var(--ink); }
+.p-cobros { grid-column: span 5; background: var(--forest); color: #fff; border-bottom: 1px solid var(--ink); }
+.p-cobros p { color: #D3E7DD; } .p-cobros .tag { color: var(--mint); }
+.p-people { grid-column: span 4; background: var(--lav-50); border-right: 1px solid var(--ink); }
+.p-config { grid-column: span 4; background: var(--sky-50); border-right: 1px solid var(--ink); }
+.p-club { grid-column: span 4; background: var(--mint); }
+.p-agenda .tag { color: var(--brand); } .p-people .tag { color: var(--lav-700); } .p-config .tag { color: var(--sky-700); } .p-club .tag { color: var(--forest); }
+.p-people p, .p-config p, .p-agenda p { color: var(--ink-2); } .p-club p { color: var(--forest); }
+@media (max-width: 960px) { .pcell { grid-column: 1 / -1 !important; border-right: 0 !important; } .pcell + .pcell { border-top: 1px solid var(--ink); } .p-agenda, .p-cobros { border-bottom: 0; } }
+.mini { margin-top: 22px; }
+/* agenda de ejemplo */
+.ag { display: grid; grid-template-columns: 52px 1fr 1fr 1fr; gap: 8px; align-items: stretch; font-size: 12.5px; }
+.ag .h { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--ink-2); text-transform: uppercase; padding-bottom: 2px; }
+.ag .t { font-family: var(--mono); color: var(--mute); align-self: center; font-size: 12px; }
+.cell { border-radius: 10px; padding: 9px 11px; min-height: 58px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid transparent; }
+.cell b { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; font-weight: 500; }
+.cell span { font-size: 12.5px; }
+.c-free { background: #fff; border: 1px dashed var(--line-strong); color: var(--ink-2); }
+.c-res { background: #fff; border-color: #BCD9CC; color: var(--brand); }
+.c-full { background: var(--forest); color: #fff; } .c-full span { color: var(--mint); }
+@media (max-width: 560px) { .ag { grid-template-columns: 44px 1fr 1fr; } .ag .c3 { display: none; } }
+/* cobros de ejemplo */
+.cb { margin-top: 22px; background: var(--brand); border-radius: 14px; padding: 20px; }
+.cb .k { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--mint); }
+.cb .big { font-size: clamp(34px, 4vw, 46px); font-weight: 600; letter-spacing: -.03em; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.cb .row { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid rgba(255,255,255,.18); margin-top: 14px; padding-top: 12px; }
+.cb .row .k { color: var(--lav-on-dark); } .cb .row b { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.delta { display: inline-flex; font-family: var(--mono); font-size: 12px; background: rgba(255,255,255,.16); border-radius: 999px; padding: 2px 9px; margin-left: 8px; font-weight: 500; }
+.bars { display: flex; align-items: flex-end; gap: 6px; height: 56px; margin-top: 16px; }
+.bars i { flex: 1; background: rgba(255,255,255,.28); border-radius: 4px 4px 0 0; }
+.bars i.pk { background: var(--mint); }
+.example { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; opacity: .75; margin-top: 12px; }
+/* personas */
+.persons { margin-top: 20px; display: grid; gap: 8px; }
+.persons div { background: #fff; border: 1px solid var(--lav-100); border-radius: 10px; padding: 9px 12px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+.cat { font-family: var(--mono); font-size: 11px; background: var(--lav-100); color: var(--lav-700); border-radius: 999px; padding: 2px 9px; font-weight: 500; }
+.promo { font-family: var(--mono); font-size: 11px; background: var(--lav-500); color: var(--ink); border-radius: 999px; padding: 2px 10px; font-weight: 500; }
+.cfg { margin-top: 20px; display: grid; gap: 8px; font-size: 14px; }
+.cfg div { background: #fff; border: 1px solid var(--sky-100); border-radius: 10px; padding: 9px 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.sw { width: 34px; height: 20px; border-radius: 99px; background: var(--brand); position: relative; flex: none; }
+.sw::after { content: ""; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: #fff; top: 3px; right: 3px; }
+.sw.off { background: #fff; border: 1px solid var(--line-strong); } .sw.off::after { background: var(--line-strong); right: auto; left: 3px; top: 2px; }
+.brandbox { margin-top: 20px; background: var(--forest); color: #fff; border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px; }
+.brandbox .avatar { background: var(--mint); }
+.brandbox small { display: block; font-family: var(--mono); font-size: 10.5px; color: var(--mint); letter-spacing: .05em; }
+
+/* para quién + co-creación */
+.who { background: var(--forest); color: #fff; position: relative; overflow: hidden; }
+.who .court { position: absolute; left: -10%; bottom: -30%; width: 70%; opacity: .5; pointer-events: none; }
+.who .wrap { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 88px); align-items: start; }
+.who .h2 { color: #fff; } .who .h2 em { color: var(--mint); }
+.who .sec-lede { color: #D3E7DD; }
+.checks { list-style: none; padding: 0; margin: 0; display: grid; gap: 0; }
+.checks li { display: grid; grid-template-columns: 34px 1fr; gap: 14px; padding: 20px 0; border-top: 1px solid rgba(255,255,255,.22); }
+.checks li:last-child { border-bottom: 1px solid rgba(255,255,255,.22); }
+.checks b { display: block; font-size: 18px; letter-spacing: -.01em; }
+.checks span { color: #D3E7DD; font-size: 15.5px; }
+.checks .dot { width: 26px; height: 26px; border-radius: 50%; background: var(--lav-500); display: grid; place-items: center; margin-top: 2px; }
+.checks .dot svg { width: 14px; height: 14px; fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.honest { margin-top: 28px; font-family: var(--mono); font-size: 12px; letter-spacing: .04em; color: var(--lav-on-dark); }
+@media (max-width: 960px) { .who .wrap { grid-template-columns: 1fr; } }
+
+/* preguntas */
+.faq { background: var(--white); }
+.faq-list { margin-top: 44px; max-width: 860px; border-top: 1.5px solid var(--ink); }
+.faq details { border-bottom: 1px solid var(--line-strong); }
+.faq summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; gap: 20px; align-items: center; padding: 22px 0; font-size: 19px; font-weight: 600; letter-spacing: -.01em; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; font-family: var(--mono); font-size: 24px; font-weight: 400; color: var(--brand); transition: transform .2s var(--ease); flex: none; }
+.faq details[open] summary::after { transform: rotate(45deg); }
+.faq details p { padding: 0 0 24px; color: var(--ink-2); max-width: 44em; }
+
+/* cierre */
+.final { background: var(--mint-soft); }
+.final .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 480px); gap: clamp(32px, 6vw, 80px); align-items: center; }
+.final .form-card { box-shadow: 0 18px 44px rgba(15,61,46,.14); border: 1px solid var(--line); }
+@media (max-width: 960px) { .final .wrap { grid-template-columns: 1fr; } }
+
+footer { background: var(--ink); color: #B9CBC2; padding: 40px 0; font-size: 14px; }
+footer .wrap { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+footer .logo { font-size: 20px; } footer .logo svg { width: 24px; height: 24px; }
+
+/* barra fija en celular */
+.sticky-cta { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; padding: 12px var(--gut) calc(12px + env(safe-area-inset-bottom)); background: rgba(15,61,46,.96); transform: translateY(110%); transition: transform .3s var(--ease); display: none; }
+.sticky-cta.is-on { transform: none; }
+.sticky-cta .btn { width: 100%; }
+@media (max-width: 860px) { .sticky-cta { display: block; } body { padding-bottom: 0; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#sumate">Ir al formulario</a>
+
+<!-- símbolos reutilizables -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <clipPath id="ball"><circle cx="12" cy="12" r="11"/></clipPath>
+    <symbol id="ico-ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#A9D6C4"/><g clip-path="url(#ball)" fill="none" stroke="#0F3D2E" stroke-width="1.4"><circle cx="1" cy="12" r="15.5"/><circle cx="23" cy="12" r="15.5"/></g></symbol>
+    <symbol id="ico-check" viewBox="0 0 24 24"><path d="M5.5 12.5l4.2 4.2L18.5 7.5"/></symbol>
+    <symbol id="ico-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="court" viewBox="0 0 200 100"><g fill="none" stroke="#3A6A58" stroke-width=".6"><rect x="1" y="1" width="198" height="98"/><path d="M100 1v98" stroke-width="1.1"/><path d="M30.5 1v98M169.5 1v98M30.5 50h139"/></g></symbol>
+  </defs>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="Pali, ir al inicio"><svg aria-hidden="true"><use href="#ico-ball"/></svg>Pali</a>
+    <nav class="nav" aria-label="Secciones">
+      <a href="#problema">El problema</a><a href="#como">Cómo funciona</a><a href="#producto">El producto</a><a href="#preguntas">Preguntas</a>
+    </nav>
+    <a class="btn btn--primary" href="#sumate">Sumá tu club</a>
+  </div>
+</header>
+
+<main id="top">
+<!-- ===== HERO ===== -->
+<section class="hero" style="padding:0">
+  <svg class="court" viewBox="0 0 200 100" aria-hidden="true"><use href="#court"/></svg>
+  <div class="wrap">
+    <div>
+      <p class="kicker kicker--mint">Backoffice + chatbot de WhatsApp · Para clubes de paddle</p>
+      <h1>Reservar una cancha tiene que costar <em>menos</em> que anotarla a mano.</h1>
+      <p class="lede">Pali es el backoffice para administrar las canchas de tu club y un chatbot de WhatsApp para que tus jugadores reserven solos, sin llamadas ni cuaderno. Lo estamos construyendo con los primeros clubes.</p>
+      <ul class="points">
+        <li><svg aria-hidden="true"><use href="#ico-check"/></svg>Tus jugadores reservan por WhatsApp, a cualquier hora.</li>
+        <li><svg aria-hidden="true"><use href="#ico-check"/></svg>Vos ves todos los turnos en una agenda clara, y reservás en 2 clics.</li>
+        <li><svg aria-hidden="true"><use href="#ico-check"/></svg>Sabés cuánto entró por día, semana y mes.</li>
+      </ul>
+      <div class="chips" aria-label="Alcance"><span class="chip">Hoy: paddle</span><span class="chip">Mañana: más deportes</span><span class="chip">Una base de datos por club</span></div>
+    </div>
+    <div id="sumate" data-form="hero"></div>
+  </div>
+</section>
+
+<!-- ===== PROBLEMA ===== -->
+<section class="problem" id="problema">
+  <div class="wrap">
+    <p class="kicker reveal">01 — El problema</p>
+    <h2 class="h2 reveal">Hoy, administrar los turnos te lleva <em>más tiempo</em> del que debería.</h2>
+    <p class="sec-lede reveal">En muchos clubes los turnos se anotan a mano, en un cuaderno o entre mensajes de WhatsApp. Funciona, hasta que deja de funcionar.</p>
+    <div class="tiles reveal">
+      <article class="tile tile--1"><span class="n" aria-hidden="true">01</span><h3>Turnos que se pisan</h3><p>Dos personas anotadas en la misma cancha y el mismo horario. Alguien se va enojado.</p></article>
+      <article class="tile tile--2"><span class="n" aria-hidden="true">02</span><h3>Mensajes a toda hora</h3><p>Cada reserva es una conversación. Los jugadores esperan una respuesta y vos atendés entre partido y partido.</p></article>
+      <article class="tile tile--3"><span class="n" aria-hidden="true">03</span><h3>Poca visibilidad</h3><p>¿Qué turnos están completos? ¿Cuáles quedaron a medias? ¿Cuánto entró esta semana? Cuesta saberlo.</p></article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CÓMO FUNCIONA ===== -->
+<section class="how" id="como">
+  <div class="wrap">
+    <p class="kicker reveal">02 — Cómo funciona</p>
+    <h2 class="h2 reveal">Tu jugador escribe. <em>Tu agenda se llena sola.</em></h2>
+    <div class="how-grid">
+      <ol class="steps reveal">
+        <li><span class="num">01</span><div><h3>Escribe por WhatsApp</h3><p>El jugador le habla al chatbot de tu club, como hablaría con vos. Sin instalar nada.</p></div></li>
+        <li><span class="num">02</span><div><h3>Elige un turno libre</h3><p>El chatbot le muestra qué canchas y horarios hay disponibles y reserva.</p></div></li>
+        <li><span class="num">03</span><div><h3>Vos lo ves en la agenda</h3><p>El turno aparece en tu backoffice y suma a tus números de Cobros.</p></div></li>
+      </ol>
+      <figure class="chat reveal" style="margin:0" aria-label="Ejemplo de conversación con el chatbot">
+        <div class="chat-head"><span class="avatar" aria-hidden="true">C</span><div><b>Tu club</b><small>RESPONDE CON LA IDENTIDAD DE TU CLUB</small></div></div>
+        <div class="chat-body">
+          <p class="msg msg--me">Hola, quiero una cancha para mañana a la noche</p>
+          <div class="msg msg--bot">¡Hola! Para mañana a la noche tengo libre:<div class="slots"><span class="slot">20:00 · Cancha 1</span><span class="slot">21:30 · Cancha 2</span></div></div>
+          <p class="msg msg--me">La de las 21:30</p>
+          <p class="msg msg--bot">Listo, te anoté en Cancha 2 a las 21:30. ¿Cuántos van a jugar?</p>
+        </div>
+        <p class="chat-note">EJEMPLO DE TONO. EL FLUJO FINAL SE DEFINE CON CADA CLUB.</p>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PRODUCTO ===== -->
+<section class="product" id="producto">
+  <div class="wrap">
+    <p class="kicker reveal">03 — El producto</p>
+    <h2 class="h2 reveal">Un backoffice <em>simple</em>, pensado para el mostrador.</h2>
+    <p class="sec-lede reveal">Pocas pantallas, todo a la vista. Lo que ves abajo es el prototipo actual, con datos de ejemplo.</p>
+    <div class="pgrid reveal">
+      <article class="pcell p-agenda">
+        <span class="tag">Agenda</span>
+        <h3>Reservá un turno en 2 clics</h3>
+        <p>Libre, reservado o completo: cada turno se entiende de un vistazo.</p>
+        <div class="mini ag" role="img" aria-label="Agenda de ejemplo con turnos libres, reservados y completos">
+          <span></span><span class="h">Cancha 1</span><span class="h">Cancha 2</span><span class="h c3">Cancha 3</span>
+          <span class="t">19:30</span><div class="cell c-full"><b>Completo</b><span>4 personas</span></div><div class="cell c-res"><b>Reservado</b><span>2 personas</span></div><div class="cell c-free c3"><b>Libre</b><span>Tocá para reservar</span></div>
+          <span class="t">21:00</span><div class="cell c-res"><b>Reservado</b><span>3 personas</span></div><div class="cell c-free"><b>Libre</b><span>Tocá para reservar</span></div><div class="cell c-full c3"><b>Completo</b><span>4 personas</span></div>
+        </div>
+      </article>
+      <article class="pcell p-cobros">
+        <span class="tag">Cobros</span>
+        <h3>Cuánto entró, día por día</h3>
+        <p>Una cifra clara por día, semana y mes, con su variación y la ocupación de tus canchas.</p>
+        <div class="cb" role="img" aria-label="Panel de cobros de ejemplo">
+          <div class="k">Este mes · estimado</div>
+          <div class="big">$ 1.029.000</div>
+          <div class="bars" aria-hidden="true"><i style="height:48%"></i><i style="height:70%"></i><i style="height:40%"></i><i class="pk" style="height:100%"></i><i style="height:62%"></i><i style="height:78%"></i><i style="height:55%"></i></div>
+          <div class="row"><span class="k">Hoy</span><b>$ 91.000<span class="delta">▲ 18 %</span></b></div>
+          <div class="row"><span class="k">Esta semana</span><b>$ 581.000<span class="delta">▼ 14 %</span></b></div>
+        </div>
+        <p class="example">DATOS DE EJEMPLO</p>
+      </article>
+      <article class="pcell p-people">
+        <span class="tag">Personas</span>
+        <h3>Tus jugadores, con su categoría</h3>
+        <p>Una tabla con filtros y búsqueda mientras escribís, y la ficha de cada jugador.</p>
+        <div class="persons" aria-hidden="true"><div>Lucía Fernández<span class="cat">6ª</span></div><div>Martín Acosta<span class="cat">8ª</span></div><div>Sofía Ibarra<span class="cat">5ª</span></div></div>
+      </article>
+      <article class="pcell p-config">
+        <span class="tag">Configuración</span>
+        <h3>Tu precio, tus reglas</h3>
+        <p>Precio por jugador, duración de los turnos, canchas y promociones.</p>
+        <div class="cfg" aria-hidden="true"><div>Cancha 1<span class="sw"></span></div><div>Cancha 2<span class="sw"></span></div><div>Promo último turno<span class="promo">Promo</span></div></div>
+      </article>
+      <article class="pcell p-club">
+        <span class="tag">Tu identidad</span>
+        <h3>El protagonista es tu club</h3>
+        <p>El jugador habla con tu club, no con Pali. Nosotros trabajamos detrás.</p>
+        <div class="brandbox"><span class="avatar" aria-hidden="true">C</span><div><b>Tu club</b><small>CHATBOT CON TU IDENTIDAD</small></div></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PARA QUIÉN / CO-CREACIÓN ===== -->
+<section class="who" id="club-piloto">
+  <svg class="court" viewBox="0 0 200 100" aria-hidden="true"><use href="#court"/></svg>
+  <div class="wrap">
+    <div>
+      <p class="kicker kicker--mint reveal">04 — Construimos con vos</p>
+      <h2 class="h2 reveal">Buscamos los primeros clubes para <em>armarlo juntos.</em></h2>
+      <p class="sec-lede reveal">Pali está en construcción y queremos que lo moldee quien lo va a usar todos los días. Si sos de los primeros, tu opinión se nota en el producto.</p>
+      <p class="honest reveal">LAS CONDICIONES SE ACUERDAN CHARLANDO. SIN LETRA CHICA.</p>
+      <a class="btn btn--primary reveal" href="#sumate-2" style="margin-top:28px">Quiero sumar mi club <svg aria-hidden="true"><use href="#ico-arrow"/></svg></a>
+    </div>
+    <ul class="checks reveal" aria-label="Perfil del club que buscamos">
+      <li><span class="dot"><svg aria-hidden="true"><use href="#ico-check"/></svg></span><div><b>Entre 2 y 4 canchas de pádel</b><span>Un club chico o mediano, donde cada turno cuenta.</span></div></li>
+      <li><span class="dot"><svg aria-hidden="true"><use href="#ico-check"/></svg></span><div><b>Vos administrás</b><span>Hablamos directo con quien toma las decisiones y usa el sistema.</span></div></li>
+      <li><span class="dot"><svg aria-hidden="true"><use href="#ico-check"/></svg></span><div><b>Hoy anotás a mano o por WhatsApp</b><span>Cuaderno, planilla o mensajes: es justo el problema que resolvemos.</span></div></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== PREGUNTAS ===== -->
+<section class="faq" id="preguntas">
+  <div class="wrap">
+    <p class="kicker reveal">05 — Preguntas frecuentes</p>
+    <h2 class="h2 reveal">Lo que nos suelen <em>preguntar.</em></h2>
+    <div class="faq-list reveal">
+      <details><summary>¿Cuánto cuesta?</summary><p>Todavía lo estamos definiendo junto con los primeros clubes. Dejar tus datos no tiene costo ni te compromete a nada.</p></details>
+      <details><summary>¿Mis jugadores tienen que instalar algo?</summary><p>No. Reservan por WhatsApp, con la aplicación que ya usan todos los días.</p></details>
+      <details><summary>¿Se cobra online?</summary><p>Por ahora el pago se hace en caja, como hoy. Cobros te muestra una estimación de lo que entra según los turnos completos. El pago online queda para más adelante.</p></details>
+      <details><summary>¿Sirve solo para paddle?</summary><p>Arrancamos con paddle, pero Pali está pensado para crecer a otros deportes y a más clubes.</p></details>
+      <details><summary>¿Y si ya uso otro sistema o una planilla?</summary><p>Contanos cómo trabajás hoy cuando hablemos. Es justo lo que queremos entender para armar algo que te sirva.</p></details>
+      <details><summary>¿Qué hacen con mis datos?</summary><p>Los usamos únicamente para contactarte por Pali. No los compartimos con nadie.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CIERRE ===== -->
+<section class="final">
+  <div class="wrap">
+    <div>
+      <p class="kicker reveal">Último paso</p>
+      <h2 class="h2 reveal">Sumá tu club y <em>charlamos.</em></h2>
+      <p class="sec-lede reveal">Dejanos tus datos y te escribimos por WhatsApp para contarte cómo es Pali y escuchar cómo trabajás hoy.</p>
+    </div>
+    <div id="sumate-2" data-form="final"></div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="Pali, ir al inicio"><svg aria-hidden="true"><use href="#ico-ball"/></svg>Pali</a>
+    <p>Backoffice y chatbot de WhatsApp para clubes de paddle. Hoy en construcción con los primeros clubes.</p>
+  </div>
+</footer>
+
+<div class="sticky-cta" id="sticky"><a class="btn btn--primary" href="#sumate">Sumá tu club</a></div>
+
+<!-- Plantilla del formulario (se usa arriba y al final) -->
+<template id="formTpl">
+  <div class="form-card">
+    <div class="form-wrap">
+      <h2 data-title>Sumá tu club</h2>
+      <p class="sub" data-sub>Dejanos tus datos y te escribimos por WhatsApp. Lleva menos de un minuto.</p>
+      <form class="form" novalidate>
+        <div class="row2">
+          <div class="field"><label for="__-name">Tu nombre<span class="req" role="img" aria-label="obligatorio"></span></label><input class="input" id="__-name" name="name" type="text" autocomplete="name" placeholder="Nombre y apellido" aria-describedby="__-name-e"><p class="err" id="__-name-e" role="alert"></p></div>
+          <div class="field"><label for="__-club">Nombre del club<span class="req" role="img" aria-label="obligatorio"></span></label><input class="input" id="__-club" name="club" type="text" autocomplete="organization" placeholder="Club Atlético…" aria-describedby="__-club-e"><p class="err" id="__-club-e" role="alert"></p></div>
+        </div>
+        <div class="field"><label for="__-phone">WhatsApp<span class="req" role="img" aria-label="obligatorio"></span></label><input class="input" id="__-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="Ej: 11 5555 1234" aria-describedby="__-phone-e"><p class="err" id="__-phone-e" role="alert"></p></div>
+        <div class="row2">
+          <div class="field"><label for="__-email">Email</label><input class="input" id="__-email" name="email" type="email" autocomplete="email" placeholder="tu@club.com" aria-describedby="__-email-e"><p class="err" id="__-email-e" role="alert"></p></div>
+          <div class="field"><label for="__-courts">Cantidad de canchas</label><select class="select" id="__-courts" name="courts"><option value="">Elegí una opción</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5 o más</option></select></div>
+        </div>
+        <div class="field"><label for="__-how">¿Cómo anotan los turnos hoy?</label><select class="select" id="__-how" name="how"><option value="">Elegí una opción</option><option>En un cuaderno</option><option>En una planilla</option><option>Por WhatsApp</option><option>Con otra aplicación</option><option>De otra forma</option></select></div>
+        <div class="hp" aria-hidden="true"><label>No completar<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+        <div class="field"><label class="consent" for="__-ok"><input type="checkbox" id="__-ok" name="ok" aria-describedby="__-ok-e"><span>Acepto que Pali me contacte con estos datos.<span class="req" role="img" aria-label="obligatorio" style="display:inline-block;margin-left:6px"></span></span></label><p class="err" id="__-ok-e" role="alert"></p></div>
+        <button class="btn btn--primary" type="submit"><span data-label>Quiero sumar mi club</span><svg aria-hidden="true"><use href="#ico-arrow"/></svg></button>
+        <p class="fine">Sin costo y sin compromiso. Te escribimos nosotros.</p>
+        <p class="err" data-global role="alert" style="text-align:center"></p>
+      </form>
+    </div>
+    <div class="ok" role="status" aria-live="polite" tabindex="-1">
+      <div class="tick"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-check"/></svg></div>
+      <h3 data-ok-title>¡Listo!</h3>
+      <p data-ok-text>Recibimos tus datos. Te escribimos por WhatsApp.</p>
+      <button class="btn btn--ink" type="button" data-again>Cargar otro club</button>
+    </div>
+  </div>
+</template>
+
+<script>
+(function () {
+  /* ---------- Envío de datos ----------
+     FORM_ENDPOINT: URL que recibe un POST con JSON (por ejemplo un formulario de Google Apps Script, Make, Zapier o el backend de Pali).
+     Mientras esté vacío, la landing guarda los datos solo en este navegador (localStorage 'pali-leads') para poder probar el flujo. */
+  var FORM_ENDPOINT = '';
+
+  var tpl = document.getElementById('formTpl');
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+
+  function mount(host, prefix, opts) {
+    var node = tpl.content.cloneNode(true);
+    var html = document.createElement('div'); html.appendChild(node);
+    html.innerHTML = html.innerHTML.replace(/__-/g, prefix + '-');
+    var card = html.firstElementChild; host.appendChild(card);
+    if (opts && opts.title) $('[data-title]', card).textContent = opts.title;
+    if (opts && opts.sub) $('[data-sub]', card).textContent = opts.sub;
+    wire(card, prefix);
+  }
+
+  function setErr(card, id, msg) {
+    var inp = $('#' + id, card), er = $('#' + id + '-e', card);
+    if (!er) return !msg;
+    er.textContent = msg || ''; er.classList.toggle('is-on', !!msg);
+    if (inp) { if (msg) inp.setAttribute('aria-invalid', 'true'); else inp.removeAttribute('aria-invalid'); }
+    return !msg;
+  }
+
+  function validate(card, p) {
+    var f = card.querySelector('form'), v = function (n) { return (f.elements[n].value || '').trim(); }, bad = [];
+    if (!v('name')) { setErr(card, p + '-name', 'Falta completar el campo Tu nombre: es obligatorio.'); bad.push('name'); } else setErr(card, p + '-name', '');
+    if (!v('club')) { setErr(card, p + '-club', 'Falta completar el campo Nombre del club: es obligatorio.'); bad.push('club'); } else setErr(card, p + '-club', '');
+    var digits = v('phone').replace(/\D/g, '');
+    if (!v('phone')) { setErr(card, p + '-phone', 'Falta completar el campo WhatsApp: es obligatorio.'); bad.push('phone'); }
+    else if (digits.length < 8 || digits.length > 15) { setErr(card, p + '-phone', 'Revisá el número: tiene que tener entre 8 y 15 dígitos.'); bad.push('phone'); }
+    else setErr(card, p + '-phone', '');
+    if (v('email') && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v('email'))) { setErr(card, p + '-email', 'Revisá el email: parece que le falta algo.'); bad.push('email'); } else setErr(card, p + '-email', '');
+    if (!f.elements.ok.checked) { setErr(card, p + '-ok', 'Para poder contactarte, tildá esta casilla.'); bad.push('ok'); } else setErr(card, p + '-ok', '');
+    if (bad.length) { var first = f.elements[bad[0]]; first.focus(); }
+    return !bad.length;
+  }
+
+  function wire(card, p) {
+    var f = card.querySelector('form'), btn = f.querySelector('button[type=submit]'), glob = $('[data-global]', card), okBox = $('.ok', card), formWrap = $('.form-wrap', card);
+    ['name', 'club', 'phone', 'email'].forEach(function (n) {
+      f.elements[n].addEventListener('input', function () { if (this.getAttribute('aria-invalid')) setErr(card, p + '-' + n, ''); });
+    });
+    f.elements.ok.addEventListener('change', function () { if (this.checked) setErr(card, p + '-ok', ''); });
+    f.addEventListener('submit', function (e) {
+      e.preventDefault(); glob.textContent = ''; glob.classList.remove('is-on');
+      if (f.elements.website.value) return;            // trampa para bots: si está completa, no se envía
+      if (!validate(card, p)) return;
+      var data = { name: f.elements.name.value.trim(), club: f.elements.club.value.trim(), phone: f.elements.phone.value.trim(), email: f.elements.email.value.trim(), courts: f.elements.courts.value, how: f.elements.how.value, source: location.href, at: new Date().toISOString() };
+      btn.disabled = true; $('[data-label]', btn).textContent = 'Enviando…';
+      send(data).then(function () {
+        $('[data-ok-title]', card).textContent = '¡Listo, ' + data.name.split(' ')[0] + '!';
+        $('[data-ok-text]', card).textContent = 'Recibimos los datos de ' + data.club + '. Te escribimos por WhatsApp para charlar.';
+        formWrap.style.display = 'none'; okBox.classList.add('is-on'); okBox.focus();
+      }).catch(function () {
+        glob.textContent = 'No pudimos enviar tus datos. Revisá tu conexión e intentá de nuevo.'; glob.classList.add('is-on');
+      }).then(function () { btn.disabled = false; $('[data-label]', btn).textContent = 'Quiero sumar mi club'; });
+    });
+    $('[data-again]', card).addEventListener('click', function () { f.reset(); okBox.classList.remove('is-on'); formWrap.style.display = ''; f.elements.name.focus(); });
+  }
+
+  function send(data) {
+    if (FORM_ENDPOINT) {
+      return fetch(FORM_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).then(function (r) { if (!r.ok) throw new Error('http ' + r.status); });
+    }
+    return new Promise(function (ok) {
+      try { var l = JSON.parse(localStorage.getItem('pali-leads') || '[]'); l.push(data); localStorage.setItem('pali-leads', JSON.stringify(l)); } catch (e) {}
+      setTimeout(ok, 700);   // simula la espera del servidor (solo prueba)
+    });
+  }
+
+  mount($('[data-form=hero]'), 'h');
+  mount($('[data-form=final]'), 'f', { title: 'Dejá tus datos', sub: 'Te escribimos por WhatsApp para contarte cómo es Pali y escuchar cómo trabajás.' });
+
+  /* aparición suave al hacer scroll (sin movimiento si el sistema pide reducirlo) */
+  var els = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    var io = new IntersectionObserver(function (en) { en.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add('is-in'); io.unobserve(x.target); } }); }, { threshold: .12 });
+    els.forEach(function (e) { io.observe(e); });
+  } else els.forEach(function (e) { e.classList.add('is-in'); });
+
+  /* barra fija en celular: aparece al pasar el formulario del hero y se oculta cuando se ve algún formulario */
+  var sticky = document.getElementById('sticky'), seen = { h: true, f: false };
+  if ('IntersectionObserver' in window) {
+    var so = new IntersectionObserver(function (en) {
+      en.forEach(function (x) { seen[x.target.dataset.form === 'hero' ? 'h' : 'f'] = x.isIntersecting; });
+      sticky.classList.toggle('is-on', !seen.h && !seen.f);
+    });
+    document.querySelectorAll('[data-form]').forEach(function (e) { so.observe(e); });
+  }
+})();
+</script>
+</body>
+</html>

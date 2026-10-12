@@ -54,6 +54,11 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
               <input id="pLast" class="input" type="time">
             </div>
           </div>
+          <div class="field">
+            <label class="label" for="pWindow">Días hacia atrás que se pueden modificar turnos<span class="req" role="img" aria-label="obligatorio"></span></label>
+            <input id="pWindow" class="input" type="number" min="0" max="60" step="1" style="max-width:160px">
+            <p class="hint">Pasado ese plazo, los turnos quedan bloqueados. Con 6, hoy lunes se puede modificar desde el martes pasado.</p>
+          </div>
           <p class="note" id="gridPreview"></p>
           <p class="hint">Jugadores por turno completo: <b id="pPlayers"></b> (lo define el deporte). Se alquila todos los días. Cambiar esto no modifica las reservas ya hechas.</p>
           <div><button class="btn btn--primary" data-act="saveParams">Guardar parámetros</button></div>
@@ -105,6 +110,8 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
 
     <!-- Alta / edición de una promo -->
     <div id="scrim" class="scrim" hidden data-act="scrim"><div id="modal" class="modal modal--wide"></div></div>
+    <!-- Alerta: confirmar la pausa de una cancha -->
+    <div id="alertScrim" class="scrim" hidden data-act="alertScrim"><div id="alertBox" class="modal modal--alert" role="alertdialog" aria-modal="true" aria-labelledby="alertTitle" aria-describedby="alertText"></div></div>
     <div id="toast" class="toast" hidden></div>
   </main>
 </div>
@@ -117,7 +124,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
   var money = function (n) { return '$ ' + Math.round(n).toLocaleString('es-AR'); };
   var DAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
   var REQ = '<span class="req" role="img" aria-label="obligatorio"></span>';
-  var S = { s: null, rules: [], slots: [], edit: null, confirmId: null };
+  var S = { s: null, rules: [], slots: [], edit: null, confirmId: null, pauseId: null };
 
   function say(msg) { var t = $('#toast'); t.textContent = msg; t.hidden = false; setTimeout(function () { t.hidden = true; }, 2400); }
 
@@ -137,7 +144,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     S.s = s; S.rules = await PaliApi.listPriceRules(); S.slots = await PaliApi.previewGrid({});
     $('#cur').textContent = s.currency;
     $('#price').value = s.playerPrice; turnTotal();
-    $('#pSlot').value = s.slotMinutes; $('#pLast').value = s.lastSlotStart; $('#pPlayers').textContent = s.playersPerBooking;
+    $('#pSlot').value = s.slotMinutes; $('#pLast').value = s.lastSlotStart; $('#pWindow').value = s.editWindowDays === undefined ? 6 : s.editWindowDays; $('#pPlayers').textContent = s.playersPerBooking;
     gridPreview();
     renderRules(); await renderPrices();
     $('#courts').innerHTML = courts.map(function (c) {
@@ -215,6 +222,18 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
       '<div class="modal-foot"><button class="btn btn--neutral" data-act="closeRule">Cancelar</button><button class="btn btn--dark" data-act="saveRule">Guardar promo</button></div>';
     kindLabels(); $('#scrim').hidden = false;
   }
+  /* ---------- alerta de pausa de cancha ---------- */
+  var ICON_WARN = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 20h19L12 3z"/><path d="M12 10v4.5M12 17.5v.5"/></svg>';
+  function openPause(c, n) {
+    $('#alertBox').innerHTML =
+      '<div class="alert-icon">' + ICON_WARN + '</div>' +
+      '<h3 id="alertTitle">¿Querés pausar la ' + esc(c.name) + '?</h3>' +
+      '<p id="alertText">El chatbot deja de ofrecerla y sus turnos quedan en pausa hasta que la actives de nuevo. ' +
+      (n ? '<b>Tiene ' + n + (n === 1 ? ' reserva futura' : ' reservas futuras') + '.</b> Avisales a esas personas que la cancha no está habilitada para jugar.' : 'No tiene reservas futuras.') + '</p>' +
+      '<div class="modal-foot"><button type="button" class="btn btn--neutral" data-act="noPause" id="pauseNo">No, mantener activa</button><button type="button" class="btn btn--dark" data-act="pauseCourt" data-id="' + c.id + '">Sí, pausar cancha</button></div>';
+    $('#alertScrim').hidden = false; $('#pauseNo').focus();
+  }
+  function closePause() { $('#alertScrim').hidden = true; }
   function closeRule() { $('#scrim').hidden = true; S.edit = null; }
   function kindLabels() {
     var f = S.edit.kind === 'fixed';
@@ -253,7 +272,9 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     var m = Number($('#pSlot').value), l = $('#pLast').value;
     var a = check('pSlot', !$('#pSlot').value.trim() ? 'Falta completar el campo Duración del turno: es obligatorio.' : (!(m >= 15 && m <= 300) ? 'La duración tiene que estar entre 15 y 300 minutos.' : ''));
     var b = empty('pLast', 'Inicio del último turno');
-    return a && b;
+    var w = Number($('#pWindow').value);
+    var c = check('pWindow', !$('#pWindow').value.trim() ? 'Falta completar el campo Días hacia atrás que se pueden modificar turnos: es obligatorio.' : (!(w >= 0 && w <= 60) ? 'Tiene que estar entre 0 y 60 días.' : ''));
+    return a && b && c;
   }
 
   var actions = {
@@ -263,7 +284,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     },
     saveParams: async function () {
       if (!validParams()) return;
-      await PaliApi.updateSettings({ slotMinutes: Number($('#pSlot').value), lastSlotStart: $('#pLast').value }); await load(); say('Parámetros guardados');
+      await PaliApi.updateSettings({ slotMinutes: Number($('#pSlot').value), lastSlotStart: $('#pLast').value, editWindowDays: Number($('#pWindow').value) }); await load(); say('Parámetros guardados');
     },
     newRule: function () { openRule(null); },
     editRule: function (d) { openRule(S.rules.filter(function (r) { return r.id === d.id; })[0]); },
@@ -287,11 +308,23 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     askDelete: function (d) { S.confirmId = d.id; renderRules(); },
     noDelete: function () { S.confirmId = null; renderRules(); },
     deleteRule: async function (d) { await PaliApi.deletePriceRule(d.id); S.confirmId = null; await load(); say('Promo eliminada'); },
-    toggleCourt: async function (d) {
+    toggleCourt: async function (d, e) {
       var courts = await PaliApi.listCourts(), c = courts.filter(function (x) { return x.id === d.id; })[0];
-      await PaliApi.setCourtActive(d.id, !c.active); await load();
-      say(c.active ? 'Cancha inactiva: no se ofrece para reservar' : 'Cancha activa');
+      if (c.active) {
+        /* Intenta desactivar: la llave se mueve y, antes de confirmar, aparece la alerta. Si dice que no, vuelve sola. */
+        var sw = e && e.target.closest('.switch');
+        if (sw) { sw.setAttribute('aria-checked', 'false'); S.sw = sw; }
+        S.pauseId = d.id;
+        var fut = (await PaliApi.listBookings({ from: PaliApi.util.today() })).filter(function (b) { return b.status === 'active' && b.courtId === c.id; }).length;
+        setTimeout(function () { openPause(c, fut); }, 220);
+        return;
+      }
+      await PaliApi.setCourtActive(d.id, true); await load();
+      say('Cancha activa: vuelve a ofrecerse y sus turnos se reanudan');
     },
+    pauseCourt: async function (d) { closePause(); await PaliApi.setCourtActive(d.id, false); S.pauseId = null; await load(); say('Cancha pausada: el chatbot ya no la ofrece'); },
+    alertScrim: function (d, e) { if (e.target.id === 'alertScrim') actions.noPause(); },
+    noPause: function () { if (S.pauseId) { if (S.sw) S.sw.setAttribute('aria-checked', 'true'); S.pauseId = null; } closePause(); },
     reset: async function () { await PaliApi.reset(); await load(); say('Datos de ejemplo restablecidos'); }
   };
   document.addEventListener('click', function (e) {
@@ -303,7 +336,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     if (e.target.id === 'pSlot' || e.target.id === 'pLast') gridPreview();
     if (e.target.id === 'rValue') resultHint();
   });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('#scrim').hidden) closeRule(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('#alertScrim').hidden) { actions.noPause(); return; } if (e.key === 'Escape' && !$('#scrim').hidden) closeRule(); });
   load();
 })();
 </script>

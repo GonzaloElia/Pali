@@ -45,10 +45,9 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
       <div class="field">
         <label class="label" for="fPeriod">Jugó en</label>
         <select id="fPeriod" class="select">
-          <option value="all">Todo el tiempo</option>
+          <option value="all">Últimos 4 meses</option>
           <option value="30">Últimos 30 días</option>
           <option value="90">Últimos 90 días</option>
-          <option value="year">Este año</option>
         </select>
       </div>
     </div>
@@ -96,7 +95,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
   var COLS = [
     { id: 'category', label: 'Categoría' },
     { id: 'phone', label: 'Teléfono', mono: true },
-    { id: 'plays', label: 'Veces que jugó', num: true },
+    { id: 'plays', label: 'Turnos del mes', num: true, hint: 'Turnos finalizados este mes en los que participó' },
     { id: 'last', label: 'Última vez' },
     { id: 'courts', label: 'Cancha' }
   ];
@@ -156,13 +155,13 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
   function cell(c, p) {
     if (c.id === 'category') return '<td>' + (p.category ? '<span class="chip chip--lav">' + esc(p.category) + '</span>' : '—') + '</td>';
     if (c.id === 'phone') return '<td class="mono">' + esc(p.phone || '—') + '</td>';
-    if (c.id === 'plays') return '<td class="num">' + p.plays + '</td>';
+    if (c.id === 'plays') return '<td class="num"><span class="counter" aria-label="' + p.monthPlays + (p.monthPlays === 1 ? ' turno' : ' turnos') + ' este mes">' + p.monthPlays + '</span></td>';
     if (c.id === 'last') return '<td>' + (p.lastPlayed ? esc(day(p.lastPlayed, true)) : '—') + '</td>';
     return '<td>' + (p.courts.length ? p.courts.map(function (x) { return '<span class="chip chip--sky">' + esc(x.courtName) + ' · ' + x.count + '</span>'; }).join(' ') : '—') + '</td>';
   }
   function render() {
     var vis = COLS.filter(function (c) { return S.cols[c.id]; });
-    $('#head').innerHTML = '<tr><th>Jugador</th>' + vis.map(function (c) { return '<th' + (c.num ? ' class="num"' : '') + '>' + c.label + '</th>'; }).join('') + '</tr>';
+    $('#head').innerHTML = '<tr><th>Jugador</th>' + vis.map(function (c) { return '<th' + (c.num ? ' class="num"' : '') + (c.hint ? ' title="' + c.hint + '"' : '') + '>' + c.label + '</th>'; }).join('') + '</tr>';
     $('#rows').innerHTML = S.list.map(function (p) {
       return '<tr class="row-link" tabindex="0" data-act="open" data-id="' + p.id + '"><td>' + esc(pname(p)) + '</td>' + vis.map(function (c) { return cell(c, p); }).join('') + '</tr>';
     }).join('');
@@ -184,26 +183,35 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
   async function openPlayer(id) {
     var p = await PaliApi.getPerson(id);
     S.person = p; S.history = (await PaliApi.getPersonHistory(id, { playedOnly: true }));
-    var h = S.history, by = {};
-    h.forEach(function (b) { by[b.courtName] = (by[b.courtName] || 0) + 1; });
-    var chips = Object.keys(by).sort().map(function (k) { return '<span class="chip chip--sky">' + esc(k) + ' · ' + by[k] + (by[k] === 1 ? ' vez' : ' veces') + '</span>'; }).join(' ');
-    $('#modal').innerHTML =
+    var h = S.history, sum = await PaliApi.getPersonSummary(id);   // totales históricos; la lista solo muestra la ventana de 4 meses
+    var chips = sum.courts.map(function (c) { return '<span class="chip chip--sky">' + esc(c.courtName) + ' · ' + c.count + (c.count === 1 ? ' vez' : ' veces') + '</span>'; }).join(' ');
+    S.hist = { rows: h, page: 1, size: 10 };
+    var since = PaliApi.util.parseDate(PaliApi.util.historyFrom()).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' });
+    $('#modal').innerHTML = '<div class="player-modal">' +
       '<div class="modal-head"><div><h3>' + esc(pname(p)) + '</h3><p class="sub">Tel. ' + esc(p.phone || 'sin cargar') + '</p></div>' +
       '<button class="modal-close" data-act="closePlayer" aria-label="Cerrar">×</button></div>' +
       '<div class="grid-3" style="gap:12px">' +
         '<div class="card kpi kpi--lav"><span class="dom">Categoría actual</span><span class="value">' + esc(p.category || '—') + '</span><span class="sub">hoy</span></div>' +
-        '<div class="card kpi kpi--sky"><span class="dom">Veces que jugó</span><span class="value">' + h.length + '</span><span class="sub">turnos hasta hoy</span></div>' +
-        '<div class="card kpi"><span class="dom">Última vez</span><span class="value" style="font-size:20px">' + (h.length ? esc(day(h[0].date)) : '—') + '</span><span class="sub">' + (h.length ? h[0].start + '–' + h[0].end : 'todavía no jugó') + '</span></div>' +
+        '<div class="card kpi kpi--sky"><span class="dom">Veces que jugó</span><span class="value">' + sum.plays + '</span><span class="sub">turnos hasta hoy</span></div>' +
+        '<div class="card kpi"><span class="dom">Última vez</span><span class="value" style="font-size:20px">' + (sum.last ? esc(day(sum.last.date)) : '—') + '</span><span class="sub">' + (sum.last ? sum.last.start + '–' + sum.last.end : 'todavía no jugó') + '</span></div>' +
       '</div>' +
-      '<p class="kicker mt-5">Canchas donde jugó</p>' +
-      '<div class="row wrap">' + (chips || '<span class="muted small">Todavía no jugó.</span>') + '</div>' +
-      (h.length
-        ? '<div class="modal-scroll"><table class="table"><thead><tr><th>Día</th><th>Hora</th><th>Cancha</th></tr></thead><tbody>' +
-          h.slice(0, 30).map(function (b) { return '<tr><td>' + esc(day(b.date, true)) + '</td><td class="mono">' + b.start + '–' + b.end + '</td><td>' + esc(b.courtName) + '</td></tr>'; }).join('') +
-          '</tbody></table></div>'
-        : '') +
-      '<div class="modal-foot"><button class="btn btn--dark" data-act="closePlayer">Aceptar</button></div>';
+      '<div class="callout" role="note"><span class="callout-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3 4v4.5h4.5"/><path d="M12 7.5V12l3 1.8"/></svg></span>' +
+        '<div><p class="callout-t">Historial de los últimos 4 meses</p><p class="callout-s">La lista muestra los turnos desde el ' + esc(since) + '. Los números de arriba cuentan todo el historial.</p></div></div>' +
+      '<div class="hist" id="hBlock"></div>' +
+      '<div class="modal-foot"><button class="btn btn--dark" data-act="closePlayer">Aceptar</button></div></div>';
+    renderHist();
     $('#scrim').hidden = false;
+  }
+  /* Lista de turnos de la ventana de 4 meses, de a 10 por página. Si no hay turnos no se muestra nada */
+  function renderHist() {
+    var H = S.hist, el = $('#hBlock'); if (!el) return;
+    if (!H.rows.length) { el.innerHTML = ''; return; }
+    var n = Math.max(1, Math.ceil(H.rows.length / H.size)); H.page = Math.min(Math.max(1, H.page), n);
+    var from = (H.page - 1) * H.size, list = H.rows.slice(from, from + H.size);
+    el.innerHTML = '<div class="modal-scroll"><table class="table"><thead><tr><th>Día</th><th>Hora</th><th>Cancha</th></tr></thead><tbody>' +
+      list.map(function (b) { return '<tr><td>' + esc(day(b.date, true)) + '</td><td class="mono">' + b.start + '–' + b.end + '</td><td>' + esc(b.courtName) + '</td></tr>'; }).join('') + '</tbody></table></div>' +
+      (n > 1 ? '<nav class="pager pager--mini" aria-label="Paginación del historial"><span class="pager-range">' + (from + 1) + '–' + Math.min(H.rows.length, from + H.size) + ' de ' + H.rows.length + '</span>' +
+        '<div class="pager-nav"><button type="button" class="pager-btn" data-act="hgoto" data-page="' + (H.page - 1) + '"' + (H.page === 1 ? ' disabled' : '') + '>Anterior</button><button type="button" class="pager-btn" data-act="hgoto" data-page="' + (H.page + 1) + '"' + (H.page === n ? ' disabled' : '') + '>Siguiente</button></div></nav>' : '');
   }
   function closePlayer() { $('#scrim').hidden = true; S.person = null; }
 
@@ -255,6 +263,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
   var actions = {
     open: function (d) { colsOpen(false); openPlayer(d.id); },
     closePlayer: closePlayer,
+    hgoto: function (d) { S.hist.page = Number(d.page); renderHist(); },
     scrim: function (d, e) { if (e.target.id === 'scrim') closePlayer(); },
     goto: function (d) { var n = Number(d.page); if (n >= 1 && n <= S.totalPages && n !== S.page) { S.page = n; load(); } },
     toggleCols: function () { colsOpen($('#colsPop').hidden); },

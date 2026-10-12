@@ -307,12 +307,30 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
   $('#dSize').addEventListener('change', function () { D.size = Number(this.value); D.page = 1; renderDetail(); });
   $('#year').addEventListener('change', function () { S.year = +this.value; load(); });
 
+  /* El número sube o baja con una animación corta cuando cambió desde la última vez que se vio (por ejemplo, se completó un turno en la Agenda) */
+  var LAST_KEY = 'pali-last-income', prevSeen = {};
+  try { prevSeen = JSON.parse(localStorage.getItem(LAST_KEY) || '{}'); } catch (e) {}
+  function setAmount(sel, key, to) {
+    var el = $(sel), from = prevSeen[key];
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (hidden || reduce || from === undefined || from === to) { el.textContent = money(to); prevSeen[key] = to; return; }
+    var t0 = performance.now(), dur = 900, up = to > from;
+    el.classList.add(up ? 'is-up' : 'is-down');
+    (function tick(t) {
+      var k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      el.textContent = money(from + (to - from) * e);
+      if (k < 1) requestAnimationFrame(tick); else { el.textContent = money(to); setTimeout(function () { el.classList.remove('is-up', 'is-down'); }, 600); }
+    })(t0);
+    prevSeen[key] = to;
+  }
   function paintSummary() {
     var s = lastS; if (!s) return;
-    $('#kMonth').textContent = money(s.month);
+    setAmount('#kMonth', 'month', s.month);
     $('#kMonthRow').innerHTML = delta(s.month, s.prevMonth, 'Contra el mismo tramo del mes anterior') + '<span>vs. el mismo tramo del mes anterior (' + money(s.prevMonth) + ')</span>';
-    $('#kToday').textContent = money(s.today); $('#dToday').innerHTML = delta(s.today, s.prevToday, 'Contra ayer');
-    $('#kWeek').textContent = money(s.week); $('#dWeek').innerHTML = delta(s.week, s.prevWeek, 'Contra el mismo tramo de la semana pasada');
+    setAmount('#kToday', 'today', s.today); $('#dToday').innerHTML = delta(s.today, s.prevToday, 'Contra ayer');
+    setAmount('#kWeek', 'week', s.week); $('#dWeek').innerHTML = delta(s.week, s.prevWeek, 'Contra el mismo tramo de la semana pasada');
+    /* Se guarda al final, con los tres importes, para que la próxima visita compare contra todos */
+    try { localStorage.setItem(LAST_KEY, JSON.stringify(prevSeen)); } catch (e) {}
   }
   $('#eye').addEventListener('click', function () {
     hidden = !hidden;

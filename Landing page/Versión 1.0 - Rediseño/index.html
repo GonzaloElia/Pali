@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pali · Llená tus canchas sin anotar a mano</title>
+<meta name="description" content="Pali es un backoffice para administrar las canchas de tu club y un chatbot de WhatsApp para que tus jugadores reserven solos. Sumá tu club como uno de los primeros.">
+<meta name="theme-color" content="#0F3D2E">
+<meta property="og:title" content="Pali · Llená tus canchas sin anotar a mano">
+<meta property="og:description" content="Backoffice y chatbot de WhatsApp para clubes de paddle. Sumá tu club como uno de los primeros.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cdefs%3E%3CclipPath id='c'%3E%3Ccircle cx='12' cy='12' r='11'/%3E%3C/clipPath%3E%3C/defs%3E%3Ccircle cx='12' cy='12' r='11' fill='%231F6F57'/%3E%3Cg clip-path='url(%23c)' fill='none' stroke='%23fff' stroke-width='1.4'%3E%3Ccircle cx='1' cy='12' r='15.5'/%3E%3Ccircle cx='23' cy='12' r='15.5'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --forest: #0F3D2E; --brand: #1F6F57; --mint: #A9D6C4; --mint-soft: #DFEEE6; --brand-soft: #E8F4EE;
+  --ink: #0D1F18; --ink-2: #43544D; --mute: #6A7B74; --line: #DCE5E0; --line-strong: #C3D0C9;
+  --coral: #E5533D;
+  --sky-700: #1B4F8E; --sky-600: #2F6FC0; --sky-400: #6BAEE8; --sky-100: #BFDDF7; --sky-50: #E8F2FC;
+  --lav-700: #4A3C8C; --lav-500: #9C8DDD; --lav-100: #E4DFF7; --lav-50: #F1EEFB; --lav-on-dark: #D0C7F6;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --wrap: 1200px; --gut: clamp(20px, 5vw, 48px);
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 84px; }
+body { margin: 0; font-family: var(--sans); color: var(--ink); background: #fff; line-height: 1.55; font-size: 17px; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; }
+h1, h2, h3, p { margin: 0; }
+.wrap { width: 100%; max-width: calc(var(--wrap) + var(--gut) * 2); margin: 0 auto; padding: 0 var(--gut); }
+.kicker { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--brand); display: inline-flex; align-items: center; gap: 10px; }
+.kicker::before { content: ""; width: 22px; height: 1.5px; background: currentColor; }
+.kicker--mint { color: var(--mint); } .kicker--lav { color: var(--lav-on-dark); }
+.skip { position: absolute; left: -999px; top: 8px; z-index: 100; background: var(--ink); color: #fff; padding: 10px 14px; border-radius: 8px; }
+.skip:focus { left: 8px; }
+:focus-visible { outline: 2px solid var(--sky-600); outline-offset: 3px; border-radius: 4px; }
+.progress { position: fixed; top: 0; left: 0; height: 3px; width: 100%; background: var(--sky-400); transform-origin: 0 50%; transform: scaleX(0); z-index: 60; }
+
+/* botones */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; font: 600 16px/1 var(--sans); padding: 15px 24px; border-radius: 10px; border: 1px solid transparent; cursor: pointer; text-decoration: none; transition: background .15s, transform .15s var(--ease), border-color .15s; min-height: 48px; }
+.btn--primary { background: var(--brand); color: #fff; } .btn--primary:hover { background: #185a47; } .btn--primary:active { transform: scale(.985); }
+.btn--mint { background: var(--mint); color: var(--forest); } .btn--mint:hover { background: #bfe4d3; }
+.btn--ink { background: var(--ink); color: #fff; } .btn--ink:hover { background: #17352a; }
+.btn--line { border-color: rgba(255,255,255,.3); color: #fff; } .btn--line:hover { background: rgba(255,255,255,.08); }
+.btn[disabled] { opacity: .7; cursor: progress; }
+.btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s var(--ease); }
+.btn:hover svg { transform: translateX(3px); }
+
+/* header */
+.top { position: sticky; top: 0; z-index: 40; background: rgba(15,61,46,.94); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(255,255,255,.08); }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 68px; gap: 20px; }
+.logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; font-weight: 600; font-size: 24px; letter-spacing: -.02em; }
+.logo svg { width: 28px; height: 28px; }
+.nav { display: flex; gap: 28px; } .nav a { color: var(--mint); text-decoration: none; font-size: 15px; } .nav a:hover { color: #fff; }
+.top .btn { padding: 11px 18px; min-height: 40px; font-size: 14px; }
+@media (max-width: 860px) { .nav { display: none; } }
+
+/* hero */
+.hero { position: relative; overflow: hidden; background: var(--forest); color: #fff; }
+.hero .court { position: absolute; right: -6%; top: 52%; width: 82%; max-width: 1180px; transform: translateY(-50%) translate3d(var(--px, 0), var(--py, 0), 0); pointer-events: none; }
+.court path, .court rect { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 1.8s var(--ease) forwards; }
+.court .d2 { animation-delay: .3s; } .court .d3 { animation-delay: .55s; } .court .d4 { animation-delay: .8s; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.hero .ball { position: absolute; right: 7%; bottom: 8%; width: 110px; height: 110px; opacity: .95; transform: rotate(var(--rot, 0deg)); pointer-events: none; }
+.hero .wrap { position: relative; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 470px); gap: clamp(32px, 6vw, 84px); align-items: center; padding-top: clamp(48px, 7vw, 88px); padding-bottom: clamp(64px, 8vw, 110px); }
+.hero h1 { font-size: clamp(42px, 7vw, 88px); line-height: .96; letter-spacing: -.04em; font-weight: 700; margin-top: 22px; }
+.hero h1 .w { display: inline-block; overflow: hidden; vertical-align: bottom; }
+.hero h1 .w > span { display: inline-block; transform: translateY(105%); animation: rise .8s var(--ease) forwards; animation-delay: calc(var(--i) * 90ms + 150ms); }
+.hero h1 em { font-style: normal; color: var(--mint); }
+@keyframes rise { to { transform: none; } }
+.hero .lede { margin-top: 26px; font-size: clamp(17px, 1.6vw, 20px); color: #D3E7DD; max-width: 36em; opacity: 0; animation: fade .8s .9s forwards; }
+.hero .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; opacity: 0; animation: fade .8s 1.05s forwards; }
+.hero .proof { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 30px; opacity: 0; animation: fade .8s 1.2s forwards; }
+@keyframes fade { to { opacity: 1; } }
+.chip { font-family: var(--mono); font-size: 12px; padding: 5px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.22); color: var(--mint); }
+.floaters { position: absolute; inset: 0; pointer-events: none; }
+.fl { position: absolute; font-family: var(--mono); font-size: 12px; font-weight: 500; background: var(--sky-400); color: var(--ink); border-radius: 999px; padding: 6px 12px; animation: bob 5s ease-in-out infinite; }
+.fl.lav { background: var(--lav-500); }
+@keyframes bob { 50% { transform: translateY(-9px); } }
+@media (max-width: 960px) { .hero .wrap { grid-template-columns: 1fr; } .hero .court { width: 150%; right: -35%; opacity: .6; } .hero .ball, .floaters { display: none; } }
+
+/* ticker */
+.ticker { background: var(--ink); color: #fff; overflow: hidden; border-top: 1px solid rgba(255,255,255,.08); }
+.track { display: flex; width: max-content; animation: slide 38s linear infinite; }
+.ticker:hover .track { animation-play-state: paused; }
+.track span { font-family: var(--mono); font-size: 13px; letter-spacing: .12em; text-transform: uppercase; padding: 16px 28px; display: inline-flex; align-items: center; gap: 28px; white-space: nowrap; }
+.track span::after { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--sky-400); }
+.track span:nth-child(3n)::after { background: var(--lav-500); } .track span:nth-child(3n+1)::after { background: var(--mint); }
+@keyframes slide { to { transform: translateX(-50%); } }
+
+/* formulario de 2 pasos */
+.form-card { background: #fff; color: var(--ink); border-radius: 18px; padding: clamp(22px, 3vw, 32px); box-shadow: 0 28px 70px rgba(0,0,0,.3); position: relative; }
+.form-card .steps-bar { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); }
+.form-card .steps-bar i { flex: 1; height: 3px; border-radius: 2px; background: var(--line); position: relative; overflow: hidden; }
+.form-card .steps-bar i::after { content: ""; position: absolute; inset: 0; background: var(--brand); transform: scaleX(var(--p, 0)); transform-origin: 0 50%; transition: transform .4s var(--ease); }
+.form-card h2 { font-size: 26px; letter-spacing: -.025em; line-height: 1.12; margin-top: 16px; }
+.form-card .sub { margin-top: 6px; font-size: 15px; color: var(--ink-2); }
+.form { display: grid; gap: 14px; margin-top: 20px; }
+.step[hidden] { display: none; }
+.step { display: grid; gap: 14px; animation: stepin .35s var(--ease); }
+@keyframes stepin { from { opacity: 0; transform: translateX(14px); } }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 520px) { .row2 { grid-template-columns: 1fr; } }
+.field { display: grid; gap: 6px; }
+.field label { font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+.req { width: 7px; height: 7px; flex: none; background: var(--brand); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 0v10M0.4 2.5l9.2 5M9.6 2.5l-9.2 5' stroke='%23000' stroke-width='1.8'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 0v10M0.4 2.5l9.2 5M9.6 2.5l-9.2 5' stroke='%23000' stroke-width='1.8'/%3E%3C/svg%3E") center / contain no-repeat; }
+.input, .select { width: 100%; font: 400 16px var(--sans); color: var(--ink); background: #fff; border: 1px solid var(--line-strong); border-radius: 10px; padding: 12px 14px; min-height: 48px; transition: border-color .15s, box-shadow .15s; }
+.select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2343544D' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 38px; }
+.input::placeholder { color: #8A9992; }
+.input:hover, .select:hover { border-color: var(--ink-2); }
+.input:focus, .select:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(31,111,87,.18); }
+.input[aria-invalid="true"], .select[aria-invalid="true"] { border-color: var(--coral); box-shadow: 0 0 0 3px rgba(229,83,61,.12); }
+.err { font-size: 13.5px; color: #B63A27; display: none; } .err.is-on { display: block; }
+.consent { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--ink-2); font-weight: 400 !important; }
+.consent input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--brand); flex: none; }
+.hp { position: absolute; left: -5000px; width: 1px; height: 1px; overflow: hidden; }
+.form .btn { width: 100%; }
+.back { background: none; border: 0; font: 500 14px var(--sans); color: var(--ink-2); cursor: pointer; padding: 8px; text-decoration: underline; text-underline-offset: 3px; justify-self: center; }
+.fine { font-size: 13px; color: var(--mute); text-align: center; }
+.ok { display: none; } .ok.is-on { display: block; animation: stepin .4s var(--ease); }
+.ok .tick { width: 56px; height: 56px; border-radius: 50%; background: var(--brand-soft); display: grid; place-items: center; }
+.ok .tick svg { width: 28px; height: 28px; fill: none; stroke: var(--brand); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 30; stroke-dashoffset: 30; animation: draw2 .5s .15s forwards ease; }
+@keyframes draw2 { to { stroke-dashoffset: 0; } }
+.ok h3 { font-size: 26px; letter-spacing: -.02em; margin-top: 16px; } .ok p { margin-top: 8px; color: var(--ink-2); } .ok .btn { width: auto; margin-top: 18px; }
+
+/* secciones */
+section { padding: clamp(68px, 9vw, 120px) 0; }
+.h2 { font-size: clamp(34px, 5vw, 62px); line-height: 1; letter-spacing: -.035em; font-weight: 700; margin-top: 16px; max-width: 16em; }
+.h2 em { font-style: normal; color: var(--brand); }
+.sec-lede { margin-top: 18px; font-size: 19px; color: var(--ink-2); max-width: 40em; }
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s var(--ease), transform .7s var(--ease); transition-delay: var(--d, 0s); }
+.reveal.is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; } .reveal { opacity: 1; transform: none; transition: none; }
+  .court path, .court rect { animation: none; stroke-dashoffset: 0; } .hero h1 .w > span { animation: none; transform: none; }
+  .hero .lede, .hero .cta-row, .hero .proof { animation: none; opacity: 1; } .track { animation: none; } .fl { animation: none; }
+  .step, .ok.is-on { animation: none; } .ok .tick svg { animation: none; stroke-dashoffset: 0; }
+}
+
+/* hoy vs con pali */
+.vs { background: #fff; }
+.toggle { display: inline-flex; margin-top: 30px; padding: 4px; border: 1.5px solid var(--ink); border-radius: 999px; background: #fff; }
+.toggle button { font: 600 15px var(--sans); border: 0; background: transparent; padding: 10px 22px; border-radius: 999px; cursor: pointer; color: var(--ink); transition: background .2s, color .2s; }
+.toggle button[aria-selected="true"] { background: var(--ink); color: #fff; }
+.vs-panel { margin-top: 28px; display: grid; grid-template-columns: 1.05fr 1fr; border: 1px solid var(--ink); min-height: 420px; }
+.vs-left { padding: clamp(24px, 4vw, 44px); display: flex; flex-direction: column; justify-content: space-between; gap: 24px; transition: background .35s, color .35s; }
+.vs-left .big { font-size: clamp(54px, 9vw, 118px); line-height: .88; letter-spacing: -.05em; font-weight: 700; }
+.vs-left p { font-size: 17px; max-width: 24em; }
+.vs[data-mode="hoy"] .vs-left { background: var(--sky-50); } .vs[data-mode="hoy"] .vs-left .big { color: var(--sky-600); }
+.vs[data-mode="pali"] .vs-left { background: var(--forest); color: #fff; } .vs[data-mode="pali"] .vs-left .big { color: var(--mint); } .vs[data-mode="pali"] .vs-left p { color: #D3E7DD; }
+.vs-list { list-style: none; padding: 0; margin: 0; display: grid; align-content: stretch; border-left: 1px solid var(--ink); }
+.vs-list li { display: grid; grid-template-columns: 36px 1fr; gap: 14px; padding: 22px clamp(20px, 3vw, 34px); border-top: 1px solid var(--line-strong); align-items: start; animation: stepin .4s var(--ease) both; animation-delay: calc(var(--i) * 70ms); }
+.vs-list li:first-child { border-top: 0; }
+.vs-list b { display: block; font-size: 18px; letter-spacing: -.01em; } .vs-list span { color: var(--ink-2); font-size: 15.5px; }
+.vs-list .ic { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; margin-top: 1px; }
+.vs-list .ic svg { width: 14px; height: 14px; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.vs[data-mode="hoy"] .ic { background: var(--lav-100); } .vs[data-mode="hoy"] .ic svg { stroke: var(--lav-700); }
+.vs[data-mode="pali"] .ic { background: var(--brand-soft); } .vs[data-mode="pali"] .ic svg { stroke: var(--brand); }
+@media (max-width: 860px) { .vs-panel { grid-template-columns: 1fr; } .vs-list { border-left: 0; border-top: 1px solid var(--ink); } }
+
+/* historia con scroll */
+.story { background: var(--mint-soft); }
+.story-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: clamp(32px, 6vw, 84px); margin-top: 56px; align-items: start; }
+.sstep { min-height: 58vh; display: flex; flex-direction: column; justify-content: center; padding: 20px 0; border-top: 1.5px solid var(--ink); opacity: .35; transition: opacity .4s; }
+.sstep:last-child { border-bottom: 1.5px solid var(--ink); }
+.sstep.is-on { opacity: 1; }
+.sstep .num { font-family: var(--mono); font-size: 14px; color: var(--brand); }
+.sstep h3 { font-size: clamp(26px, 3vw, 36px); letter-spacing: -.025em; margin-top: 8px; line-height: 1.05; }
+.sstep p { margin-top: 10px; color: var(--ink-2); max-width: 26em; }
+.stage { position: sticky; top: 110px; height: 560px; }
+.panel { position: absolute; inset: 0; opacity: 0; transform: translateY(16px) scale(.98); transition: opacity .45s var(--ease), transform .45s var(--ease); pointer-events: none; }
+.panel.is-on { opacity: 1; transform: none; pointer-events: auto; }
+@media (max-width: 960px) {
+  .story-grid { grid-template-columns: 1fr; }
+  .sstep { min-height: 0; opacity: 1; padding: 26px 0; }
+  .stage { position: static; height: auto; display: grid; gap: 20px; }
+  .panel { position: static; opacity: 1; transform: none; }
+}
+.chat { background: var(--sky-50); border: 1px solid var(--sky-100); border-radius: 20px; overflow: hidden; height: 100%; display: flex; flex-direction: column; box-shadow: 0 18px 44px rgba(15,61,46,.12); }
+.chat-head { background: var(--forest); color: #fff; display: flex; align-items: center; gap: 12px; padding: 14px 18px; }
+.avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--mint); color: var(--forest); display: grid; place-items: center; font-weight: 700; flex: none; }
+.chat-head b { display: block; font-size: 15px; line-height: 1.2; } .chat-head small { font-family: var(--mono); font-size: 10.5px; color: var(--mint); letter-spacing: .04em; }
+.chat-body { padding: 20px 18px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+.msg { max-width: 84%; padding: 10px 14px; border-radius: 14px; font-size: 15px; line-height: 1.4; animation: msgin .35s var(--ease); }
+@keyframes msgin { from { opacity: 0; transform: translateY(8px) scale(.97); } }
+.msg--bot { background: #fff; border: 1px solid var(--sky-100); border-top-left-radius: 4px; align-self: flex-start; }
+.msg--me { background: var(--brand); color: #fff; border-top-right-radius: 4px; align-self: flex-end; }
+.slots { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.slot { font-family: var(--mono); font-size: 12px; font-weight: 500; background: var(--sky-400); color: var(--ink); border-radius: 999px; padding: 6px 12px; }
+.typing { align-self: flex-start; background: #fff; border: 1px solid var(--sky-100); border-radius: 14px; border-top-left-radius: 4px; padding: 12px 14px; display: flex; gap: 4px; }
+.typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--sky-600); animation: dot 1s infinite; } .typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes dot { 50% { transform: translateY(-4px); opacity: .5; } }
+.chat-note { font-family: var(--mono); font-size: 10.5px; color: var(--sky-700); padding: 0 18px 14px; letter-spacing: .04em; }
+.agenda-card { background: var(--brand-soft); border: 1px solid #CFE5DA; border-radius: 20px; padding: 26px; height: 100%; box-shadow: 0 18px 44px rgba(15,61,46,.1); display: flex; flex-direction: column; gap: 18px; }
+.agenda-card .tag, .cobros-card .tag { font-family: var(--mono); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--brand); }
+.ag { display: grid; grid-template-columns: 50px 1fr 1fr; gap: 8px; }
+.ag .h { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--ink-2); text-transform: uppercase; }
+.ag .t { font-family: var(--mono); color: var(--mute); align-self: center; font-size: 12px; }
+.cell { border-radius: 12px; padding: 11px 13px; min-height: 74px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid transparent; transition: background .4s, color .4s, border-color .4s; }
+.cell b { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; font-weight: 500; }
+.cell span { font-size: 13px; }
+.c-free { background: #fff; border: 1px dashed var(--line-strong); color: var(--ink-2); }
+.c-res { background: #fff; border-color: #BCD9CC; color: var(--brand); }
+.c-full { background: var(--forest); color: #fff; } .c-full span { color: var(--mint); }
+.cell.live { animation: pulse 1.6s ease-in-out 2; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 5px rgba(107,174,232,.45); } }
+.agenda-card .hint { font-size: 14px; color: var(--ink-2); margin-top: auto; }
+.cobros-card { background: var(--forest); color: #fff; border-radius: 20px; padding: 28px; height: 100%; display: flex; flex-direction: column; box-shadow: 0 18px 44px rgba(15,61,46,.2); }
+.cobros-card .tag { color: var(--mint); }
+.cb { margin-top: 18px; background: var(--brand); border-radius: 14px; padding: 22px; }
+.cb .k { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--mint); }
+.cb .big { font-size: clamp(38px, 4.4vw, 54px); font-weight: 600; letter-spacing: -.035em; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.cb .row { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid rgba(255,255,255,.18); margin-top: 14px; padding-top: 12px; }
+.cb .row .k { color: var(--lav-on-dark); } .cb .row b { font-size: 21px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.delta { display: inline-flex; font-family: var(--mono); font-size: 12px; background: rgba(255,255,255,.16); border-radius: 999px; padding: 2px 9px; margin-left: 8px; font-weight: 500; }
+.bars { display: flex; align-items: flex-end; gap: 7px; height: 70px; margin-top: 18px; }
+.bars i { flex: 1; background: rgba(255,255,255,.26); border-radius: 4px 4px 0 0; transform-origin: bottom; }
+.bars i.pk { background: var(--mint); }
+.cobros-card .example { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; color: var(--mint); margin-top: auto; padding-top: 14px; opacity: .8; }
+
+/* calculadora */
+.calc { background: var(--ink); color: #fff; position: relative; overflow: hidden; }
+.calc .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 88px); align-items: center; }
+.calc .h2 { color: #fff; } .calc .h2 em { color: var(--sky-400); }
+.calc .sec-lede { color: #B9CBC2; }
+.sliders { margin-top: 32px; display: grid; gap: 22px; }
+.sl label { display: flex; justify-content: space-between; font-size: 15px; color: #D3E7DD; margin-bottom: 8px; }
+.sl output { font-family: var(--mono); color: #fff; font-weight: 500; }
+.sl input[type=range] { width: 100%; accent-color: var(--sky-400); height: 6px; cursor: pointer; }
+.sl .num { width: 100%; background: transparent; border: 1px solid #3a5448; border-radius: 10px; color: #fff; font: 500 16px var(--mono); padding: 11px 14px; min-height: 46px; }
+.sl .num:focus { outline: none; border-color: var(--sky-400); box-shadow: 0 0 0 3px rgba(107,174,232,.25); }
+.result { background: var(--sky-400); color: var(--ink); border-radius: 18px; padding: clamp(24px, 4vw, 40px); }
+.result .k { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+.result .big { font-size: clamp(44px, 7vw, 84px); line-height: .95; letter-spacing: -.045em; font-weight: 700; margin-top: 10px; font-variant-numeric: tabular-nums; }
+.result p { margin-top: 14px; font-size: 16px; }
+.result .mini { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 22px; }
+.result .mini div { background: rgba(13,31,24,.1); border-radius: 12px; padding: 12px 14px; }
+.result .mini b { display: block; font-size: 24px; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.result .mini span { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+.result .btn { margin-top: 24px; width: 100%; }
+.result small { display: block; margin-top: 14px; font-size: 12.5px; opacity: .8; }
+@media (max-width: 960px) { .calc .wrap { grid-template-columns: 1fr; } }
+
+/* producto */
+.product { background: #fff; }
+.pgrid { display: grid; grid-template-columns: repeat(12, 1fr); margin-top: 52px; border: 1px solid var(--ink); }
+.pcell { padding: clamp(22px, 3vw, 34px); min-width: 0; transition: background .25s; }
+.pcell h3 { font-size: 22px; letter-spacing: -.015em; margin-top: 12px; }
+.pcell p { margin-top: 8px; font-size: 15.5px; color: var(--ink-2); }
+.pcell .tag { font-family: var(--mono); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--brand); }
+.p1 { grid-column: span 5; background: var(--brand-soft); border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+.p2 { grid-column: span 4; background: var(--sky-50); border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+.p3 { grid-column: span 3; background: var(--lav-50); border-bottom: 1px solid var(--ink); }
+.p4 { grid-column: span 4; background: var(--mint); border-right: 1px solid var(--ink); }
+.p5 { grid-column: span 8; background: var(--forest); color: #fff; }
+.p2 .tag { color: var(--sky-700); } .p3 .tag { color: var(--lav-700); } .p4 .tag { color: var(--forest); } .p4 p { color: var(--forest); }
+.p5 .tag { color: var(--mint); } .p5 p { color: #D3E7DD; }
+.pcell:hover { filter: brightness(.985); }
+.p5 { display: grid; grid-template-columns: 1.1fr 1fr; gap: 28px; align-items: center; }
+.persons, .cfg { margin-top: 18px; display: grid; gap: 8px; font-size: 14px; }
+.persons div, .cfg div { background: #fff; border-radius: 10px; padding: 9px 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.persons div { border: 1px solid var(--lav-100); } .cfg div { border: 1px solid var(--sky-100); }
+.cat { font-family: var(--mono); font-size: 11px; background: var(--lav-100); color: var(--lav-700); border-radius: 999px; padding: 2px 9px; font-weight: 500; }
+.promo { font-family: var(--mono); font-size: 11px; background: var(--lav-500); color: var(--ink); border-radius: 999px; padding: 2px 10px; font-weight: 500; }
+.sw { width: 34px; height: 20px; border-radius: 99px; background: var(--brand); position: relative; flex: none; }
+.sw::after { content: ""; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: #fff; top: 3px; right: 3px; }
+.brandbox { background: #fff; color: var(--ink); border-radius: 14px; padding: 18px; }
+.brandbox .top-row { display: flex; align-items: center; gap: 12px; } .brandbox small { display: block; font-family: var(--mono); font-size: 10.5px; color: var(--mute); letter-spacing: .05em; }
+.brandbox .bubble { margin-top: 14px; background: var(--sky-50); border: 1px solid var(--sky-100); border-radius: 12px; padding: 10px 12px; font-size: 14px; }
+.check { margin-top: 18px; display: inline-flex; align-items: center; gap: 10px; font-size: 14px; color: var(--ink); background: #fff; border-radius: 999px; padding: 6px 14px 6px 6px; }
+.check i { width: 28px; height: 28px; border-radius: 8px; background: var(--sky-400); display: grid; place-items: center; }
+.check svg { width: 16px; height: 16px; fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+@media (max-width: 960px) { .pcell { grid-column: 1 / -1 !important; border-right: 0 !important; } .pcell + .pcell { border-top: 1px solid var(--ink); } .p5 { grid-template-columns: 1fr; } }
+
+/* club piloto */
+.pilot { background: var(--forest); color: #fff; position: relative; overflow: hidden; }
+.pilot .h2 { color: #fff; } .pilot .h2 em { color: var(--mint); } .pilot .sec-lede { color: #D3E7DD; }
+.after { margin-top: 52px; display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid rgba(255,255,255,.28); }
+.after article { padding: 28px 26px 32px; }
+.after article + article { border-left: 1px solid rgba(255,255,255,.28); }
+.after .n { font-family: var(--mono); font-size: 13px; color: var(--mint); letter-spacing: .1em; }
+.after h3 { font-size: 24px; letter-spacing: -.02em; margin-top: 30px; } .after p { margin-top: 8px; color: #D3E7DD; font-size: 15.5px; }
+@media (max-width: 860px) { .after { grid-template-columns: 1fr; } .after article + article { border-left: 0; border-top: 1px solid rgba(255,255,255,.28); } }
+.profile { margin-top: 40px; display: flex; flex-wrap: wrap; gap: 10px; }
+.profile span { font-size: 15px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.2); border-radius: 999px; padding: 9px 16px; display: inline-flex; gap: 8px; align-items: center; }
+.profile svg { width: 15px; height: 15px; fill: none; stroke: var(--lav-500); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.honest { margin-top: 26px; font-family: var(--mono); font-size: 12px; letter-spacing: .04em; color: var(--lav-on-dark); }
+
+/* faq */
+.faq-list { margin-top: 44px; max-width: 860px; border-top: 1.5px solid var(--ink); }
+.faq details { border-bottom: 1px solid var(--line-strong); }
+.faq summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; gap: 20px; align-items: center; padding: 22px 0; font-size: 19px; font-weight: 600; letter-spacing: -.01em; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; font-family: var(--mono); font-size: 24px; font-weight: 400; color: var(--brand); transition: transform .2s var(--ease); flex: none; }
+.faq details[open] summary::after { transform: rotate(45deg); }
+.faq details p { padding: 0 0 24px; color: var(--ink-2); max-width: 44em; }
+
+/* cierre */
+.final { background: var(--mint); position: relative; overflow: hidden; }
+.final .wrap { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 470px); gap: clamp(32px, 6vw, 80px); align-items: center; }
+.final .h2 { font-size: clamp(44px, 8vw, 104px); color: var(--forest); max-width: 8em; } .final .h2 em { color: #fff; }
+.final .sec-lede { color: var(--forest); }
+.final .court-bg { position: absolute; left: -10%; bottom: -35%; width: 80%; opacity: .5; pointer-events: none; }
+.final .form-card { box-shadow: 0 24px 60px rgba(15,61,46,.22); }
+@media (max-width: 960px) { .final .wrap { grid-template-columns: 1fr; } }
+footer { background: var(--ink); color: #B9CBC2; padding: 40px 0; font-size: 14px; }
+footer .wrap { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+footer .logo { font-size: 20px; } footer .logo svg { width: 24px; height: 24px; }
+.sticky-cta { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; padding: 12px var(--gut) calc(12px + env(safe-area-inset-bottom)); background: rgba(15,61,46,.97); transform: translateY(110%); transition: transform .3s var(--ease); display: none; }
+.sticky-cta.is-on { transform: none; } .sticky-cta .btn { width: 100%; }
+@media (max-width: 860px) { .sticky-cta { display: block; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#sumate">Ir al formulario</a>
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <clipPath id="ball"><circle cx="12" cy="12" r="11"/></clipPath>
+    <symbol id="ico-ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#A9D6C4"/><g clip-path="url(#ball)" fill="none" stroke="#0F3D2E" stroke-width="1.4"><circle cx="1" cy="12" r="15.5"/><circle cx="23" cy="12" r="15.5"/></g></symbol>
+    <symbol id="ico-ball-g" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#1F6F57"/><g clip-path="url(#ball)" fill="none" stroke="#fff" stroke-width="1.4"><circle cx="1" cy="12" r="15.5"/><circle cx="23" cy="12" r="15.5"/></g></symbol>
+    <symbol id="ico-check" viewBox="0 0 24 24"><path d="M5.5 12.5l4.2 4.2L18.5 7.5"/></symbol>
+    <symbol id="ico-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="ico-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  </defs>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="Pali, ir al inicio"><svg aria-hidden="true"><use href="#ico-ball"/></svg>Pali</a>
+    <nav class="nav" aria-label="Secciones"><a href="#hoy">Hoy vs. Pali</a><a href="#como">Cómo funciona</a><a href="#calculadora">Tus turnos</a><a href="#producto">El producto</a><a href="#preguntas">Preguntas</a></nav>
+    <a class="btn btn--primary" href="#sumate">Sumá tu club</a>
+  </div>
+</header>
+
+<main id="top">
+<!-- ===== HERO ===== -->
+<section class="hero" style="padding:0">
+  <svg class="court" id="court" viewBox="0 0 200 100" aria-hidden="true" fill="none" stroke="#3A6A58" stroke-width=".55">
+    <rect x="1" y="1" width="198" height="98" pathLength="1"/>
+    <path class="d2" d="M100 1v98" stroke-width="1" pathLength="1"/>
+    <path class="d3" d="M30.5 1v98M169.5 1v98" pathLength="1"/>
+    <path class="d4" d="M30.5 50h139" pathLength="1"/>
+  </svg>
+  <svg class="ball" id="ball-hero" viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-ball"/></svg>
+  <div class="floaters" aria-hidden="true">
+    <span class="fl" style="left:46%;top:14%;animation-delay:.2s">20:00 · Cancha 1</span>
+    <span class="fl lav" style="left:52%;bottom:10%;animation-delay:1.4s">Promo</span>
+    <span class="fl" style="left:39%;bottom:22%;animation-delay:2.2s">4 personas</span>
+  </div>
+  <div class="wrap">
+    <div>
+      <p class="kicker kicker--mint">Backoffice + chatbot de WhatsApp · Para clubes de paddle</p>
+      <h1><span class="w"><span style="--i:0">Llená</span></span> <span class="w"><span style="--i:1">tus</span></span> <span class="w"><span style="--i:2">canchas</span></span> <span class="w"><span style="--i:3"><em>sin</em></span></span> <span class="w"><span style="--i:4"><em>anotar</em></span></span> <span class="w"><span style="--i:5"><em>a</em></span></span> <span class="w"><span style="--i:6"><em>mano.</em></span></span></h1>
+      <p class="lede">Pali es el backoffice para administrar los turnos de tu club y un chatbot de WhatsApp para que tus jugadores reserven solos, a cualquier hora. Lo estamos construyendo con los primeros clubes.</p>
+      <div class="cta-row">
+        <a class="btn btn--mint" href="#sumate">Quiero ser club piloto <svg aria-hidden="true"><use href="#ico-arrow"/></svg></a>
+        <a class="btn btn--line" href="#como">Ver cómo funciona</a>
+      </div>
+      <div class="proof"><span class="chip">Hoy: paddle</span><span class="chip">Mañana: más deportes</span><span class="chip">Una base de datos por club</span></div>
+    </div>
+    <div id="sumate" data-form="hero"></div>
+  </div>
+</section>
+
+<div class="ticker" aria-hidden="true"><div class="track"><span>Agenda en 2 clics</span><span>Chatbot de WhatsApp</span><span>Cobros por día</span><span>Personas y categorías</span><span>Promos y descuentos</span><span>Tu club, tu identidad</span><span>Agenda en 2 clics</span><span>Chatbot de WhatsApp</span><span>Cobros por día</span><span>Personas y categorías</span><span>Promos y descuentos</span><span>Tu club, tu identidad</span></div></div>
+
+<!-- ===== HOY VS PALI ===== -->
+<section class="vs" id="hoy" data-mode="hoy">
+  <div class="wrap">
+    <p class="kicker reveal">01 — El cambio</p>
+    <h2 class="h2 reveal">Así se administra un club <em>hoy</em>. Y así podría ser.</h2>
+    <div class="toggle reveal" role="tablist" aria-label="Comparar">
+      <button role="tab" aria-selected="true" data-mode="hoy">Hoy</button>
+      <button role="tab" aria-selected="false" data-mode="pali">Con Pali</button>
+    </div>
+    <div class="vs-panel reveal" role="tabpanel" aria-live="polite">
+      <div class="vs-left"><div class="big" id="vsBig">Cuaderno.</div><p id="vsText">Turnos anotados a mano, mensajes sueltos y planillas que cada uno entiende a su manera.</p></div>
+      <ul class="vs-list" id="vsList"></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CÓMO FUNCIONA (historia con scroll) ===== -->
+<section class="story" id="como">
+  <div class="wrap">
+    <p class="kicker reveal">02 — Cómo funciona</p>
+    <h2 class="h2 reveal">Tu jugador escribe. <em>Tu agenda se llena sola.</em></h2>
+    <div class="story-grid">
+      <div id="sSteps">
+        <article class="sstep is-on" data-i="0"><span class="num">01</span><h3>El jugador escribe por WhatsApp</h3><p>Le habla al chatbot de tu club como hablaría con vos. Sin instalar nada.</p></article>
+        <article class="sstep" data-i="1"><span class="num">02</span><h3>El turno aparece en tu agenda</h3><p>Libre, reservado o completo: lo ves de un vistazo. Si juegan menos de 4, lo marcás como completado con un toque.</p></article>
+        <article class="sstep" data-i="2"><span class="num">03</span><h3>Tus números se mueven solos</h3><p>Cada turno completo suma al importe del día, de la semana y del mes. Sin planillas.</p></article>
+      </div>
+      <div class="stage" id="stage">
+        <div class="panel is-on" data-i="0">
+          <div class="chat" aria-label="Ejemplo de conversación">
+            <div class="chat-head"><span class="avatar" aria-hidden="true">C</span><div><b>Tu club</b><small>RESPONDE CON LA IDENTIDAD DE TU CLUB</small></div></div>
+            <div class="chat-body" id="chatBody"></div>
+            <p class="chat-note">EJEMPLO DE TONO. EL FLUJO FINAL SE DEFINE CON CADA CLUB.</p>
+          </div>
+        </div>
+        <div class="panel" data-i="1">
+          <div class="agenda-card" role="img" aria-label="Agenda de ejemplo">
+            <span class="tag">Agenda · mañana</span>
+            <div class="ag">
+              <span></span><span class="h">Cancha 1</span><span class="h">Cancha 2</span>
+              <span class="t">20:00</span><div class="cell c-res"><b>Reservado</b><span>2 personas</span></div><div class="cell c-free"><b>Libre</b><span>Tocá para reservar</span></div>
+              <span class="t">21:30</span><div class="cell c-free"><b>Libre</b><span>Tocá para reservar</span></div><div class="cell c-res live" id="liveCell"><b>Reservado</b><span>1 persona</span></div>
+            </div>
+            <p class="hint">Cancha 2 a las 21:30: lo reservó un jugador desde el chat.</p>
+          </div>
+        </div>
+        <div class="panel" data-i="2">
+          <div class="cobros-card" role="img" aria-label="Panel de cobros de ejemplo">
+            <span class="tag">Cobros</span>
+            <div class="cb">
+              <div class="k">Este mes · estimado</div>
+              <div class="big" id="cbBig">$ 1.029.000</div>
+              <div class="bars" aria-hidden="true"><i style="height:48%"></i><i style="height:70%"></i><i style="height:40%"></i><i class="pk" style="height:100%"></i><i style="height:62%"></i><i style="height:78%"></i><i style="height:55%"></i></div>
+              <div class="row"><span class="k">Hoy</span><b id="cbToday">$ 91.000</b></div>
+              <div class="row"><span class="k">Esta semana</span><b>$ 581.000<span class="delta">▲ 12 %</span></b></div>
+            </div>
+            <p class="example">DATOS DE EJEMPLO</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CALCULADORA ===== -->
+<section class="calc" id="calculadora">
+  <div class="wrap">
+    <div>
+      <p class="kicker kicker--mint reveal">03 — Hacé la cuenta</p>
+      <h2 class="h2 reveal">¿Cuánto vale un turno <em>vacío?</em></h2>
+      <p class="sec-lede reveal">Movelo con los números de tu club. Es una cuenta simple de tu capacidad, no una promesa de resultados.</p>
+      <div class="sliders reveal">
+        <div class="sl"><label for="cCourts">Canchas <output id="oCourts">3</output></label><input id="cCourts" type="range" min="1" max="8" value="3"></div>
+        <div class="sl"><label for="cTurns">Turnos por cancha, por día <output id="oTurns">6</output></label><input id="cTurns" type="range" min="2" max="10" value="6"></div>
+        <div class="sl"><label for="cEmpty">Turnos que hoy quedan vacíos <output id="oEmpty">25 %</output></label><input id="cEmpty" type="range" min="0" max="80" step="5" value="25"></div>
+        <div class="sl"><label for="cPrice">Precio por jugador (en pesos)</label><input class="num" id="cPrice" type="number" min="0" step="500" value="7000" inputmode="numeric"></div>
+      </div>
+    </div>
+    <div class="result reveal" aria-live="polite">
+      <div class="k">Lo que hoy no entra por turnos vacíos, en un mes</div>
+      <div class="big" id="rBig">$ 0</div>
+      <p>Si se llenan, cada mes. Con 4 jugadores por turno y las canchas abiertas todos los días.</p>
+      <div class="mini"><div><b id="rEmpty">0</b><span>Turnos vacíos al mes</span></div><div><b id="rOne">$ 0</b><span>Vale cada turno</span></div></div>
+      <a class="btn btn--ink" href="#sumate" id="rCta">Quiero llenar esos turnos <svg aria-hidden="true"><use href="#ico-arrow"/></svg></a>
+      <small>Cuenta ilustrativa con los datos que cargues. El precio de 7.000 es solo un ejemplo.</small>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PRODUCTO ===== -->
+<section class="product" id="producto">
+  <div class="wrap">
+    <p class="kicker reveal">04 — El producto</p>
+    <h2 class="h2 reveal">Un backoffice <em>simple</em>, pensado para el mostrador.</h2>
+    <p class="sec-lede reveal">Pocas pantallas y todo a la vista. Esto es el prototipo actual, con datos de ejemplo.</p>
+    <div class="pgrid reveal">
+      <article class="pcell p1"><span class="tag">Agenda</span><h3>Reservá en 2 clics</h3><p>Tocá un turno libre, sumá personas y listo. Con 4 o más figura completo; si juegan menos, lo marcás con un check.</p>
+        <div class="check"><i><svg aria-hidden="true"><use href="#ico-check"/></svg></i>Turno completado</div></article>
+      <article class="pcell p2"><span class="tag">Configuración</span><h3>Tu precio, tus reglas</h3><p>Precio por jugador, duración de los turnos y promos.</p>
+        <div class="cfg" aria-hidden="true"><div>Cancha 1<span class="sw"></span></div><div>Cancha 2<span class="sw"></span></div><div>Promo último turno<span class="promo">Promo</span></div></div></article>
+      <article class="pcell p3"><span class="tag">Personas</span><h3>Tus jugadores</h3><p>Búsqueda mientras escribís y categoría de cada uno.</p>
+        <div class="persons" aria-hidden="true"><div>Lucía F.<span class="cat">6ª</span></div><div>Martín A.<span class="cat">8ª</span></div></div></article>
+      <article class="pcell p4"><span class="tag">Cobros</span><h3>Cuánto entró, por día</h3><p>Una cifra clara por día, semana y mes, con su variación y la ocupación de tus canchas. Podés ocultar los importes con un toque.</p></article>
+      <article class="pcell p5"><div><span class="tag">Tu identidad</span><h3>El protagonista es tu club</h3><p>El jugador habla con tu club, no con Pali. Nosotros trabajamos detrás, en silencio.</p></div>
+        <div class="brandbox"><div class="top-row"><span class="avatar" aria-hidden="true">C</span><div><b>Tu club</b><small>CHATBOT CON TU IDENTIDAD</small></div></div><div class="bubble">¡Hola! ¿Para qué día querés la cancha?</div></div></article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CLUB PILOTO ===== -->
+<section class="pilot" id="club-piloto">
+  <div class="wrap">
+    <p class="kicker kicker--mint reveal">05 — Club piloto</p>
+    <h2 class="h2 reveal">Buscamos los primeros clubes para <em>armarlo juntos.</em></h2>
+    <p class="sec-lede reveal">Pali está en construcción y queremos que lo moldee quien lo va a usar todos los días. Si sos de los primeros, tu opinión se nota en el producto.</p>
+    <div class="profile reveal" aria-label="Perfil del club que buscamos">
+      <span><svg aria-hidden="true"><use href="#ico-check"/></svg>Entre 2 y 4 canchas de pádel</span>
+      <span><svg aria-hidden="true"><use href="#ico-check"/></svg>Vos administrás</span>
+      <span><svg aria-hidden="true"><use href="#ico-check"/></svg>Hoy anotás a mano o por WhatsApp</span>
+    </div>
+    <div class="after reveal">
+      <article><span class="n">PASO 01</span><h3>Te escribimos</h3><p>Por WhatsApp, apenas dejes tus datos.</p></article>
+      <article><span class="n">PASO 02</span><h3>Charlamos</h3><p>Nos contás cómo trabajás hoy y qué te hace perder más tiempo.</p></article>
+      <article><span class="n">PASO 03</span><h3>Armamos juntos</h3><p>Si encaja, arrancamos con tu club y lo vamos ajustando a tu forma de trabajar.</p></article>
+    </div>
+    <p class="honest reveal">LAS CONDICIONES SE ACUERDAN CHARLANDO. SIN LETRA CHICA.</p>
+  </div>
+</section>
+
+<!-- ===== PREGUNTAS ===== -->
+<section class="faq" id="preguntas">
+  <div class="wrap">
+    <p class="kicker reveal">06 — Preguntas frecuentes</p>
+    <h2 class="h2 reveal">Lo que nos suelen <em>preguntar.</em></h2>
+    <div class="faq-list reveal">
+      <details><summary>¿Cuánto cuesta?</summary><p>Todavía lo estamos definiendo junto con los primeros clubes. Dejar tus datos no tiene costo ni te compromete a nada.</p></details>
+      <details><summary>¿Mis jugadores tienen que instalar algo?</summary><p>No. Reservan por WhatsApp, con la aplicación que ya usan todos los días.</p></details>
+      <details><summary>¿Se cobra online?</summary><p>Por ahora el pago se hace en caja, como hoy. Cobros te muestra una estimación de lo que entra según los turnos completos. El pago online queda para más adelante.</p></details>
+      <details><summary>¿Qué pasa si juegan menos de 4 personas?</summary><p>El turno igual cuenta. Lo marcás como completado con un check y suma a tus números.</p></details>
+      <details><summary>¿Sirve solo para paddle?</summary><p>Arrancamos con paddle, pero Pali está pensado para crecer a otros deportes y a más clubes.</p></details>
+      <details><summary>¿Qué hacen con mis datos?</summary><p>Los usamos únicamente para contactarte por Pali. No los compartimos con nadie.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CIERRE ===== -->
+<section class="final">
+  <svg class="court-bg" viewBox="0 0 200 100" aria-hidden="true" fill="none" stroke="#fff" stroke-width=".5"><rect x="1" y="1" width="198" height="98"/><path d="M100 1v98" stroke-width="1"/><path d="M30.5 1v98M169.5 1v98M30.5 50h139"/></svg>
+  <div class="wrap">
+    <div>
+      <p class="kicker reveal" style="color:var(--forest)">Último paso</p>
+      <h2 class="h2 reveal">Llená tus turnos. <em>Empezá hoy.</em></h2>
+      <p class="sec-lede reveal">Dejanos tus datos y te escribimos por WhatsApp para contarte cómo es Pali y escuchar cómo trabajás.</p>
+    </div>
+    <div id="sumate-2" data-form="final"></div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap"><a class="logo" href="#top" aria-label="Pali, ir al inicio"><svg aria-hidden="true"><use href="#ico-ball"/></svg>Pali</a><p>Backoffice y chatbot de WhatsApp para clubes de paddle. Hoy en construcción con los primeros clubes.</p></div></footer>
+<div class="sticky-cta" id="sticky"><a class="btn btn--primary" href="#sumate">Sumá tu club</a></div>
+
+<template id="formTpl">
+  <div class="form-card">
+    <div class="form-wrap">
+      <div class="steps-bar"><span data-stepn>Paso 1 de 2</span><i data-bar style="--p:.5"></i></div>
+      <h2 data-title>Sumá tu club</h2>
+      <p class="sub" data-sub>Dos datos para empezar. El resto, en el siguiente paso.</p>
+      <form class="form" novalidate>
+        <div class="step" data-step="1">
+          <div class="field"><label for="__-club">Nombre del club<span class="req" role="img" aria-label="obligatorio"></span></label><input class="input" id="__-club" name="club" type="text" autocomplete="organization" placeholder="Club Atlético…" aria-describedby="__-club-e"><p class="err" id="__-club-e" role="alert"></p></div>
+          <div class="field"><label for="__-phone">WhatsApp<span class="req" role="img" aria-label="obligatorio"></span></label><input class="input" id="__-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="Ej: 11 5555 1234" aria-describedby="__-phone-e"><p class="err" id="__-phone-e" role="alert"></p></div>
+          <button class="btn btn--primary" type="button" data-next>Seguir <svg aria-hidden="true"><use href="#ico-arrow"/></svg></button>
+          <p class="fine">Sin costo y sin compromiso. Te escribimos nosotros.</p>
+        </div>
+        <div class="step" data-step="2" hidden>
+          <div class="field"><label for="__-name">Tu nombre<span class="req" role="img" aria-label="obligatorio"></span></label><input class="input" id="__-name" name="name" type="text" autocomplete="name" placeholder="Nombre y apellido" aria-describedby="__-name-e"><p class="err" id="__-name-e" role="alert"></p></div>
+          <div class="row2">
+            <div class="field"><label for="__-email">Email</label><input class="input" id="__-email" name="email" type="email" autocomplete="email" placeholder="tu@club.com" aria-describedby="__-email-e"><p class="err" id="__-email-e" role="alert"></p></div>
+            <div class="field"><label for="__-courts">Cantidad de canchas</label><select class="select" id="__-courts" name="courts"><option value="">Elegí una opción</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5 o más</option></select></div>
+          </div>
+          <div class="field"><label for="__-how">¿Cómo anotan los turnos hoy?</label><select class="select" id="__-how" name="how"><option value="">Elegí una opción</option><option>En un cuaderno</option><option>En una planilla</option><option>Por WhatsApp</option><option>Con otra aplicación</option><option>De otra forma</option></select></div>
+          <div class="hp" aria-hidden="true"><label>No completar<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+          <div class="field"><label class="consent" for="__-ok"><input type="checkbox" id="__-ok" name="ok" aria-describedby="__-ok-e"><span>Acepto que Pali me contacte con estos datos.<span class="req" role="img" aria-label="obligatorio" style="display:inline-block;margin-left:6px"></span></span></label><p class="err" id="__-ok-e" role="alert"></p></div>
+          <button class="btn btn--primary" type="submit"><span data-label>Quiero sumar mi club</span><svg aria-hidden="true"><use href="#ico-arrow"/></svg></button>
+          <button class="back" type="button" data-back>Volver al paso 1</button>
+          <p class="err" data-global role="alert" style="text-align:center"></p>
+        </div>
+      </form>
+    </div>
+    <div class="ok" role="status" aria-live="polite" tabindex="-1">
+      <div class="tick"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ico-check"/></svg></div>
+      <h3 data-ok-title>¡Listo!</h3>
+      <p data-ok-text>Recibimos tus datos. Te escribimos por WhatsApp.</p>
+      <button class="btn btn--ink" type="button" data-again>Cargar otro club</button>
+    </div>
+  </div>
+</template>
+
+<script>
+(function () {
+  /* FORM_ENDPOINT: URL que recibe un POST con JSON (Google Apps Script, Make, Zapier o el backend de Pali).
+     Vacío = los datos se guardan solo en este navegador (localStorage 'pali-leads') para probar el flujo. */
+  var FORM_ENDPOINT = '';
+  var $ = function (s, r) { return (r || document).querySelector(s); }, $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var money = function (n) { return '$ ' + Math.round(n).toLocaleString('es-AR'); };
+
+  /* ---------- formulario de 2 pasos ---------- */
+  var tpl = $('#formTpl'), forms = [];
+  function mount(host, prefix, opts) {
+    var wrap = document.createElement('div'); wrap.appendChild(tpl.content.cloneNode(true));
+    wrap.innerHTML = wrap.innerHTML.replace(/__-/g, prefix + '-');
+    var card = wrap.firstElementChild; host.appendChild(card);
+    if (opts && opts.title) $('[data-title]', card).textContent = opts.title;
+    if (opts && opts.sub) $('[data-sub]', card).textContent = opts.sub;
+    wire(card, prefix); forms.push(card);
+  }
+  function setErr(card, id, msg) {
+    var inp = $('#' + id, card), er = $('#' + id + '-e', card);
+    if (er) { er.textContent = msg || ''; er.classList.toggle('is-on', !!msg); }
+    if (inp) { if (msg) inp.setAttribute('aria-invalid', 'true'); else inp.removeAttribute('aria-invalid'); }
+    return !msg;
+  }
+  function wire(card, p) {
+    var f = $('form', card), s1 = $('[data-step="1"]', card), s2 = $('[data-step="2"]', card), bar = $('[data-bar]', card), sn = $('[data-stepn]', card);
+    var glob = $('[data-global]', card), okBox = $('.ok', card), formWrap = $('.form-wrap', card), btn = $('button[type=submit]', f);
+    var v = function (n) { return (f.elements[n].value || '').trim(); };
+    function go(n) {
+      s1.hidden = n !== 1; s2.hidden = n !== 2; sn.textContent = 'Paso ' + n + ' de 2'; bar.style.setProperty('--p', n === 1 ? .5 : 1);
+      $('[data-title]', card).textContent = n === 1 ? 'Sumá tu club' : 'Un último paso';
+      $('[data-sub]', card).textContent = n === 1 ? 'Dos datos para empezar. El resto, en el siguiente paso.' : 'Contanos quién sos y cómo trabajan hoy. Lo opcional no es obligatorio.';
+      (n === 1 ? f.elements.club : f.elements.name).focus({ preventScroll: true });
+    }
+    function check1() {
+      var bad = [], d = v('phone').replace(/\D/g, '');
+      if (!v('club')) { setErr(card, p + '-club', 'Falta completar el campo Nombre del club: es obligatorio.'); bad.push('club'); } else setErr(card, p + '-club', '');
+      if (!v('phone')) { setErr(card, p + '-phone', 'Falta completar el campo WhatsApp: es obligatorio.'); bad.push('phone'); }
+      else if (d.length < 8 || d.length > 15) { setErr(card, p + '-phone', 'Revisá el número: tiene que tener entre 8 y 15 dígitos.'); bad.push('phone'); } else setErr(card, p + '-phone', '');
+      if (bad.length) f.elements[bad[0]].focus(); return !bad.length;
+    }
+    function check2() {
+      var bad = [];
+      if (!v('name')) { setErr(card, p + '-name', 'Falta completar el campo Tu nombre: es obligatorio.'); bad.push('name'); } else setErr(card, p + '-name', '');
+      if (v('email') && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v('email'))) { setErr(card, p + '-email', 'Revisá el email: parece que le falta algo.'); bad.push('email'); } else setErr(card, p + '-email', '');
+      if (!f.elements.ok.checked) { setErr(card, p + '-ok', 'Para poder contactarte, tildá esta casilla.'); bad.push('ok'); } else setErr(card, p + '-ok', '');
+      if (bad.length) f.elements[bad[0]].focus(); return !bad.length;
+    }
+    ['club', 'phone', 'name', 'email'].forEach(function (n) { f.elements[n].addEventListener('input', function () { if (this.getAttribute('aria-invalid')) setErr(card, p + '-' + n, ''); }); });
+    f.elements.ok.addEventListener('change', function () { if (this.checked) setErr(card, p + '-ok', ''); });
+    $('[data-next]', card).addEventListener('click', function () { if (check1()) go(2); });
+    [f.elements.club, f.elements.phone].forEach(function (i) { i.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); if (check1()) go(2); } }); });
+    $('[data-back]', card).addEventListener('click', function () { go(1); });
+    f.addEventListener('submit', function (e) {
+      e.preventDefault(); glob.textContent = ''; glob.classList.remove('is-on');
+      if (f.elements.website.value) return;
+      if (!check1()) { go(1); return; } if (!check2()) return;
+      var data = { name: v('name'), club: v('club'), phone: v('phone'), email: v('email'), courts: f.elements.courts.value, how: f.elements.how.value, source: location.href, at: new Date().toISOString() };
+      btn.disabled = true; $('[data-label]', btn).textContent = 'Enviando…';
+      send(data).then(function () {
+        $('[data-ok-title]', card).textContent = '¡Listo, ' + data.name.split(' ')[0] + '!';
+        $('[data-ok-text]', card).textContent = 'Recibimos los datos de ' + data.club + '. Te escribimos por WhatsApp para charlar.';
+        formWrap.style.display = 'none'; okBox.classList.add('is-on'); okBox.focus();
+      }).catch(function () { glob.textContent = 'No pudimos enviar tus datos. Revisá tu conexión e intentá de nuevo.'; glob.classList.add('is-on'); })
+        .then(function () { btn.disabled = false; $('[data-label]', btn).textContent = 'Quiero sumar mi club'; });
+    });
+    $('[data-again]', card).addEventListener('click', function () { f.reset(); okBox.classList.remove('is-on'); formWrap.style.display = ''; go(1); });
+    card._setCourts = function (n) { var o = f.elements.courts; var val = n >= 5 ? '5 o más' : String(n); for (var i = 0; i < o.options.length; i++) if (o.options[i].text === val) o.selectedIndex = i; };
+  }
+  function send(data) {
+    if (FORM_ENDPOINT) return fetch(FORM_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).then(function (r) { if (!r.ok) throw new Error('http'); });
+    return new Promise(function (ok) { try { var l = JSON.parse(localStorage.getItem('pali-leads') || '[]'); l.push(data); localStorage.setItem('pali-leads', JSON.stringify(l)); } catch (e) {} setTimeout(ok, 700); });
+  }
+  mount($('[data-form=hero]'), 'h');
+  mount($('[data-form=final]'), 'f');
+
+  /* ---------- hoy vs. con pali ---------- */
+  var VS = {
+    hoy: { big: 'Cuaderno.', text: 'Turnos anotados a mano, mensajes sueltos y planillas que cada uno entiende a su manera.', items: [['Turnos que se pisan', 'Dos personas en la misma cancha y el mismo horario.'], ['Mensajes a toda hora', 'Cada reserva es una conversación que atendés entre partidos.'], ['Poca visibilidad', '¿Qué turnos están completos? ¿Cuánto entró esta semana?'], ['Todo depende de vos', 'Si no estás, nadie sabe qué está libre.']], icon: 'ico-x' },
+    pali: { big: 'Agenda.', text: 'Tus jugadores reservan por WhatsApp y vos ves todo en una agenda clara, con tus números al día.', items: [['Cada turno, un estado', 'Libre, reservado o completo. De un vistazo.'], ['El chatbot atiende por vos', 'Reservan a cualquier hora, sin que tengas que responder.'], ['Cobros por día', 'Una cifra clara por día, semana y mes, con su variación.'], ['Tu club al frente', 'El jugador habla con tu club, no con Pali.']], icon: 'ico-check' }
+  };
+  var vs = $('.vs');
+  function setMode(m) {
+    vs.dataset.mode = m; var d = VS[m];
+    $('#vsBig').textContent = d.big; $('#vsText').textContent = d.text;
+    $('#vsList').innerHTML = d.items.map(function (it, i) { return '<li style="--i:' + i + '"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#' + d.icon + '"/></svg></span><div><b>' + it[0] + '</b><span>' + it[1] + '</span></div></li>'; }).join('');
+    $$('.toggle button').forEach(function (b) { b.setAttribute('aria-selected', b.dataset.mode === m ? 'true' : 'false'); });
+  }
+  $$('.toggle button').forEach(function (b) { b.addEventListener('click', function () { setMode(b.dataset.mode); }); });
+  setMode('hoy');
+
+  /* ---------- historia con scroll ---------- */
+  var panels = $$('.panel'), steps = $$('.sstep'), cur = -1, chatTimer = [];
+  function typeChat() {
+    var body = $('#chatBody'); chatTimer.forEach(clearTimeout); chatTimer = []; body.innerHTML = '';
+    var seq = [
+      ['me', 'Hola, quiero una cancha para mañana a la noche', 400],
+      ['bot', '¡Hola! Para mañana a la noche tengo libre:<div class="slots"><span class="slot">20:00 · Cancha 1</span><span class="slot">21:30 · Cancha 2</span></div>', 1500],
+      ['me', 'La de las 21:30', 1400],
+      ['bot', 'Listo, te anoté en Cancha 2 a las 21:30. ¿Cuántos van a jugar?', 1500]
+    ];
+    if (reduce) { seq.forEach(function (m) { add(m); }); return; }
+    var t = 0;
+    seq.forEach(function (m) {
+      t += m[2];
+      if (m[0] === 'bot') { chatTimer.push(setTimeout(function () { var ty = document.createElement('div'); ty.className = 'typing'; ty.innerHTML = '<i></i><i></i><i></i>'; body.appendChild(ty); }, t - 900)); }
+      chatTimer.push(setTimeout(function () { var ty = $('.typing', body); if (ty) ty.remove(); add(m); }, t));
+    });
+    function add(m) { var d = document.createElement('div'); d.className = 'msg msg--' + m[0]; d.innerHTML = m[1]; body.appendChild(d); }
+  }
+  function countTo(el, from, to, ms, fmt) {
+    if (reduce) { el.textContent = fmt(to); return; }
+    var t0 = performance.now();
+    (function tick(t) { var k = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - k, 3); el.textContent = fmt(from + (to - from) * e); if (k < 1) requestAnimationFrame(tick); })(t0);
+  }
+  function showStep(i) {
+    if (i === cur) return; cur = i;
+    steps.forEach(function (s, k) { s.classList.toggle('is-on', k === i); });
+    panels.forEach(function (p, k) { p.classList.toggle('is-on', k === i); });
+    if (i === 0) typeChat();
+    if (i === 1) { var c = $('#liveCell'); c.classList.remove('live'); void c.offsetWidth; c.classList.add('live'); }
+    if (i === 2) { countTo($('#cbBig'), 1029000, 1057000, 1200, money); countTo($('#cbToday'), 91000, 119000, 1200, money); }
+  }
+  if ('IntersectionObserver' in window && matchMedia('(min-width: 961px)').matches) {
+    var so = new IntersectionObserver(function (en) { en.forEach(function (x) { if (x.isIntersecting) showStep(+x.target.dataset.i); }); }, { rootMargin: '-42% 0px -42% 0px' });
+    steps.forEach(function (s) { so.observe(s); });
+  } else { panels.forEach(function (p) { p.classList.add('is-on'); }); typeChat(); }
+  showStep(0);
+
+  /* ---------- calculadora ---------- */
+  var c = { courts: $('#cCourts'), turns: $('#cTurns'), empty: $('#cEmpty'), price: $('#cPrice') }, shown = 0;
+  function calc() {
+    var courts = +c.courts.value, turns = +c.turns.value, pct = +c.empty.value, price = Math.max(0, +c.price.value || 0);
+    $('#oCourts').textContent = courts; $('#oTurns').textContent = turns; $('#oEmpty').textContent = pct + ' %';
+    var slots = courts * turns * 30, empty = Math.round(slots * pct / 100), one = 4 * price, total = empty * one;
+    $('#rEmpty').textContent = empty.toLocaleString('es-AR'); $('#rOne').textContent = money(one);
+    countTo($('#rBig'), shown, total, 450, money); shown = total;
+  }
+  Object.keys(c).forEach(function (k) { c[k].addEventListener('input', calc); }); calc();
+  $('#rCta').addEventListener('click', function () { forms.forEach(function (f) { f._setCourts(+c.courts.value); }); });
+
+  /* ---------- extras: aparición, progreso, parallax, barra fija ---------- */
+  var els = $$('.reveal');
+  els.forEach(function (e, i) { e.style.setProperty('--d', (i % 3) * 0.06 + 's'); });
+  if ('IntersectionObserver' in window && !reduce) {
+    var io = new IntersectionObserver(function (en) { en.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add('is-in'); io.unobserve(x.target); } }); }, { threshold: .1 });
+    els.forEach(function (e) { io.observe(e); });
+  } else els.forEach(function (e) { e.classList.add('is-in'); });
+  var prog = $('#progress'), ballEl = $('#ball-hero'), ticking = false;
+  window.addEventListener('scroll', function () {
+    if (ticking) return; ticking = true;
+    requestAnimationFrame(function () {
+      var h = document.documentElement, p = h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight);
+      prog.style.transform = 'scaleX(' + p + ')';
+      if (!reduce) ballEl.style.setProperty('--rot', (h.scrollTop * .25) + 'deg');
+      ticking = false;
+    });
+  }, { passive: true });
+  if (!reduce && matchMedia('(pointer: fine)').matches) {
+    var court = $('#court'), hero = $('.hero');
+    hero.addEventListener('mousemove', function (e) { var r = hero.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5; court.style.setProperty('--px', (x * -22) + 'px'); court.style.setProperty('--py', (y * -14) + 'px'); });
+  }
+  var sticky = $('#sticky'), seen = { h: true, f: false };
+  if ('IntersectionObserver' in window) {
+    var so2 = new IntersectionObserver(function (en) { en.forEach(function (x) { seen[x.target.dataset.form === 'hero' ? 'h' : 'f'] = x.isIntersecting; }); sticky.classList.toggle('is-on', !seen.h && !seen.f); });
+    $$('[data-form]').forEach(function (e) { so2.observe(e); });
+  }
+})();
+</script>
+</body>
+</html>

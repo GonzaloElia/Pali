@@ -76,7 +76,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
   function cellSub(c) {
     if (c.state === 'free') return 'Tocá para reservar';
     var n = c.booking.participants.length;
-    return n + ' de ' + c.booking.capacity + ' personas';
+    return n + (n === 1 ? ' persona' : ' personas');
   }
   function renderAgenda() {
     $('#dateLabel').textContent = label();
@@ -101,34 +101,51 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     var row = S.grid.rows[ri], cell = row.cells[ci];
     var court = S.grid.courts.filter(function (c) { return c.id === cell.courtId; })[0];
     resetForm();
-    S.modal = { courtId: cell.courtId, courtName: court.name, start: row.start, end: row.end, booking: cell.booking };
+    S.modal = { courtId: cell.courtId, courtName: court.name, start: row.start, end: row.end, booking: cell.booking, pending: !!(cell.booking && cell.booking.completed) };
     renderModal();
     $('#scrim').hidden = false;
   }
   function closeModal() { S.modal = null; $('#scrim').hidden = true; }
 
   function renderModal() {
-    var m = S.modal, bk = m.booking;
+    var m = S.modal, bk = m.booking, locked = bk ? bk.locked : PaliApi.util.isLocked(S.date);
+    var lockNote = '<p class="note" role="status">Este turno es de una fecha que ya no se puede modificar (se pueden editar hasta ' + PaliApi.util.editWindow() + ' días atrás).</p>';
     $('#modal').innerHTML =
-      '<div class="modal-head"><div><h3>' + (bk ? 'Turno reservado' : 'Reservar turno') + '</h3>' +
+      '<div class="modal-head"><div><div class="row" style="gap:10px;align-items:center"><h3>' + (bk ? 'Turno reservado' : 'Reservar turno') + '</h3><span id="markBlock"></span></div>' +
       '<p class="sub">' + esc(m.courtName) + ' · ' + esc(label()) + ' · ' + m.start + '–' + m.end + '</p></div>' +
       '<button class="modal-close" data-act="close" aria-label="Cerrar">×</button></div>' +
-      '<div id="searchBlock" class="field"><label class="label" for="q">Persona</label>' +
+      (locked ? lockNote : '') +
+      '<div id="searchBlock" class="field"' + (locked ? ' hidden' : '') + '><label class="label" for="q">Persona</label>' +
       '<div class="combo"><input id="q" class="input" type="text" placeholder="Nombre y apellido" autocomplete="off">' +
       '<div id="comboList" class="combo-list" hidden></div></div>' +
       '<p class="hint">Si no está, se crea al momento y se le piden sus datos.</p></div>' +
       '<div id="newPerson" class="stack--form" hidden></div>' +
       '<div id="plist" class="mt-4"></div>' +
       '<div id="modalFoot" class="modal-foot">' +
-        (bk ? '<button class="btn btn--danger" data-act="cancelBooking">Cancelar turno</button><button class="btn btn--dark" data-act="close">Aceptar</button>'
+        (locked ? '<button class="btn btn--dark" data-act="close">Cerrar</button>' : bk ? '<button class="btn btn--danger" data-act="cancelBooking">Cancelar turno</button><button class="btn btn--dark" data-act="acceptBooking">Aceptar</button>'
             : '<button class="btn btn--primary" data-act="reserve">Reservar</button>') +
       '</div>';
     renderPersons();
   }
 
+  /* Marcar como completado (azul cielo). Se habilita con 1, 2 o 3 personas; con 0 o con 4 o más queda deshabilitado.
+     Sirve tanto al crear (Libre → Completo) como en un turno Reservado. Se guarda con Reservar / Aceptar. */
+  var ICON_CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 7.5"/></svg>';
+  function renderMark() {
+    var el = $('#markBlock'); if (!el || !S.modal) return;
+    var bk = S.modal.booking, n = people().length, locked = bk ? bk.locked : PaliApi.util.isLocked(S.date);
+    if (locked) { el.innerHTML = ''; return; }
+    var enabled = n >= 1 && n < S.cap;
+    if (!enabled) S.modal.pending = false;
+    var on = enabled && S.modal.pending;
+    /* Solo un check junto al título: el motivo de que esté deshabilitado va en el tooltip y en la etiqueta accesible */
+    var tip = !enabled ? (n === 0 ? 'Sumá al menos una persona para completar el turno' : 'Con ' + S.cap + ' o más personas el turno ya figura Completo') : on ? 'Completado. Tocá para quitarlo' : 'Marcar como completado';
+    el.innerHTML = '<button type="button" class="check-btn" data-act="toggleComplete" aria-pressed="' + on + '" aria-label="' + tip + '" title="' + tip + '"' + (enabled ? '' : ' disabled') + '>' + ICON_CHECK + '</button>';
+  }
   function people() { return S.modal.booking ? S.modal.booking.participants : S.selected; }
   function renderPersons() {
     var list = people(), el = $('#plist');
+    setTimeout(renderMark, 0);
     el.innerHTML = list.length
       ? '<ul class="plist">' + list.map(function (p) {
           return '<li><span class="row" style="gap:10px">' + esc(p.name) + (p.category ? '<span class="chip chip--lav">' + esc(p.category) + '</span>' : '') + '</span>' +
@@ -194,7 +211,6 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     return !missing.length;
   }
   async function addPerson(p) {
-    if (people().length >= S.cap && !people().some(function (x) { return x.id === p.id; })) { say('El turno ya está completo'); return; }
     if (S.modal.booking) { S.modal.booking = await PaliApi.addParticipant(S.modal.booking.id, p.id); await load(); }
     else if (!S.selected.some(function (x) { return x.id === p.id; })) S.selected.push({ id: p.id, name: pname(p), category: p.category });
     S.q = ''; S.results = []; $('#q').value = ''; renderCombo(); renderPersons();
@@ -241,7 +257,8 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
       if (S.modal.booking) {
         var res = await PaliApi.removeParticipant(S.modal.booking.id, d.id);
         if (!res) { closeModal(); await load(); say('Sin personas: el turno quedó Libre'); return; }   // 0 personas = Libre
-        S.modal.booking = res; await load();
+        S.modal.booking = res; S.modal.pending = !!res.completed; await load();
+        renderModal(); return;
       }
       else S.selected = S.selected.filter(function (x) { return x.id !== d.id; });
       renderPersons();
@@ -250,9 +267,16 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
       if (!S.selected.length) { var h = $('#plist'); h.innerHTML = '<p class="field-error">Para reservar hay que sumar al menos una persona. Un turno sin personas está Libre.</p>'; return; }
       await PaliApi.createBooking({
         date: S.date, courtId: S.modal.courtId, start: S.modal.start,
-        personIds: S.selected.map(function (x) { return x.id; }), source: 'backoffice'
+        personIds: S.selected.map(function (x) { return x.id; }), source: 'backoffice', completed: !!S.modal.pending && S.selected.length < S.cap
       });
-      closeModal(); await load(); say('Turno reservado');
+      var done = !!S.modal.pending && S.selected.length < S.cap;
+      closeModal(); await load(); say(done ? 'Turno completado: suma a Cobros' : 'Turno reservado');
+    },
+    toggleComplete: function () { if (!people().length || people().length >= S.cap) return; S.modal.pending = !S.modal.pending; renderMark(); },
+    acceptBooking: async function () {
+      var bk = S.modal.booking, now = !!S.modal.pending, n = people().length;
+      if (bk && n < S.cap && !!bk.completed !== now) { await PaliApi.setBookingCompleted(bk.id, now); closeModal(); await load(); say(now ? 'Turno completado: suma a Cobros' : 'Turno devuelto a Reservado'); return; }
+      closeModal();
     },
     cancelBooking: async function () {
       await PaliApi.cancelBooking(S.modal.booking.id);

@@ -51,3 +51,17 @@
 .icon-btn:hover { color: var(--ink); border-color: var(--ink-2); background: var(--bg-soft); }
 .icon-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 .icon-btn[aria-expanded="true"] { color: var(--brand); border-color: var(--brand); background: var(--brand-soft, var(--bg-soft)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 14%, transparent); }
+
+/* Check de estado (azul cielo): se prende y se apaga como el ojito. Va junto al título del modal (“Completar turno”).
+   Apagado: contorno azul con tilde tenue. Prendido: relleno azul y el tilde se dibuja. */
+.check-btn { display: inline-grid; place-items: center; width: 28px; height: 28px; padding: 0; flex: none; border-radius: 8px; cursor: pointer;
+  border: 1px solid color-mix(in srgb, var(--sky-400) 70%, transparent); background: color-mix(in srgb, var(--sky-400) 14%, transparent); color: var(--sky-600);
+  transition: background .15s ease, border-color .15s ease, color .15s ease; }
+.check-btn:hover:not(:disabled) { background: color-mix(in srgb, var(--sky-400) 26%, transparent); }
+.check-btn:focus-visible { outline: 2px solid var(--sky-600); outline-offset: 2px; }
+.check-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 24; stroke-dashoffset: 10; opacity: .75; transition: stroke-dashoffset .28s ease .05s, opacity .15s; }
+.check-btn[aria-pressed="true"] { background: var(--sky-400); border-color: var(--sky-400); color: #0d1f18; }
+.check-btn[aria-pressed="true"] svg { stroke-dashoffset: 0; opacity: 1; }
+.check-btn:disabled { background: transparent; border: 1px dashed var(--line-strong); color: var(--mute); cursor: not-allowed; }
+.check-btn:disabled svg { stroke-dashoffset: 0; opacity: .5; }
+@media (prefers-reduced-motion: reduce) { .check-btn, .check-btn svg { transition: none; } }
