@@ -25,8 +25,20 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     <header class="page-header">
       <p class="kicker">Design system</p>
       <h1>Componentes, <em>uno por uno</em>.</h1>
-      <p class="lede">Blanco, azul y negro. Misma tipografía y mismos tokens en todo el prototipo.</p>
+      <p class="lede">Blanco, verde y negro, con azul cielo (datos) y lavanda (detalles) como secundarios. Misma tipografía y mismos tokens en todo el prototipo.</p>
     </header>
+
+    <section class="section">
+      <p class="kicker">Marca</p>
+      <div class="grid-3">
+        <div class="card" style="display:grid;place-items:center;min-height:150px"><img src="../Diseño/logo/pali-logo-claro-con-bote.svg" alt="Logo de Pali, versión clara con bote" style="height:58px"></div>
+        <div class="card" style="display:grid;place-items:center;min-height:150px;background:var(--forest);border-color:var(--forest)"><img src="../Diseño/logo/pali-logo-oscuro-con-bote.svg" alt="Logo de Pali, versión oscura con bote" style="height:58px"></div>
+        <div class="card" style="display:flex;align-items:flex-end;justify-content:center;gap:18px;min-height:150px">
+          <img src="../Diseño/logo/pali-icono-claro.svg" alt="" style="height:48px"><img src="../Diseño/logo/pali-icono-claro.svg" alt="" style="height:24px"><img src="../Diseño/logo/pali-icono-claro.svg" alt="" style="height:16px">
+          <img src="../Diseño/logo/pali-icono-negro.svg" alt="" style="height:24px"></div>
+      </div>
+      <p class="hint mt-2">Pelota inclinada 35° con gajo azul cielo. El bote (sombra plana) va solo en tamaños grandes; ícono, barra lateral y versiones de un color van sin bote. Archivos en <code>Diseño/logo/</code>.</p>
+    </section>
 
     <section class="section">
       <p class="kicker">Color</p>
@@ -38,6 +50,8 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
         <div class="card"><div style="height:44px;border-radius:8px;background:var(--brand-soft);border:1px solid var(--brand-line)"></div><p class="mt-2"><b>Verde suave</b> <code>--brand-soft</code><br><span class="muted small">#e8f4ee · reservado</span></p></div>
         <div class="card"><div style="height:44px;border-radius:8px;background:var(--ink)"></div><p class="mt-2"><b>Negro</b> <code>--ink</code><br><span class="muted small">#0d1f18 · texto</span></p></div>
         <div class="card"><div style="height:44px;border-radius:8px;background:var(--white);border:1px solid var(--line-strong)"></div><p class="mt-2"><b>Blanco</b> <code>--white</code><br><span class="muted small">#ffffff · fondo</span></p></div>
+        <div class="card"><div style="height:44px;border-radius:8px;background:var(--sky-400)"></div><p class="mt-2"><b>Azul cielo</b> <code>--sky-400</code><br><span class="muted small">#6baee8 · datos e información</span></p></div>
+        <div class="card"><div style="height:44px;border-radius:8px;background:var(--lav-500)"></div><p class="mt-2"><b>Lavanda</b> <code>--lav-500</code><br><span class="muted small">#9c8ddd · detalles: categoría, promos</span></p></div>
         <div class="card"><div style="height:44px;border-radius:8px;background:var(--coral)"></div><p class="mt-2"><b>Coral</b> <code>--coral</code><br><span class="muted small">#e5533d · solo cancelar</span></p></div>
       </div>
     </section>
@@ -46,10 +60,11 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
       <p class="kicker">Tipografía</p>
       <div class="card stack">
         <h1>Título 38 · IBM Plex Sans</h1>
-        <h2>Título 24 con <em>acento azul</em></h2>
+        <h2>Título 24 con <em>acento verde</em></h2>
         <h3>Subtítulo 15,5</h3>
         <p>Texto base 14,5. Usado en tablas, formularios y descripciones.</p>
         <p class="kicker">Etiqueta en mono</p>
+        <p class="kicker kicker--lav">Etiqueta lavanda (promos)</p>
         <p class="mono">IBM Plex Mono · horarios 10:30–12:00 · $ 7.000</p>
       </div>
     </section>
@@ -66,6 +81,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
         <button class="check-btn" aria-pressed="false" aria-label="Marcar como completado" title="Marcar como completado"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 7.5"/></svg></button>
         <button class="check-btn" aria-pressed="true" aria-label="Completado" title="Completado"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 7.5"/></svg></button>
         <button class="check-btn" disabled aria-label="Deshabilitado" title="Deshabilitado"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 7.5"/></svg></button>
+        <button type="button" class="icon-btn" aria-label="Elegir columnas" title="Elegir columnas"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 4v16"/></svg></button>
         <button class="btn" disabled>Deshabilitado</button>
         <button class="btn btn--primary btn--sm">Pequeño</button>
       </div>
@@ -88,7 +104,8 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     <section class="section">
       <p class="kicker">Campos</p>
       <div class="grid-3">
-        <div class="field"><label class="label">Nombre</label><input class="input" placeholder="Nombre"></div>
+        <div class="field"><label class="label">Nombre<span class="req" role="img" aria-label="obligatorio"></span></label><input class="input" placeholder="Nombre"></div>
+        <div class="field"><label class="label">Alias (opcional)</label><input class="input" placeholder="Alias"></div>
         <div class="field"><label class="label">Cancha</label><select class="select"><option>Cancha 1</option><option>Cancha 2</option></select></div>
         <div class="field"><label class="label">Opción</label><label class="check"><input type="checkbox" checked> Opción de ejemplo</label></div>
       </div>
@@ -114,13 +131,16 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
         <div class="card kpi kpi--brand"><span class="dom">Este mes</span><span class="value">$ 420.000</span><span class="sub">acumulado</span></div>
         <div class="card"><span class="dom">Card</span><h3>Título de card</h3><p>Texto de apoyo breve.</p></div>
         <div class="note"><b>Nota.</b> Aclaración o dato importante dentro de una pantalla.</div>
+        <div class="card kpi kpi--lav"><span class="dom">Categoría actual</span><span class="value">7ma</span><span class="sub">hoy</span></div>
+        <div class="card kpi kpi--sky"><span class="dom">Veces que jugó</span><span class="value">70</span><span class="sub">turnos hasta hoy</span></div>
       </div>
+      <div class="callout" role="note"><span class="callout-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3 4v4.5h4.5"/><path d="M12 7.5V12l3 1.8"/></svg></span><div><p class="callout-t">Nota informativa</p><p class="callout-s">Avisos que no son error, como el historial de 4 meses en la ficha del jugador.</p></div></div>
     </section>
 
     <section class="section">
       <p class="kicker">Datos: variación, panel de caja y gráfico</p>
       <div class="hero">
-        <div><p class="kicker">Este mes · estimado</p><span class="hero-value">$ 1.372.000</span><div class="hero-row"><span class="delta">▲ 9 %</span><span>vs. el mismo tramo del mes anterior</span></div></div>
+        <div><p class="kicker row" style="gap:10px;align-items:center">Este mes · estimado <button type="button" class="hero-eye" aria-pressed="false" aria-label="Ocultar importes" title="Ocultar importes"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></p><span class="hero-value">$ 1.372.000</span><div class="hero-row"><span class="delta">▲ 9 %</span><span>vs. el mismo tramo del mes anterior</span></div></div>
         <div class="hero-side">
           <div class="hero-stat"><p class="kicker">Hoy</p><span><span class="v">$ 77.000</span><span class="delta">= 0 %</span></span></div>
           <div class="hero-stat"><p class="kicker">Esta semana</p><span><span class="v">$ 770.000</span><span class="delta">▼ 6 %</span></span></div>
@@ -142,21 +162,34 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     <section class="section">
       <p class="kicker">Tabla</p>
       <table class="table">
-        <thead><tr><th>Día</th><th>Hora</th><th>Cancha</th><th class="num">Monto</th></tr></thead>
+        <thead><tr><th>Día</th><th>Hora</th><th>Cancha</th><th class="num" title="Turnos finalizados este mes">Turnos del mes</th><th class="num">Monto</th></tr></thead>
         <tbody>
-          <tr><td>Jue 1 oct</td><td class="mono">18:00–19:30</td><td>Cancha 1</td><td class="num">$ 7.000</td></tr>
-          <tr><td>Jue 1 oct</td><td class="mono">19:30–21:00</td><td>Cancha 2</td><td class="num">$ 7.000</td></tr>
+          <tr><td>Jue 1 oct</td><td class="mono">18:00–19:30</td><td>Cancha 1</td><td class="num"><span class="counter">7</span></td><td class="num">$ 7.000</td></tr>
+          <tr><td>Jue 1 oct</td><td class="mono">19:30–21:00</td><td>Cancha 2</td><td class="num"><span class="counter">5</span></td><td class="num">$ 7.000</td></tr>
         </tbody>
       </table>
+      <nav class="pager" aria-label="Paginación de ejemplo"><span class="pager-range">1–10 de 137</span><div class="pager-nav"><button type="button" class="pager-btn" disabled>Anterior</button><button type="button" class="pager-btn" aria-current="page">1</button><button type="button" class="pager-btn">2</button><span class="pager-gap">…</span><button type="button" class="pager-btn">14</button><button type="button" class="pager-btn">Siguiente</button></div></nav>
     </section>
 
     <section class="section">
       <p class="kicker">Modal</p>
-      <button class="btn btn--primary" data-act="open">Abrir modal de ejemplo</button>
+      <div class="row wrap">
+        <button class="btn btn--primary" data-act="open">Abrir modal de ejemplo</button>
+        <button class="btn btn--neutral" data-act="openAlert">Abrir alerta de confirmación</button>
+      </div>
+      <div id="alertScrim" class="scrim" hidden data-act="alertScrim">
+        <div class="modal modal--alert" role="alertdialog" aria-modal="true" aria-labelledby="alT">
+          <div class="alert-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 20h19L12 3z"/><path d="M12 10v4.5M12 17.5v.5"/></svg></div>
+          <h3 id="alT">¿Querés pausar la Cancha 1?</h3>
+          <p>El chatbot deja de ofrecerla y sus turnos quedan en pausa hasta que la actives de nuevo.</p>
+          <div class="modal-foot"><button class="btn btn--neutral" data-act="closeAlert">No, mantener activa</button><button class="btn btn--dark" data-act="closeAlert">Sí, pausar cancha</button></div>
+        </div>
+      </div>
       <div id="scrim" class="scrim" hidden data-act="scrim">
         <div class="modal">
-          <div class="modal-head"><div><h3>Reservar turno</h3><p class="sub">Cancha 1 · 18:00–19:30</p></div><button class="modal-close" data-act="close" aria-label="Cerrar">×</button></div>
+          <div class="modal-head"><div><div class="row" style="gap:10px;align-items:center"><h3>Reservar turno</h3><button type="button" class="check-btn" aria-pressed="false" data-act="chk" aria-label="Marcar como completado" title="Marcar como completado"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 7.5"/></svg></button></div><p class="sub">Cancha 1 · 18:00–19:30</p></div><button class="modal-close" data-act="close" aria-label="Cerrar">×</button></div>
           <div class="field"><label class="label">Persona</label><input class="input" placeholder="Nombre y apellido"></div>
+          <ul class="plist mt-4"><li><span class="row" style="gap:10px">Martín Acosta<span class="chip chip--lav">8ª</span></span></li><li><span class="row" style="gap:10px">Lucía Fernández<span class="chip chip--lav">6ª</span></span></li></ul>
           <div class="modal-foot"><button class="btn btn--primary" data-act="close">Reservar</button></div>
         </div>
       </div>
@@ -175,8 +208,12 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     if (el.dataset.act === 'open') scrim.hidden = false;
     if (el.dataset.act === 'close') scrim.hidden = true;
     if (el.dataset.act === 'scrim' && e.target === scrim) scrim.hidden = true;
+    var al = document.getElementById('alertScrim');
+    if (el.dataset.act === 'openAlert') al.hidden = false;
+    if (el.dataset.act === 'closeAlert' || (el.dataset.act === 'alertScrim' && e.target === al)) al.hidden = true;
+    if (el.dataset.act === 'chk') { var on = el.getAttribute('aria-pressed') !== 'true'; el.setAttribute('aria-pressed', on); }
   });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') scrim.hidden = true; });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { scrim.hidden = true; document.getElementById('alertScrim').hidden = true; } });
 })();
 </script>
 <script>

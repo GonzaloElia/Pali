@@ -13,16 +13,13 @@
 }
 .brand {
   display: flex; align-items: center; gap: 10px;
-  font-weight: 600; font-size: 18px; letter-spacing: -0.02em; color: var(--white);
+  font-weight: 600; font-size: 20px; letter-spacing: -0.02em; color: var(--white);
   margin: 0 0 2px 6px;
 }
-/* Marca: una pelota con su costura */
+/* Marca: la pelota de Pali (inclinada 35°, con gajo azul cielo). Sin bote: en tamaños chicos va solo la pelota */
 .brand::before {
-  content: ""; width: 22px; height: 22px; flex: none; border-radius: 50%;
-  background:
-    radial-gradient(circle at 0% 50%, transparent 58%, var(--forest) 60% 66%, transparent 68%),
-    radial-gradient(circle at 100% 50%, transparent 58%, var(--forest) 60% 66%, transparent 68%),
-    var(--mint);
+  content: ""; width: 26px; height: 26px; flex: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%2211%22 fill=%22%23A9D6C4%22/%3E%3Cg transform=%22rotate(35 12 12)%22%3E%3Cpath d=%22M12 1A15.5 15.5 0 0 1 12 23A11 11 0 0 0 12 1Z%22 fill=%22%236BAEE8%22/%3E%3Cg fill=%22none%22 stroke=%22%230F3D2E%22 stroke-width=%221.4%22 stroke-linecap=%22round%22%3E%3Cpath d=%22M12 1A15.5 15.5 0 0 1 12 23%22/%3E%3Cpath d=%22M12 1A15.5 15.5 0 0 0 12 23%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
 }
 .brand em { font-style: normal; color: var(--mint); font-weight: 400; font-size: 13px; }
 .brand-sub { font-family: var(--font-mono); font-size: var(--fs-xs); color: rgba(255, 255, 255, 0.55); margin: 0 0 22px 6px; }
