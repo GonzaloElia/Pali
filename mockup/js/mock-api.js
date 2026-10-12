@@ -50,7 +50,7 @@
       playersPerBooking: 4,     // parámetro: personas para que un turno esté completo (paddle = 4)
       trackPayments: false,     // este club cobra en caja: el prototipo no registra quién abonó
       historyMonths: 4,         // historial visible de cada jugador: últimos N meses (ventana móvil). A confirmar
-      editWindowDays: 6,        // parámetro: hasta cuántos días atrás se puede modificar un turno (hoy lunes: desde el martes pasado). A confirmar
+      editWindowDays: 14,       // parámetro: hasta cuántos días atrás se puede modificar un turno (dos semanas). A confirmar
       playerPrice: 7000,        // precio por jugador por turno (estimado); lo carga el administrador. Turno completo = playerPrice × playersPerBooking
       currency: "ARS"
     };
@@ -128,7 +128,26 @@
   function save() {
     try { window.localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* ignorar */ }
   }
-  function ensure() { if (!state) { state = load(); save(); } return state; }
+  function ensure() {
+    if (!state) {
+      state = load();
+      /* migración del prototipo: la ventana de edición pasó de 6 días a dos semanas (12/10) */
+      if (state.settings && (state.settings.editWindowDays === undefined || state.settings.editWindowDays === 6)) state.settings.editWindowDays = 14;
+      /* datos de ejemplo: los turnos pasados en Reservado se dan por finalizados, salvo algunos de los últimos días,
+         que quedan pendientes para mostrar la tarea del administrador */
+      if (!state.flags || !state.flags.finalizedSeed) {
+        var lim = addDays(today(), -4), k = 0;
+        state.bookings.forEach(function (b) {
+          if (b.status !== "active" || !b.participantIds.length || !hasEnded(b) || isFull(b)) return;
+          if (b.date >= lim && (k++ % 5 === 0)) return;
+          b.finalized = true;
+        });
+        state.flags = Object.assign({}, state.flags, { finalizedSeed: true });
+      }
+      save();
+    }
+    return state;
+  }
 
   /* Grilla del día a partir de los parámetros (la disponibilidad se calcula, no se guarda) */
   function buildTimes(settings) {
@@ -168,8 +187,8 @@
     var c = ensure().categories.filter(function (x) { return x.id === p.categoryId; })[0];
     return Object.assign({}, p, { category: c ? c.name : "", label: personLabel(p) });
   }
-  /* Turnos pasados: se pueden modificar hasta editWindowDays días atrás (6 por defecto: hoy lunes, desde el martes pasado) */
-  function editWindow() { var w = ensure().settings.editWindowDays; return w === undefined || w === null ? 6 : Number(w); }
+  /* Turnos pasados: se pueden modificar hasta editWindowDays días atrás (14 por defecto: dos semanas) */
+  function editWindow() { var w = ensure().settings.editWindowDays; return w === undefined || w === null ? 14 : Number(w); }
   /* Historial visible: desde hace N meses (mismo día, ajustado a fin de mes). Lo anterior no se consulta, para que el sistema no se vuelva lento. */
   function historyFrom() {
     var n = ensure().settings.historyMonths; n = n === undefined || n === null ? 4 : Number(n);
@@ -180,6 +199,15 @@
   function isLocked(date) { return date < addDays(today(), -editWindow()); }
   function assertEditable(b) { if (isLocked(b.date)) throw new Error("Este turno es de una fecha que ya no se puede modificar."); }
   /* Completo = cupo lleno (4 o más personas) o marcado como completado por el administrador. Solo los Completos suman en Cobros */
+  /* Un turno "ya se jugó" cuando pasó su hora de fin (de 14:00 a 15:00: a las 15:01). Si termina a las 00:00, cuenta como el día siguiente */
+  function hasEnded(b) {
+    var t = today(); if (b.date < t) return true; if (b.date > t) return false;
+    var s = toMin(b.start), e = toMin(b.end); if (e <= s) return false;
+    var n = new Date(); return n.getHours() * 60 + n.getMinutes() >= e;
+  }
+  /* Finalizado: el turno ya se jugó y se cobró. Pasa solo desde Completo al terminar el horario,
+     o a mano desde Reservado si el turno ya se jugó (lo decide el administrador). Solo los Finalizados suman en Cobros. */
+  function isDone(b) { return b.status === "active" && b.participantIds.length >= 1 && hasEnded(b) && (b.finalized || isFull(b)); }
   function isFull(b) { return b.status === "active" && b.participantIds.length >= 1 && (b.completed || b.participantIds.length >= ensure().settings.playersPerBooking); }
   function view(b) {
     var st = ensure();
@@ -190,7 +218,8 @@
       capacity: cap,
       /* Estado calculado por cantidad de personas: 0 = free (Libre) · 1 a 3 = booked (Reservado) · 4 = full (Completo). cancelled se guarda */
       completed: !!b.completed, locked: isLocked(b.date),
-      state: b.status === "cancelled" ? "cancelled" : (isFull(b) ? "full" : (b.participantIds.length >= 1 ? "booked" : "free")),
+      ended: hasEnded(b), finalized: !!b.finalized,
+      state: b.status === "cancelled" ? "cancelled" : (isDone(b) ? "done" : isFull(b) ? "full" : (b.participantIds.length >= 1 ? "booked" : "free")),
       participants: b.participantIds.map(function (id) {
         var p = st.people.filter(function (x) { return x.id === id; })[0];
         return p ? { id: p.id, name: personLabel(p), phone: p.phone, category: pview(p).category } : null;
@@ -339,7 +368,7 @@
     removeParticipant: function (id, personId) {
       var st = ensure(), b = findBooking(id);
       try { assertEditable(b); } catch (e) { return fail(e.message); }
-      b.completed = false;   // si alguien se baja, el turno vuelve a Reservado (se puede sumar otra persona)
+      b.completed = false; b.finalized = false;   // si alguien se baja, el turno vuelve a Reservado (se puede sumar otra persona)
       b.participantIds = b.participantIds.filter(function (x) { return x !== personId; });
       if (!b.participantIds.length) { st.bookings = st.bookings.filter(function (x) { return x.id !== id; }); save(); return done(null); }
       save(); return done(view(b));
@@ -347,6 +376,21 @@
     /* POST /bookings/:id/cancel (candidato) */
     cancelBooking: function (id) { var b = findBooking(id); try { assertEditable(b); } catch (e) { return fail(e.message); } b.status = "cancelled"; save(); return done(view(b)); },
     /* POST /bookings/:id/complete { completed } (candidato): el administrador marca un turno Reservado como Completo (o lo devuelve a Reservado) */
+    /* POST /bookings/:id/finalize (candidato): el administrador pasa a Finalizado un turno Reservado que ya se jugó y no se completó */
+    finalizeBooking: function (id) {
+      var b = findBooking(id);
+      try { assertEditable(b); } catch (e) { return fail(e.message); }
+      if (!b.participantIds.length) return fail("Un turno sin personas está Libre.");
+      if (!hasEnded(b)) return fail("Solo se puede finalizar un turno que ya se jugó.");
+      b.finalized = true; save(); return done(view(b));
+    },
+    /* GET /bookings/pending-finalize (candidato): turnos que ya se jugaron, quedaron en Reservado y todavía se pueden editar */
+    listPendingFinalize: function () {
+      var st = ensure();
+      var list = st.bookings.filter(function (b) { return b.status === "active" && b.participantIds.length >= 1 && hasEnded(b) && !isDone(b) && !isLocked(b.date); })
+        .sort(function (a, b) { return a.date === b.date ? (a.start < b.start ? -1 : 1) : (a.date < b.date ? -1 : 1); });
+      return done(list.map(view));
+    },
     setBookingCompleted: function (id, completed) {
       var b = findBooking(id);
       try { assertEditable(b); } catch (e) { return fail(e.message); }
@@ -403,12 +447,11 @@
           s.courts[b.courtId] = (s.courts[b.courtId] || 0) + 1;
         });
       });
-      /* Contador del mes: turnos FINALIZADOS de este mes en los que participó la persona (activos, sin cancelados).
-         Un turno finaliza cuando pasó su hora de fin. No depende de los filtros de la tabla. */
+      /* Contador del mes: turnos en estado FINALIZADO de este mes en los que participó la persona. No depende de los filtros de la tabla. */
       var now = new Date(), nowHHMM = pad(now.getHours()) + ":" + pad(now.getMinutes()), ym = t.slice(0, 7), month = {};
       st.bookings.forEach(function (b) {
         if (b.status !== "active" || b.date.slice(0, 7) !== ym) return;
-        if (b.date > t || (b.date === t && b.end > nowHHMM)) return;
+        if (!isDone(b)) return;
         b.participantIds.forEach(function (pid) { month[pid] = (month[pid] || 0) + 1; });
       });
       var filtering = !!(q.courtId || q.from);
@@ -457,7 +500,7 @@
        granularity: day (últimos 7 días) | week (últimas 8 semanas) | month (12 meses del año) */
     getIncome: function (q) {
       var st = ensure();
-      var paid = st.bookings.filter(function (b) { return isFull(b) && b.date <= today(); });   // solo turnos Completos
+      var paid = st.bookings.filter(function (b) { return isDone(b); });   // solo turnos Finalizados (ya jugados y cobrados)
       var labels = [], keys = [], t = today(), i;
       var MES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
       if (q.granularity === "day") {
@@ -498,7 +541,7 @@
       var py = Number(ym.slice(0, 4)), pm = Number(ym.slice(5, 7)) - 1; if (pm === 0) { pm = 12; py--; }
       var prevYm = py + "-" + pad(pm), dom = t.slice(8);
       st.bookings.forEach(function (b) {
-        if (!isFull(b)) return;   // solo turnos Completos
+        if (!isDone(b)) return;   // solo turnos Finalizados
         var amt = b.participantIds.length * b.playerPrice;   // cada persona anotada paga el precio por jugador
         if (b.date === t) sum.today += amt;
         if (b.date === yest) sum.prevToday += amt;

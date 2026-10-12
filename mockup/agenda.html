@@ -38,13 +38,20 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
       </div>
     </header>
 
-    <div class="legend">
-      <span><i class="swatch swatch--free"></i>Libre (0 personas)</span>
-      <span><i class="swatch swatch--booked"></i>Reservado (1 a 3 personas)</span>
-      <span><i class="swatch swatch--full"></i>Completo (4 personas)</span>
-    </div>
 
-    <section class="section"><div id="agenda" class="agenda"></div></section>
+    <div id="pending"></div>
+    <section class="section">
+      <div class="agenda-bar">
+        <p class="agenda-bar-t">Estados</p>
+        <ul class="legend" aria-label="Estados de los turnos">
+          <li title="Sin personas"><i class="swatch swatch--free"></i>Libre</li>
+          <li title="Hay personas, pero el turno no está confirmado"><i class="swatch swatch--booked"></i>Reservado</li>
+          <li title="Confirmado, listo para jugarse"><i class="swatch swatch--full"></i>Completo</li>
+          <li title="Ya se jugó y se cobró"><i class="swatch swatch--done"></i>Finalizado</li>
+        </ul>
+      </div>
+      <div id="agenda" class="agenda"></div>
+    </section>
 
     <p class="note mt-5"><b>Datos de ejemplo.</b> Las reservas que hagas acá aparecen en Reservas y Cobros.</p>
 
@@ -71,12 +78,43 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
   function say(msg) { var t = $('#toast'); t.textContent = msg; t.hidden = false; setTimeout(function () { t.hidden = true; }, 2200); }
 
   /* ---------- agenda ---------- */
-  async function load() { S.cap = (await PaliApi.getSettings()).playersPerBooking; S.cats = await PaliApi.listCategories(); S.grid = await PaliApi.listSlots({ date: S.date }); renderAgenda(); }
-  function cellTitle(c) { return c.state === 'free' ? 'Libre' : (c.state === 'full' ? 'Completo' : 'Reservado'); }
+  async function load() { S.cap = (await PaliApi.getSettings()).playersPerBooking; S.cats = await PaliApi.listCategories(); S.grid = await PaliApi.listSlots({ date: S.date }); renderAgenda(); renderPending(); }
+  /* Tarea del administrador: turnos que ya se jugaron y quedaron en Reservado (no se facturaron). Solo los que todavía se pueden editar */
+  var ICON_CLOCK = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/></svg>';
+  /* Alerta desplegable: turnos pasados que quedaron en Reservado. "Revisar turnos" estira la sección hacia abajo
+     y muestra la lista (día, horario, personas) con un selector de estado en cada fila: Libre o Finalizado */
+  async function renderPending() {
+    var list = await PaliApi.listPendingFinalize(), el = $('#pending');
+    S.pendingList = list;
+    if (!list.length) { el.innerHTML = ''; S.pendOpen = false; return; }
+    var open = !!S.pendOpen, cid = S.pendConfirm;
+    var rows = list.map(function (b) {
+      var names = b.participants.map(function (p) { return esc(p.name); }).join(', ');
+      var stateCell = cid === b.id
+        ? '<div class="pend-ask"><span>¿Liberar el turno?</span><button type="button" class="btn btn--sm" data-act="pendNo">No</button><button type="button" class="btn btn--coral btn--sm" data-act="pendFree" data-id="' + b.id + '">Sí, pasar a Libre</button></div>'
+        : '<div class="state-seg" role="group" aria-label="Cambiar estado del turno del ' + esc(rvDay(b.date)) + ' a las ' + b.start + '">' +
+          '<button type="button" data-act="pendFree" data-id="' + b.id + '">Libre</button>' +
+          '<button type="button" data-act="pendDone" data-id="' + b.id + '">Finalizado</button></div>';
+      return '<tr><td><b>' + esc(rvDay(b.date)) + '</b></td><td class="mono">' + b.start + '–' + b.end + '</td><td class="pend-names">' + names + '</td><td class="pend-state">' + stateCell + '</td></tr>';
+    }).join('');
+    el.innerHTML = '<section class="alert-task' + (open ? ' is-open' : '') + '" aria-label="Turnos pasados en Reservado">' +
+      '<div class="alert-task-head"><span class="alert-task-ico">' + ICON_CLOCK + '</span>' +
+      '<div class="alert-task-tx"><p class="alert-task-t">' + (list.length === 1 ? '1 turno pasado quedó en Reservado' : list.length + ' turnos pasados quedaron en Reservado') + '</p>' +
+      '<p class="alert-task-s">No se facturaron. Revisá cada uno: si se jugó, pasalo a Finalizado; si no, pasalo a Libre.</p></div>' +
+      '<button type="button" class="btn btn--dark btn--sm alert-task-btn" data-act="togglePending" aria-expanded="' + open + '" aria-controls="pendBody">' + (open ? 'Ocultar' : 'Revisar turnos') + '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></div>' +
+      '<div class="alert-task-body" id="pendBody"><div class="alert-task-inner"><table class="table pend-table"><thead><tr><th>Día</th><th>Hora</th><th>Personas</th><th>Estado</th></tr></thead><tbody>' + rows + '</tbody></table></div></div></section>';
+  }
+  function rvDay(d) { var x = PaliApi.util.parseDate(d).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' }); return x.charAt(0).toUpperCase() + x.slice(1); }
+  async function pendAfter(msg) {
+    S.pendConfirm = null; S.grid = await PaliApi.listSlots({ date: S.date }); renderAgenda(); await renderPending();
+    say(S.pendingList.length ? msg : msg + '. No quedan turnos por revisar');
+  }
+
+  function cellTitle(c) { return c.state === 'free' ? 'Libre' : c.state === 'done' ? 'Finalizado' : (c.state === 'full' ? 'Completo' : 'Reservado'); }
   function cellSub(c) {
     if (c.state === 'free') return 'Tocá para reservar';
     var n = c.booking.participants.length;
-    return n + (n === 1 ? ' persona' : ' personas');
+    return n + (n === 1 ? ' persona' : ' personas') + (c.state === 'booked' ? ' · sin confirmar' : c.state === 'done' ? ' · cobrado' : '');
   }
   function renderAgenda() {
     $('#dateLabel').textContent = label();
@@ -86,7 +124,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     g.rows.forEach(function (row, ri) {
       html += '<div class="agenda-time">' + row.start + '</div>';
       row.cells.forEach(function (cell, ci) {
-        var cls = cell.state === 'free' ? 'free' : (cell.state === 'full' ? 'full' : 'booked');
+        var cls = cell.state === 'free' ? 'free' : cell.state === 'done' ? 'done' : (cell.state === 'full' ? 'full' : 'booked');
         html += '<button class="slot slot--' + cls + '" data-act="open" data-r="' + ri + '" data-c="' + ci + '">' +
           '<span class="t">' + cellTitle(cell) + ' · ' + row.start + '–' + row.end + '</span>' +
           '<span class="s">' + cellSub(cell) + '</span></button>';
@@ -105,16 +143,18 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     renderModal();
     $('#scrim').hidden = false;
   }
-  function closeModal() { S.modal = null; $('#scrim').hidden = true; }
+  function closeModal() { S.modal = null; $('#scrim').hidden = true; $('#modal').classList.remove('modal--wide'); }
 
   function renderModal() {
     var m = S.modal, bk = m.booking, locked = bk ? bk.locked : PaliApi.util.isLocked(S.date);
     var lockNote = '<p class="note" role="status">Este turno es de una fecha que ya no se puede modificar (se pueden editar hasta ' + PaliApi.util.editWindow() + ' días atrás).</p>';
     $('#modal').innerHTML =
-      '<div class="modal-head"><div><div class="row" style="gap:10px;align-items:center"><h3>' + (bk ? 'Turno reservado' : 'Reservar turno') + '</h3><span id="markBlock"></span></div>' +
+      '<div class="modal-head"><div><div class="row" style="gap:10px;align-items:center"><h3>' + (!bk ? 'Reservar turno' : bk.state === 'done' ? 'Turno finalizado' : bk.state === 'full' ? 'Turno completo' : 'Turno reservado') + '</h3><span id="markBlock"></span></div>' +
       '<p class="sub">' + esc(m.courtName) + ' · ' + esc(label()) + ' · ' + m.start + '–' + m.end + '</p></div>' +
       '<button class="modal-close" data-act="close" aria-label="Cerrar">×</button></div>' +
       (locked ? lockNote : '') +
+      (!locked && bk && bk.ended && bk.state === 'booked' ? '<p class="note" role="status">Este turno ya pasó y quedó en Reservado: <b>no se facturó</b>. Si se jugó, pasalo a Finalizado; si no se jugó, pasalo a Libre.</p>' : '') +
+      (!locked && bk && bk.state === 'done' ? '<p class="note" role="status">Ya se jugó y se cobró. Si hubo un error, podés corregir las personas.</p>' : '') +
       '<div id="searchBlock" class="field"' + (locked ? ' hidden' : '') + '><label class="label" for="q">Persona</label>' +
       '<div class="combo"><input id="q" class="input" type="text" placeholder="Nombre y apellido" autocomplete="off">' +
       '<div id="comboList" class="combo-list" hidden></div></div>' +
@@ -122,7 +162,9 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
       '<div id="newPerson" class="stack--form" hidden></div>' +
       '<div id="plist" class="mt-4"></div>' +
       '<div id="modalFoot" class="modal-foot">' +
-        (locked ? '<button class="btn btn--dark" data-act="close">Cerrar</button>' : bk ? '<button class="btn btn--danger" data-act="cancelBooking">Cancelar turno</button><button class="btn btn--dark" data-act="acceptBooking">Aceptar</button>'
+        (locked ? '<button class="btn btn--dark" data-act="close">Cerrar</button>'
+          : bk && bk.ended && bk.state === 'booked' ? '<button class="btn btn--danger" data-act="cancelBooking">Pasar a Libre</button><button class="btn btn--primary" data-act="finalize">Pasar a Finalizado</button>'
+          : bk ? '<button class="btn btn--danger" data-act="cancelBooking">Cancelar turno</button><button class="btn btn--dark" data-act="acceptBooking">Aceptar</button>'
             : '<button class="btn btn--primary" data-act="reserve">Reservar</button>') +
       '</div>';
     renderPersons();
@@ -134,12 +176,12 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
   function renderMark() {
     var el = $('#markBlock'); if (!el || !S.modal) return;
     var bk = S.modal.booking, n = people().length, locked = bk ? bk.locked : PaliApi.util.isLocked(S.date);
-    if (locked) { el.innerHTML = ''; return; }
+    if (locked || (bk && bk.ended)) { el.innerHTML = ''; return; }   // en turnos ya jugados no se completa: se finaliza
     var enabled = n >= 1 && n < S.cap;
     if (!enabled) S.modal.pending = false;
     var on = enabled && S.modal.pending;
     /* Solo un check junto al título: el motivo de que esté deshabilitado va en el tooltip y en la etiqueta accesible */
-    var tip = !enabled ? (n === 0 ? 'Sumá al menos una persona para completar el turno' : 'Con ' + S.cap + ' o más personas el turno ya figura Completo') : on ? 'Completado. Tocá para quitarlo' : 'Marcar como completado';
+    var tip = !enabled ? (n === 0 ? 'Sumá al menos una persona para completar el turno' : 'Este turno ya figura Completo') : on ? 'Completado. Tocá para quitarlo' : 'Marcar como completado';
     el.innerHTML = '<button type="button" class="check-btn" data-act="toggleComplete" aria-pressed="' + on + '" aria-label="' + tip + '" title="' + tip + '"' + (enabled ? '' : ' disabled') + '>' + ICON_CHECK + '</button>';
   }
   function people() { return S.modal.booking ? S.modal.booking.participants : S.selected; }
@@ -278,6 +320,15 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
       if (bk && n < S.cap && !!bk.completed !== now) { await PaliApi.setBookingCompleted(bk.id, now); closeModal(); await load(); say(now ? 'Turno completado: suma a Cobros' : 'Turno devuelto a Reservado'); return; }
       closeModal();
     },
+    finalize: async function () {
+      try { await PaliApi.finalizeBooking(S.modal.booking.id); } catch (e) { say(e.message); return; }
+      closeModal(); await load(); say('Turno finalizado: ya suma a Cobros');
+    },
+    togglePending: function () { S.pendOpen = !S.pendOpen; var sec = $('.alert-task'); sec.classList.toggle('is-open', S.pendOpen); var bt = $('.alert-task-btn'); bt.setAttribute('aria-expanded', S.pendOpen); bt.firstChild.nodeValue = S.pendOpen ? 'Ocultar' : 'Revisar turnos'; },
+    pendAskFree: function (d) { S.pendConfirm = d.id; renderPending(); },
+    pendDone: async function (d) { try { await PaliApi.finalizeBooking(d.id); } catch (e) { say(e.message); return; } await pendAfter('Turno finalizado: ya suma a Cobros'); },
+    pendNo: function () { S.pendConfirm = null; renderPending(); },
+    pendFree: async function (d) { try { await PaliApi.cancelBooking(d.id); } catch (e) { say(e.message); return; } await pendAfter('Turno liberado: quedó Libre y no suma'); },
     cancelBooking: async function () {
       await PaliApi.cancelBooking(S.modal.booking.id);
       closeModal(); await load(); say('Turno cancelado');

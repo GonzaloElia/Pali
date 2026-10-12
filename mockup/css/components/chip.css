@@ -23,3 +23,6 @@
 
 /* Contador de “Turnos del mes”: solo el número, sin color ni fondo (hereda el texto de la tabla) */
 .counter { font-variant-numeric: tabular-nums; }
+
+/* Estado Finalizado en tablas: azul cielo pleno con texto oscuro */
+.chip--sky-solid { border-color: var(--sky-400); color: #0d1f18; background: var(--sky-400); }

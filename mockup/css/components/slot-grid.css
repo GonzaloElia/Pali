@@ -24,22 +24,71 @@
 .slot--free:hover { border-style: solid; border-color: var(--brand); background: var(--brand-soft); }
 .slot--free:hover .s { color: var(--brand); }
 
-/* Reservado: turno con personas, todavía incompleto */
-.slot--booked { background: var(--brand-soft); border-color: var(--brand-line); }
-.slot--booked .t { color: var(--brand); }
-.slot--booked .s { color: var(--brand); }
-.slot--booked:hover { border-color: var(--brand); }
+/* Estados “frío, firme y sellado” (12/10):
+   Reservado = verde suave (intermedio entre Libre y Completo) con borde punteado: hay personas pero el turno todavía no está confirmado.
+   Completo  = verde bosque pleno: confirmado, listo para jugarse.
+   Finalizado = azul cielo pleno con tilde: ya se jugó y se cobró. */
+.slot--booked { background: var(--brand-soft); border: 1.5px dashed var(--brand-line); }
+.slot--booked .t, .slot--booked .s { color: var(--brand); }
+.slot--booked:hover { border-style: solid; }
 
-/* Completo: están todas las personas del turno */
 .slot--full { background: var(--fill-dark); border-color: var(--fill-dark); }
 .slot--full .t { color: var(--white); }
 .slot--full .s { color: var(--mint); }
 .slot--full:hover { background: var(--fill-dark-hover); }
 
-/* La leyenda queda un poco a la izquierda del texto del encabezado (19 px menos que su margen interno) */
-.legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: 12.5px; color: var(--ink-2); padding-left: max(0px, calc(var(--header-pad) - 19px)); }
-.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.slot--done { background: var(--sky-400); border-color: var(--sky-400); }
+.slot--done .t { color: #0d1f18; }
+.slot--done .t::before { content: "✓ "; font-weight: 600; }
+.slot--done .s { color: #12355f; }
+.slot--done:hover { filter: brightness(.97); }
+
 .swatch { width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--line-strong); display: inline-block; }
 .swatch--free { border-style: dashed; background: var(--surface); }
-.swatch--booked { background: var(--brand-soft); border-color: var(--brand-line); }
+.swatch--booked { background: var(--brand-soft); border: 1.5px dashed var(--brand-line); }
 .swatch--full { background: var(--fill-dark); border-color: var(--fill-dark); }
+.swatch--done { background: var(--sky-400); border-color: var(--sky-400); }
+
+/* Alerta de tarea desplegable: turnos pasados que quedaron en Reservado (lavanda de atención, con reloj).
+   "Revisar turnos" estira la sección hacia abajo con la lista; no abre un modal */
+.alert-task { margin-bottom: var(--s-4); border-radius: 12px; background: var(--lav-50); border: 1px solid var(--lav-500); overflow: hidden; }
+.alert-task-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 14px 16px; }
+.alert-task-ico { width: 34px; height: 34px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--lav-500); color: #0d1f18; }
+.alert-task-ico svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.alert-task-tx { flex: 1; min-width: 220px; }
+.alert-task-t { font-weight: 600; font-size: var(--fs-md); color: var(--lav-700); line-height: 1.3; }
+.alert-task-s { margin-top: 2px; font-size: var(--fs-sm); color: var(--ink-2); }
+.alert-task-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .18s ease-out; }
+.alert-task.is-open .alert-task-btn svg { transform: rotate(180deg); }
+/* Se abre al instante (sin animar la altura, que obliga a recalcular toda la página en cada cuadro).
+   Solo el contenido aparece con un fundido corto, que la placa de video resuelve sin costo */
+.alert-task-body { display: none; }
+.alert-task.is-open .alert-task-body { display: block; }
+.alert-task.is-open .alert-task-inner { animation: pend-in .14s ease-out; }
+@keyframes pend-in { from { opacity: 0; transform: translateY(-4px); } }
+.alert-task.is-open .alert-task-inner { border-top: 1px solid var(--lav-100); }
+.pend-table { margin: 0; background: transparent; }
+.pend-table th { font-family: var(--font-mono); font-size: var(--fs-xs); letter-spacing: .1em; text-transform: uppercase; color: var(--mute); font-weight: 400; padding: 12px 16px; background: transparent; }
+.pend-table td { padding: 14px 16px; vertical-align: middle; border-top: 1px solid var(--lav-100); }
+.pend-table td b { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.pend-table .mono { color: var(--ink-2); white-space: nowrap; }
+.pend-names { color: var(--ink); }
+.pend-state { text-align: right; white-space: nowrap; width: 1%; }
+/* Cambio de estado: dos botones unidos, sobrios (“Libre | Finalizado”). Libre pide confirmar; Finalizado se aplica al toque */
+.state-seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--r); overflow: hidden; background: var(--surface); }
+.state-seg button { font: 500 13px var(--font-sans); color: var(--ink-2); background: transparent; border: 0; padding: 7px 14px; cursor: pointer; transition: background .15s, color .15s; }
+.state-seg button + button { border-left: 1px solid var(--line-strong); color: var(--ink); }
+.state-seg button:hover { background: var(--bg-soft); color: var(--ink); }
+.state-seg button:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
+.pend-ask { display: inline-flex; gap: 6px; align-items: center; }
+.pend-ask span { font-size: var(--fs-sm); color: var(--ink-2); margin-right: 2px; }
+@media (max-width: 720px) { .pend-table thead { display: none; } .pend-table tr { display: grid; grid-template-columns: 1fr auto; } .pend-table td { border-top: 0; padding: 6px 16px; } .pend-table tr { border-top: 1px solid var(--lav-100); padding: 8px 0; } .pend-names { grid-column: 1 / -1; } .pend-state { text-align: left; } }
+@media (prefers-reduced-motion: reduce) { .alert-task-btn svg { transition: none; } .alert-task.is-open .alert-task-inner { animation: none; } }
+
+/* Barra de la grilla: la leyenda va pegada a la agenda, arriba a la derecha, chica y en un solo renglón.
+   La descripción de cada estado va en el tooltip para no cargar la línea */
+.agenda-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); flex-wrap: wrap; padding-bottom: var(--s-3); margin-bottom: var(--s-3); border-bottom: 1px solid var(--line); }
+.agenda-bar-t { font-family: var(--font-mono); font-size: var(--fs-xs); letter-spacing: .1em; text-transform: uppercase; color: var(--mute); }
+.legend { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12.5px; color: var(--ink-2); }
+.legend li { display: inline-flex; align-items: center; gap: 7px; cursor: default; }
+.legend .swatch { width: 12px; height: 12px; border-radius: 3px; }

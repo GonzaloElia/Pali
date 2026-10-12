@@ -91,8 +91,9 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
       <p class="kicker">Chips y estados</p>
       <div class="row wrap">
         <span class="chip">Neutro</span>
-        <span class="chip chip--soft">Reservado</span>
-        <span class="chip chip--solid">Completo</span>
+        <span class="chip chip--soft" style="border-style:dashed">Reservado</span>
+        <span class="chip chip--ink">Completo</span>
+        <span class="chip chip--sky-solid">✓ Finalizado</span>
         <span class="chip chip--coral">Cancelado</span>
         <span class="chip chip--sky">Cancha 1 · 4 veces</span>
         <span class="chip chip--lav">8ª</span>
@@ -118,10 +119,11 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
 
     <section class="section">
       <p class="kicker">Turnos (slot)</p>
-      <div class="grid-3">
+      <div class="grid-4">
         <button class="slot slot--free"><span class="t">Libre · 18:00–19:30</span><span class="s">Tocá para reservar</span></button>
-        <button class="slot slot--booked"><span class="t">Reservado · 19:30–21:00</span><span class="s">2 personas</span></button>
-        <button class="slot slot--full"><span class="t">Completo · 21:00–22:30</span><span class="s">4 personas</span></button>
+        <button class="slot slot--booked"><span class="t">Reservado · 19:30–21:00</span><span class="s">2 personas · sin confirmar</span></button>
+        <button class="slot slot--full"><span class="t">Completo · 21:00–22:30</span><span class="s">5 personas</span></button>
+        <button class="slot slot--done"><span class="t">Finalizado · 22:30–00:00</span><span class="s">6 personas · cobrado</span></button>
       </div>
     </section>
 

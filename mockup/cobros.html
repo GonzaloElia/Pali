@@ -180,7 +180,8 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     return x.charAt(0).toUpperCase() + x.slice(1);
   }
   function stateChip(b) {
-    return b.state === 'full' ? '<span class="chip chip--solid">Completo</span>' : '<span class="chip chip--soft">Reservado</span>';
+    if (b.state === 'done') return '<span class="chip chip--sky-solid">✓ Finalizado</span>';
+    return b.state === 'full' ? '<span class="chip chip--solid">Completo</span>' : '<span class="chip chip--soft" style="border-style:dashed">Reservado</span>';
   }
   var D = { rows: [], page: 1, size: 10 };
   function showDetailLoading() {
