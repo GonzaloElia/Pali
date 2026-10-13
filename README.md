@@ -58,6 +58,20 @@ El detalle de campos, el DER y tablas de ejemplo están en la sección **05 · B
 
 ---
 
+## Verlo en línea (GitHub Pages)
+
+Todo el proyecto se puede ver publicado en **https://gonzaloelia.github.io/Pali/**. La página de inicio (`index.html`, en la raíz) es un portal con links al prototipo, la galería de componentes, las landings, el documento de producto, el roadmap y el manual de marca.
+
+Para publicarlo (una sola vez):
+
+1. Subí a `main` los archivos `index.html`, `404.html` y `.nojekyll` de la raíz.
+2. En GitHub: **Settings → Pages → Build and deployment**. En *Source* elegí **Deploy from a branch**, rama **main** y carpeta **/ (root)**. Guardá.
+3. Esperá uno o dos minutos y abrí https://gonzaloelia.github.io/Pali/. Cada `push` a `main` actualiza el sitio solo.
+
+Notas: `.nojekyll` hace que GitHub publique los archivos tal cual, sin procesarlos. Los datos del prototipo se guardan en el navegador de cada persona (`localStorage`), así que no se comparten entre quienes lo abren. Los `.md` no se muestran como página: se leen en el repositorio.
+
+---
+
 ## Prototipo del backoffice
 
 HTML, CSS y JavaScript simples: **sin build, sin dependencias y sin internet** (las fuentes IBM Plex se cargan de Google Fonts si hay conexión; sin ella se usa una fuente del sistema).

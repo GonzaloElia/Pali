@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pali · Todo el proyecto</title>
+<meta name="description" content="Portal del proyecto Pali: prototipo del backoffice, componentes, landings, documento de producto, roadmap y manual de marca.">
+<meta name="theme-color" content="#0F3D2E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%231F6F57'/%3E%3Cg transform='rotate(35 12 12)'%3E%3Cpath d='M12 1A15.5 15.5 0 0 1 12 23A11 11 0 0 0 12 1Z' fill='%236BAEE8'/%3E%3Cg fill='none' stroke='%23fff' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='M12 1A15.5 15.5 0 0 1 12 23'/%3E%3Cpath d='M12 1A15.5 15.5 0 0 0 12 23'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root { --forest: #0F3D2E; --brand: #1F6F57; --mint: #A9D6C4; --mint-soft: #DFEEE6; --brand-soft: #E8F4EE; --ink: #0D1F18; --ink-2: #43544D; --mute: #6A7B74; --line: #DCE5E0; --sky: #6BAEE8; --sky-50: #E8F2FC; --lav: #9C8DDD; --lav-50: #F1EEFB; --bg: #F6F9F7; --surface: #fff;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace; }
+@media (prefers-color-scheme: dark) { :root { --ink: #E9F2ED; --ink-2: #B9CBC2; --mute: #8FA79B; --line: #233A2F; --bg: #0B1511; --surface: #12221B; --brand-soft: #16302A; --sky-50: #0e1b2d; --lav-50: #1a1730; } }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--sans); background: var(--bg); color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+.top { background: var(--forest); color: #fff; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 0 clamp(20px, 5vw, 40px); }
+.top .wrap { padding-top: 48px; padding-bottom: 52px; }
+.logo { display: inline-flex; align-items: center; gap: 12px; font-weight: 600; font-size: 30px; letter-spacing: -.02em; }
+.logo svg { width: 38px; height: 44px; }
+.kicker { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--mint); margin: 28px 0 0; }
+h1 { font-size: clamp(32px, 5vw, 52px); line-height: 1.02; letter-spacing: -.035em; margin: 10px 0 0; max-width: 16em; }
+h1 em { font-style: normal; color: var(--mint); }
+.lede { color: #D3E7DD; max-width: 40em; margin: 16px 0 0; font-size: 17px; }
+main .wrap { padding-top: 36px; padding-bottom: 56px; }
+h2 { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--brand); font-weight: 500; margin: 36px 0 12px; display: flex; align-items: center; gap: 10px; }
+h2::before { content: ""; width: 22px; height: 1.5px; background: currentColor; }
+@media (prefers-color-scheme: dark) { h2 { color: var(--mint); } }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.card { display: flex; flex-direction: column; gap: 6px; padding: 18px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); text-decoration: none; transition: border-color .15s, transform .15s; }
+.card:hover { border-color: var(--brand); transform: translateY(-1px); }
+.card:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.card b { font-size: 16px; font-weight: 600; letter-spacing: -.01em; }
+.card span { font-size: 14px; color: var(--ink-2); }
+.card small { margin-top: auto; padding-top: 8px; font-family: var(--mono); font-size: 11px; color: var(--mute); letter-spacing: .04em; word-break: break-all; }
+.card.main { background: var(--brand-soft); border-color: transparent; }
+.card.sky { background: var(--sky-50); border-color: transparent; }
+.card.lav { background: var(--lav-50); border-color: transparent; }
+footer { border-top: 1px solid var(--line); color: var(--mute); font-size: 13px; }
+footer .wrap { padding-top: 20px; padding-bottom: 28px; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <span class="logo"><svg viewBox="0 0 24 27.6" aria-hidden="true"><ellipse cx="12" cy="26.3" rx="7.15" ry="1.1" fill="#6BAEE8"/><circle cx="12" cy="12" r="11" fill="#A9D6C4"/><g transform="rotate(35 12 12)"><path d="M12 1A15.5 15.5 0 0 1 12 23A11 11 0 0 0 12 1Z" fill="#6BAEE8"/><g fill="none" stroke="#0F3D2E" stroke-width="1.4" stroke-linecap="round"><path d="M12 1A15.5 15.5 0 0 1 12 23"/><path d="M12 1A15.5 15.5 0 0 0 12 23"/></g></g></svg>Pali</span>
+    <p class="kicker">Todo el proyecto en un lugar</p>
+    <h1>Backoffice y chatbot de WhatsApp <em>para clubes de paddle.</em></h1>
+    <p class="lede">Prototipo navegable con datos de ejemplo, diseño, documentación y landings. Los datos que cargues se guardan solo en tu navegador.</p>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <h2>Prototipo del backoffice</h2>
+    <div class="grid">
+      <a class="card main" href="mockup/login.html"><b>Entrar al prototipo</b><span>Login simulado: con email y contraseña completos entra.</span><small>mockup/login.html</small></a>
+      <a class="card" href="mockup/cobros.html"><b>Resumen</b><span>Cuánto entró por día, semana y mes, y las reservas de cada período.</span><small>mockup/cobros.html</small></a>
+      <a class="card" href="mockup/agenda.html"><b>Turnos</b><span>Grilla del día por cancha: reservar, completar y finalizar.</span><small>mockup/agenda.html</small></a>
+      <a class="card" href="mockup/personas.html"><b>Jugadores</b><span>Tabla con filtros, paginación y ficha de cada jugador.</span><small>mockup/personas.html</small></a>
+      <a class="card" href="mockup/configuracion.html"><b>Configuración</b><span>Precio, parámetros de turnos, promos, canchas y suscripción.</span><small>mockup/configuracion.html</small></a>
+      <a class="card" href="mockup/index.html"><b>Mapa de flujos</b><span>Cómo se recorre el prototipo, pantalla por pantalla.</span><small>mockup/index.html</small></a>
+      <a class="card" href="mockup/components.html"><b>Componentes</b><span>Galería del sistema de diseño, en claro y oscuro.</span><small>mockup/components.html</small></a>
+    </div>
+
+    <h2>Landing</h2>
+    <div class="grid">
+      <a class="card sky" href="Landing%20page/Versi%C3%B3n%201.0%20-%20Redise%C3%B1o/index.html"><b>Landing · Rediseño</b><span>Versión con más dinamismo, calculadora y formulario en 2 pasos.</span><small>Landing page/Versión 1.0 - Rediseño</small></a>
+      <a class="card" href="Landing%20page/Versi%C3%B3n%201.0/index.html"><b>Landing · Versión 1.0</b><span>La primera versión, para comparar.</span><small>Landing page/Versión 1.0</small></a>
+    </div>
+
+    <h2>Producto y planificación</h2>
+    <div class="grid">
+      <a class="card" href="docs/producto-reserva-canchas.html"><b>Documento de producto</b><span>Alcance, backend, endpoints y preguntas abiertas (sección 08).</span><small>docs/producto-reserva-canchas.html</small></a>
+      <a class="card" href="Roadmap/index.html"><b>Roadmap 2026</b><span>Línea de tiempo del MVP.</span><small>Roadmap/index.html</small></a>
+      <a class="card" href="Roadmap/leyenda.html"><b>Leyenda del roadmap</b><span>Cómo leer las filas y las cajitas.</span><small>Roadmap/leyenda.html</small></a>
+    </div>
+
+    <h2>Marca</h2>
+    <div class="grid">
+      <a class="card lav" href="Dise%C3%B1o/Manual%20de%20marca%20Pali.pdf"><b>Manual de marca</b><span>Logo, colores, tipografía y sistema (PDF).</span><small>Diseño/Manual de marca Pali.pdf</small></a>
+      <a class="card" href="Dise%C3%B1o/logo/pali-logo-claro-con-bote.svg"><b>Logo claro</b><span>SVG, con bote, para fondos claros.</span><small>Diseño/logo/</small></a>
+      <a class="card" href="Dise%C3%B1o/logo/pali-logo-oscuro-con-bote.svg"><b>Logo oscuro</b><span>SVG, con bote, para fondos oscuros.</span><small>Diseño/logo/</small></a>
+      <a class="card" href="Presentaci%C3%B3n/Pali%20presentaci%C3%B3n.mp4"><b>Presentación en video</b><span>Video de presentación de Pali.</span><small>Presentación/</small></a>
+    </div>
+  </div>
+</main>
+
+<footer><div class="wrap">Pali · prototipo en construcción. Los archivos de texto (README, CONTEXTO, sistema de diseño) se leen en el repositorio de GitHub.</div></footer>
+</body>
+</html>
