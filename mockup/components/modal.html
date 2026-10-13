@@ -1,13 +1,24 @@
-<!-- Modal. Se muestra quitando el atributo hidden de #scrim. Cierra con clic afuera, la X o Esc (ver agenda.html). -->
+<!-- Modal de turno. Se muestra quitando hidden de #scrim. Cierra con clic afuera, la X o Esc (ver agenda.html).
+     Junto al título va el check de completar (check-btn): se habilita con 1, 2 o 3 personas.
+     Turno Finalizado: solo lectura, sin buscador ni “Quitar”, y el único botón es Aceptar. -->
 <div id="scrim" class="scrim" hidden data-act="scrim">
   <div id="modal" class="modal">
     <div class="modal-head">
-      <div><h3>Reservar turno</h3><p class="sub">Cancha 1 · 18:00–19:30</p></div>
+      <div><div class="row" style="gap:10px;align-items:center"><h3>Turno reservado</h3><button type="button" class="check-btn" aria-pressed="false" aria-label="Marcar como completado" title="Marcar como completado"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 7.5"/></svg></button></div><p class="sub">Cancha 1 · 18:00–19:30</p></div>
       <button class="modal-close" data-act="close" aria-label="Cerrar">×</button>
     </div>
-    <!-- contenido -->
+    <!-- contenido: buscador de personas y lista (plist) -->
     <div class="modal-foot">
-      <button class="btn btn--primary" data-act="reserve">Reservar</button>
+      <button class="btn btn--danger" data-act="cancelBooking">Cancelar turno</button>
+      <button class="btn btn--dark" data-act="acceptBooking">Aceptar</button>
     </div>
   </div>
 </div>
+
+<!-- Alerta de confirmación (por ejemplo, pausar una cancha). El foco arranca en la opción segura. -->
+<div class="scrim" hidden><div class="modal modal--alert" role="alertdialog" aria-modal="true" aria-labelledby="alT">
+  <div class="alert-icon"><!-- ícono de advertencia --></div>
+  <h3 id="alT">¿Querés pausar la Cancha 1?</h3>
+  <p>El chatbot deja de ofrecerla y sus turnos quedan en pausa hasta que la actives de nuevo.</p>
+  <div class="modal-foot"><button class="btn btn--neutral">No, mantener activa</button><button class="btn btn--dark">Sí, pausar cancha</button></div>
+</div></div>

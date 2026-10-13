@@ -39,6 +39,8 @@
   --coral: #e5533d;
   --coral-hover: #cf4430;
   --coral-soft: #fdeeea;
+  /* Advertencia (durazno tenue): avisos de atención que no son peligro, por ejemplo un turno antiguo que ya no se puede modificar */
+  --warn: #d9733b; --warn-soft: #fff4ec; --warn-line: #f6d2b8;
   --coral-line: #f4b9ad;
 
   /* Tipografía */
@@ -127,6 +129,7 @@ html[data-theme="dark"] {
   --coral: #f0705b;
   --coral-hover: #f58773;
   --coral-soft: #331b16;
+  --warn: #f2a06a; --warn-soft: #2a1d14; --warn-line: #6b4129;
   --coral-line: #70372c;
 
   --shadow-pop: 0 18px 44px rgba(0, 0, 0, 0.5);

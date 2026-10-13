@@ -1,10 +1,12 @@
-<!-- Tabla. Columnas numéricas con la clase num. Envolver en table-wrap para scroll horizontal. -->
+<!-- Tabla. Columnas numéricas con la clase num; el contador “Turnos del mes” es solo el número (counter).
+     Envolver en table-wrap. Debajo, la paginación (pager): solo los botones de página. -->
 <div class="table-wrap">
   <table class="table">
-    <thead><tr><th>Día</th><th>Hora</th><th>Cancha</th><th class="num">Monto</th></tr></thead>
+    <thead><tr><th>Día</th><th>Hora</th><th>Personas</th><th class="num">Turnos del mes</th><th>Estado</th></tr></thead>
     <tbody>
-      <tr><td>Jue 1 oct</td><td class="mono">18:00–19:30</td><td>Cancha 1</td><td class="num">$ 7.000</td></tr>
+      <tr><td><b>Jue, 8 oct</b></td><td class="mono">18:00–19:30</td><td>Martín Acosta, Lucía Fernández</td><td class="num"><span class="counter">7</span></td><td><span class="chip chip--sky-solid">✓ Finalizado</span></td></tr>
     </tbody>
   </table>
-  <p class="empty">No hay reservas con este filtro.</p>
+  <p class="empty">No hay reservas en este período.</p>
 </div>
+<nav class="pager" aria-label="Paginación"><div class="pager-nav"><button type="button" class="pager-btn" disabled>Anterior</button><button type="button" class="pager-btn" aria-current="page">1</button><button type="button" class="pager-btn">2</button><button type="button" class="pager-btn">Siguiente</button></div></nav>

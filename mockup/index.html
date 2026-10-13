@@ -44,35 +44,35 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
         </a>
 
         <a class="card card--link" href="agenda.html">
-          <span class="dom">Flujo B · Agenda</span>
+          <span class="dom">Flujo B · Turnos</span>
           <h3>Reservar un turno en 2 clics</h3>
           <ol class="steps">
             <li class="is-key"><b>Tocar un turno libre</b> en la agenda.</li>
             <li>Opcional: buscar o crear las personas (hasta 4). Con 4 el turno queda Completo.</li>
             <li class="is-key"><b>Reservar.</b> Las personas se pueden sumar después.</li>
           </ol>
-          <span class="chip chip--soft">Abrir agenda →</span>
+          <span class="chip chip--soft">Abrir turnos →</span>
         </a>
 
         <a class="card card--link" href="personas.html">
-          <span class="dom">Flujo C · Personas</span>
+          <span class="dom">Flujo C · Jugadores</span>
           <h3>Buscar o crear una persona</h3>
           <ol class="steps">
             <li>Escribir nombre y apellido en el buscador único.</li>
             <li>Filtrar la tabla de jugadores por categoría, cancha o período, y mostrar u ocultar columnas (Cancha arranca oculta).</li>
             <li>Tocar un jugador: ver su categoría actual, cuántas veces fue y en qué canchas jugó. Si no existe, se crea.</li>
           </ol>
-          <span class="chip chip--soft">Abrir personas →</span>
+          <span class="chip chip--soft">Abrir jugadores →</span>
         </a>
 
-        <a class="card card--link" href="reservas.html">
-          <span class="dom">Flujo D · Reservas</span>
-          <h3>Ver turnos completos o incompletos y cancelar</h3>
+        <a class="card card--link" href="cobros.html">
+          <span class="dom">Flujo D · Resumen</span>
+          <h3>Ver cuánto entró y las reservas de cada período</h3>
           <ol class="steps">
-            <li>Filtrar: próximas o pasadas; incompletas, completas, canceladas.</li>
-            <li>Cancelar un turno si hace falta.</li>
+            <li>Elegir día, semana o mes: el período actual ya aparece seleccionado con sus reservas abajo.</li>
+            <li>Tocar otra barra del gráfico para ver las reservas de ese período.</li>
           </ol>
-          <span class="chip chip--soft">Abrir reservas →</span>
+          <span class="chip chip--soft">Abrir resumen →</span>
         </a>
 
         <a class="card card--link" href="configuracion.html">
@@ -96,9 +96,9 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
           <thead><tr><th>Pantalla</th><th>Qué resuelve</th></tr></thead>
           <tbody>
             <tr><td><a href="cobros.html">Cobros</a></td><td>Resumen de caja, ingresos por día, semana y mes con variación; filtro por año</td></tr>
-            <tr><td><a href="agenda.html">Agenda</a></td><td>Grilla de turnos por cancha y día; reservar y gestionar un turno</td></tr>
-            <tr><td><a href="personas.html">Personas</a></td><td>Tabla de jugadores con filtros, columnas a elección y paginación (10, 20, 50 o 100 por página), buscador único, alta de persona y ficha con categoría, veces que jugó e historial</td></tr>
-            <tr><td><a href="reservas.html">Reservas</a></td><td>Reservas creadas, completas o incompletas, cancelar</td></tr>
+            <tr><td><a href="agenda.html">Turnos</a></td><td>Grilla de turnos por cancha y día; reservar y gestionar un turno</td></tr>
+            <tr><td><a href="personas.html">Jugadores</a></td><td>Tabla de jugadores con filtros, columnas a elección y paginación (10, 20, 50 o 100 por página), buscador único, alta de persona y ficha con categoría, veces que jugó e historial</td></tr>
+            <tr><td><a href="cobros.html">Resumen</a></td><td>Lo que entró por período y, al tocar una barra, sus reservas. La pantalla Reservas sale del menú (el archivo sigue en el prototipo)</td></tr>
             <tr><td><a href="configuracion.html">Configuración</a></td><td>Precio por jugador, parámetros de turnos, promos y canchas (activas o inactivas)</td></tr>
             <tr><td><a href="login.html">Login</a></td><td>Inicio de sesión (simulado): email y contraseña, o Microsoft</td></tr>
           </tbody>

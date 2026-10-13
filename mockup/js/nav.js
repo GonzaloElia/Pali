@@ -8,10 +8,9 @@
 
   /* Pantallas del backoffice, en el orden en que se muestran. Los nombres son provisorios. */
   var NAV = [
-    { key: "cobros",        href: "cobros.html",        label: "Cobros" },
-    { key: "agenda",        href: "agenda.html",        label: "Agenda" },
-    { key: "personas",      href: "personas.html",      label: "Personas" },
-    { key: "reservas",      href: "reservas.html",      label: "Reservas" },
+    { key: "cobros",        href: "cobros.html",        label: "Resumen" },
+    { key: "agenda",        href: "agenda.html",        label: "Turnos" },
+    { key: "personas",      href: "personas.html",      label: "Jugadores" },
     { key: "configuracion", href: "configuracion.html", label: "Configuración" }
   ];
   var MAP = { key: "index", href: "index.html", label: "Mapa de flujos", n: "00" };

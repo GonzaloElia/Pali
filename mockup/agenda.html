@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Agenda · Pali backoffice</title>
+<title>Turnos · Pali backoffice</title>
 <link rel="stylesheet" href="css/main.css">
 <script>/* Tema y barra lateral: se aplican antes de pintar para evitar parpadeos */
 (function(){try{var d=document.documentElement,t=localStorage.getItem('pali-theme');
@@ -19,12 +19,12 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     <p class="brand">Pali <em>· backoffice</em></p>
     <p class="brand-sub">Club de ejemplo</p>
     <script src="js/nav.js"></script>
-    <div class="foot"><a href="index.html">Mapa de flujos</a></div>
+    <div class="foot"><a href="components.html">Componentes</a></div>
   </aside>
 
   <main class="main">
     <header class="page-header">
-      <p class="kicker">Backoffice · Agenda</p>
+      <p class="kicker">Backoffice · Turnos</p>
       <div class="row between wrap">
         <div>
           <h2>Turnos del día, <em id="dateLabel"></em></h2>
@@ -53,16 +53,21 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
       <div id="agenda" class="agenda"></div>
     </section>
 
-    <p class="note mt-5"><b>Datos de ejemplo.</b> Las reservas que hagas acá aparecen en Reservas y Cobros.</p>
-
     <!-- Modal: reservar un turno libre / gestionar un turno reservado -->
     <div id="scrim" class="scrim" hidden data-act="scrim"><div id="modal" class="modal"></div></div>
+    <!-- Doble confirmación al pasar un turno de Reservado a Finalizado -->
+    <div id="confirmScrim" class="scrim" hidden data-act="confirmScrim"><div class="modal modal--alert" role="alertdialog" aria-modal="true" aria-labelledby="cfT" aria-describedby="cfS">
+      <div class="alert-icon" style="background:var(--sky-50);color:var(--sky-700)"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 12.5l4.2 4.2L18.5 7.5"/></svg></div>
+      <h3 id="cfT">¿Seguro que el turno se jugó?</h3>
+      <p id="cfS">Al marcarlo como Finalizado, el monto cobrado se va a actualizar.</p>
+      <div class="modal-foot"><button type="button" class="btn btn--neutral" data-act="confirmNo" id="cfNo">No, volver</button><button type="button" class="btn btn--primary" data-act="confirmYes">Sí, finalizar</button></div>
+    </div></div>
     <div id="toast" class="toast" hidden></div>
   </main>
 </div>
 
 <script>
-/* Pantalla Agenda. Toda la lógica vive en este HTML; los datos se piden siempre a PaliApi (futuros endpoints). */
+/* Pantalla Turnos (archivo agenda.html). Toda la lógica vive en este HTML; los datos se piden siempre a PaliApi (futuros endpoints). */
 (function () {
   var $ = function (s) { return document.querySelector(s); };
   var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
@@ -98,10 +103,11 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
       return '<tr><td><b>' + esc(rvDay(b.date)) + '</b></td><td class="mono">' + b.start + '–' + b.end + '</td><td class="pend-names">' + names + '</td><td class="pend-state">' + stateCell + '</td></tr>';
     }).join('');
     el.innerHTML = '<section class="alert-task' + (open ? ' is-open' : '') + '" aria-label="Turnos pasados en Reservado">' +
-      '<div class="alert-task-head"><span class="alert-task-ico">' + ICON_CLOCK + '</span>' +
-      '<div class="alert-task-tx"><p class="alert-task-t">' + (list.length === 1 ? '1 turno pasado quedó en Reservado' : list.length + ' turnos pasados quedaron en Reservado') + '</p>' +
-      '<p class="alert-task-s">No se facturaron. Revisá cada uno: si se jugó, pasalo a Finalizado; si no, pasalo a Libre.</p></div>' +
-      '<button type="button" class="btn btn--dark btn--sm alert-task-btn" data-act="togglePending" aria-expanded="' + open + '" aria-controls="pendBody">' + (open ? 'Ocultar' : 'Revisar turnos') + '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></div>' +
+      '<button type="button" class="alert-task-head" data-act="togglePending" aria-expanded="' + open + '" aria-controls="pendBody">' +
+      '<span class="alert-task-ico">' + ICON_CLOCK + '</span>' +
+      '<span class="alert-task-tx"><span class="alert-task-t">' + (list.length === 1 ? '1 turno pasado quedó en Reservado' : list.length + ' turnos pasados quedaron en Reservado') + '</span>' +
+      '<span class="alert-task-s">No se facturaron. <span class="alert-task-hint">' + (open ? 'Tocá para ocultarlos.' : 'Tocá para revisarlos.') + '</span></span></span>' +
+      '<span class="alert-task-chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span></button>' +
       '<div class="alert-task-body" id="pendBody"><div class="alert-task-inner"><table class="table pend-table"><thead><tr><th>Día</th><th>Hora</th><th>Personas</th><th>Estado</th></tr></thead><tbody>' + rows + '</tbody></table></div></div></section>';
   }
   function rvDay(d) { var x = PaliApi.util.parseDate(d).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' }); return x.charAt(0).toUpperCase() + x.slice(1); }
@@ -146,16 +152,15 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
   function closeModal() { S.modal = null; $('#scrim').hidden = true; $('#modal').classList.remove('modal--wide'); }
 
   function renderModal() {
-    var m = S.modal, bk = m.booking, locked = bk ? bk.locked : PaliApi.util.isLocked(S.date);
-    var lockNote = '<p class="note" role="status">Este turno es de una fecha que ya no se puede modificar (se pueden editar hasta ' + PaliApi.util.editWindow() + ' días atrás).</p>';
+    var m = S.modal, bk = m.booking, done = !!(bk && bk.state === 'done'), locked = !done && (bk ? bk.locked : PaliApi.util.isLocked(S.date));   /* un Finalizado se ve igual, sea viejo o no */
+    var lockNote = '<div class="warn" role="status"><span class="warn-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>' +
+      '<p class="warn-t">Este turno es antiguo y ya no se puede modificar.</p></div>';
     $('#modal').innerHTML =
-      '<div class="modal-head"><div><div class="row" style="gap:10px;align-items:center"><h3>' + (!bk ? 'Reservar turno' : bk.state === 'done' ? 'Turno finalizado' : bk.state === 'full' ? 'Turno completo' : 'Turno reservado') + '</h3><span id="markBlock"></span></div>' +
+      '<div class="modal-head"><div><div class="row" style="gap:10px;align-items:center"><h3>' + (!bk ? (locked ? 'Turno libre' : 'Reservar turno') : bk.state === 'done' ? 'Turno finalizado' : bk.state === 'full' ? 'Turno completo' : 'Turno reservado') + '</h3><span id="markBlock"></span></div>' +
       '<p class="sub">' + esc(m.courtName) + ' · ' + esc(label()) + ' · ' + m.start + '–' + m.end + '</p></div>' +
       '<button class="modal-close" data-act="close" aria-label="Cerrar">×</button></div>' +
       (locked ? lockNote : '') +
-      (!locked && bk && bk.ended && bk.state === 'booked' ? '<p class="note" role="status">Este turno ya pasó y quedó en Reservado: <b>no se facturó</b>. Si se jugó, pasalo a Finalizado; si no se jugó, pasalo a Libre.</p>' : '') +
-      (!locked && bk && bk.state === 'done' ? '<p class="note" role="status">Ya se jugó y se cobró. Si hubo un error, podés corregir las personas.</p>' : '') +
-      '<div id="searchBlock" class="field"' + (locked ? ' hidden' : '') + '><label class="label" for="q">Persona</label>' +
+      '<div id="searchBlock" class="field"' + (locked || (bk && bk.state === 'done') ? ' hidden' : '') + '><label class="label" for="q">Persona</label>' +
       '<div class="combo"><input id="q" class="input" type="text" placeholder="Nombre y apellido" autocomplete="off">' +
       '<div id="comboList" class="combo-list" hidden></div></div>' +
       '<p class="hint">Si no está, se crea al momento y se le piden sus datos.</p></div>' +
@@ -164,6 +169,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
       '<div id="modalFoot" class="modal-foot">' +
         (locked ? '<button class="btn btn--dark" data-act="close">Cerrar</button>'
           : bk && bk.ended && bk.state === 'booked' ? '<button class="btn btn--danger" data-act="cancelBooking">Pasar a Libre</button><button class="btn btn--primary" data-act="finalize">Pasar a Finalizado</button>'
+          : bk && bk.state === 'done' ? '<button class="btn btn--dark" data-act="acceptBooking">Aceptar</button>'   /* finalizado: no se cancela, solo se acepta */
           : bk ? '<button class="btn btn--danger" data-act="cancelBooking">Cancelar turno</button><button class="btn btn--dark" data-act="acceptBooking">Aceptar</button>'
             : '<button class="btn btn--primary" data-act="reserve">Reservar</button>') +
       '</div>';
@@ -186,16 +192,17 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
   }
   function people() { return S.modal.booking ? S.modal.booking.participants : S.selected; }
   function renderPersons() {
-    var list = people(), el = $('#plist');
+    var list = people(), el = $('#plist'), bk0 = S.modal && S.modal.booking;
+    var ro = !!(bk0 && (bk0.locked || bk0.state === 'done'));   /* finalizado o fuera de plazo: solo lectura */
     setTimeout(renderMark, 0);
     el.innerHTML = list.length
       ? '<ul class="plist">' + list.map(function (p) {
           return '<li><span class="row" style="gap:10px">' + esc(p.name) + (p.category ? '<span class="chip chip--lav">' + esc(p.category) + '</span>' : '') + '</span>' +
-            '<span class="row" style="gap:4px">' +
+            (ro ? '' : '<span class="row" style="gap:4px">' +
             '<button class="btn btn--ghost btn--tiny" data-act="editPerson" data-id="' + p.id + '" aria-label="Editar perfil de ' + esc(p.name) + '" title="Editar perfil">' + PENCIL + '</button>' +
-            '<button class="btn btn--ghost btn--sm" data-act="removePerson" data-id="' + p.id + '">Quitar</button></span></li>';
+            '<button class="btn btn--ghost btn--sm" data-act="removePerson" data-id="' + p.id + '">Quitar</button></span>') + '</li>';
         }).join('') + '</ul>'
-      : '<p class="hint">Sumá al menos una persona para reservar. Un turno sin personas está Libre.</p>';
+      : (!bk0 && PaliApi.util.isLocked(S.date) ? '' : '<p class="hint">Sumá al menos una persona para reservar. Un turno sin personas está Libre.</p>');
   }
 
   /* buscador único */
@@ -320,13 +327,17 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
       if (bk && n < S.cap && !!bk.completed !== now) { await PaliApi.setBookingCompleted(bk.id, now); closeModal(); await load(); say(now ? 'Turno completado: suma a Cobros' : 'Turno devuelto a Reservado'); return; }
       closeModal();
     },
-    finalize: async function () {
+    confirmNo: function () { S.confirm = null; $('#confirmScrim').hidden = true; },
+    confirmScrim: function (d, e) { if (e.target.id === 'confirmScrim') actions.confirmNo(); },
+    confirmYes: async function () { var c = S.confirm; S.confirm = null; $('#confirmScrim').hidden = true; if (c) await c(); },
+    finalize: function () { askFinalize(actions.finalizeNow); },
+    finalizeNow: async function () {
       try { await PaliApi.finalizeBooking(S.modal.booking.id); } catch (e) { say(e.message); return; }
       closeModal(); await load(); say('Turno finalizado: ya suma a Cobros');
     },
-    togglePending: function () { S.pendOpen = !S.pendOpen; var sec = $('.alert-task'); sec.classList.toggle('is-open', S.pendOpen); var bt = $('.alert-task-btn'); bt.setAttribute('aria-expanded', S.pendOpen); bt.firstChild.nodeValue = S.pendOpen ? 'Ocultar' : 'Revisar turnos'; },
+    togglePending: function () { S.pendOpen = !S.pendOpen; var sec = $('.alert-task'); sec.classList.toggle('is-open', S.pendOpen); $('.alert-task-head').setAttribute('aria-expanded', S.pendOpen); $('.alert-task-hint').textContent = S.pendOpen ? 'Tocá para ocultarlos.' : 'Tocá para revisarlos.'; },
     pendAskFree: function (d) { S.pendConfirm = d.id; renderPending(); },
-    pendDone: async function (d) { try { await PaliApi.finalizeBooking(d.id); } catch (e) { say(e.message); return; } await pendAfter('Turno finalizado: ya suma a Cobros'); },
+    pendDone: function (d) { askFinalize(async function () { try { await PaliApi.finalizeBooking(d.id); } catch (e) { say(e.message); return; } await pendAfter('Turno finalizado: ya suma a Cobros'); }); },
     pendNo: function () { S.pendConfirm = null; renderPending(); },
     pendFree: async function (d) { try { await PaliApi.cancelBooking(d.id); } catch (e) { say(e.message); return; } await pendAfter('Turno liberado: quedó Libre y no suma'); },
     cancelBooking: async function () {
@@ -342,7 +353,12 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
   });
   document.addEventListener('input', function (e) { if (e.target.id === 'q') onType(); });
   document.addEventListener('focusin', function (e) { if (e.target.id === 'q' && e.target.value) onType(); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && S.modal) closeModal(); });
+  /* Doble confirmación (Reservado → Finalizado). El foco arranca en "No, volver" */
+  function askFinalize(fn) { S.confirm = fn; $('#confirmScrim').hidden = false; $('#cfNo').focus(); }
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !$('#confirmScrim').hidden) { actions.confirmNo(); return; }
+    if (e.key === 'Escape' && S.modal) closeModal();
+  });
 
   load();
 })();

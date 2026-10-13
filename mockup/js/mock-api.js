@@ -197,7 +197,10 @@
     return fmtDate(d);
   }
   function isLocked(date) { return date < addDays(today(), -editWindow()); }
-  function assertEditable(b) { if (isLocked(b.date)) throw new Error("Este turno es de una fecha que ya no se puede modificar."); }
+  function assertEditable(b) {
+    if (isLocked(b.date)) throw new Error("Este turno es de una fecha que ya no se puede modificar.");
+    if (isDone(b)) throw new Error("Un turno finalizado no se puede modificar.");   // ya se jugó y se cobró: solo lectura
+  }
   /* Completo = cupo lleno (4 o más personas) o marcado como completado por el administrador. Solo los Completos suman en Cobros */
   /* Un turno "ya se jugó" cuando pasó su hora de fin (de 14:00 a 15:00: a las 15:01). Si termina a las 00:00, cuenta como el día siguiente */
   function hasEnded(b) {
@@ -230,6 +233,13 @@
     var b = ensure().bookings.filter(function (x) { return x.id === id; })[0];
     if (!b) throw new Error("Reserva inexistente");
     return b;
+  }
+  /* Paginación del lado del servidor: corta la lista y arma solo los registros de esa página. pageSize: 10, 20, 50 o 100 */
+  function pageOf(list, q, map) {
+    var size = [10, 20, 50, 100].indexOf(Number(q.pageSize)) >= 0 ? Number(q.pageSize) : 10;
+    var pages = Math.max(1, Math.ceil(list.length / size)), page = Math.min(Math.max(1, Number(q.page) || 1), pages);
+    var items = list.slice((page - 1) * size, page * size);
+    return { items: map ? items.map(map) : items, total: list.length, page: page, pageSize: size, totalPages: pages };
   }
   function done(v) { return Promise.resolve(JSON.parse(JSON.stringify(v === undefined ? null : v))); }
   function fail(msg) { return Promise.reject(new Error(msg)); }
@@ -332,8 +342,11 @@
         if (q.status === "full" && view(b).state !== "full") return false;
         if (q.from && b.date < q.from) return false;
         if (q.to && b.date > q.to) return false;
+        if (q.activeOnly && b.status !== "active") return false;
         return true;
       }).sort(function (a, b) { return a.date === b.date ? (a.start < b.start ? -1 : 1) : (a.date < b.date ? -1 : 1); });
+      /* Con page/pageSize devuelve solo esa página (como el servidor real); sin ellos, la lista completa (pantalla Reservas) */
+      if (q.page) return done(pageOf(list, q, view));
       return done(list.map(view));
     },
     /* GET /bookings/:id (candidato) */
@@ -491,8 +504,9 @@
       var st = ensure(), only = opts && opts.playedOnly, t = today();
       var hf = historyFrom();
       var list = st.bookings.filter(function (b) { return b.status === "active" && b.participantIds.indexOf(personId) >= 0 && b.date >= hf && (!only || b.date <= t); })
-        .sort(function (a, b) { return a.date < b.date ? 1 : -1; }).map(view);
-      return done(list);
+        .sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+      if (opts && opts.page) return done(pageOf(list, opts, view));
+      return done(list.map(view));
     },
 
     /* Cobros · GET /income?granularity=&year= (candidato)
@@ -502,11 +516,12 @@
       var st = ensure();
       var paid = st.bookings.filter(function (b) { return isDone(b); });   // solo turnos Finalizados (ya jugados y cobrados)
       var labels = [], keys = [], t = today(), i;
+      var end = q.until && q.until < t ? q.until : t;   // hasta qué fecha llega la ventana (por defecto, hoy)
       var MES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
       if (q.granularity === "day") {
-        for (i = 6; i >= 0; i--) { var d = addDays(t, -i); keys.push(d); labels.push(d.slice(8) + "/" + d.slice(5, 7)); }
+        for (i = 6; i >= 0; i--) { var d = addDays(end, -i); keys.push(d); labels.push(d.slice(8) + "/" + d.slice(5, 7)); }
       } else if (q.granularity === "week") {
-        var mon = mondayOf(t);
+        var mon = mondayOf(end);
         for (i = 7; i >= 0; i--) { var w = addDays(mon, -7 * i); keys.push(w); labels.push(w.slice(8) + "/" + w.slice(5, 7)); }
       } else {
         for (i = 0; i < 12; i++) { keys.push(q.year + "-" + pad(i + 1)); labels.push(MES[i]); }

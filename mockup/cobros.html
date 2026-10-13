@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cobros · Pali backoffice</title>
+<title>Resumen · Pali backoffice</title>
 <link rel="stylesheet" href="css/main.css">
 <script>/* Tema y barra lateral: se aplican antes de pintar para evitar parpadeos */
 (function(){try{var d=document.documentElement,t=localStorage.getItem('pali-theme');
@@ -19,14 +19,14 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     <p class="brand">Pali <em>· backoffice</em></p>
     <p class="brand-sub">Club de ejemplo</p>
     <script src="js/nav.js"></script>
-    <div class="foot"><a href="index.html">Mapa de flujos</a></div>
+    <div class="foot"><a href="components.html">Componentes</a></div>
   </aside>
 
   <main class="main">
     <header class="page-header">
-      <p class="kicker">Backoffice · Cobros</p>
+      <p class="kicker">Backoffice · Resumen</p>
       <h2>Cuánto entró, <em>por día, semana y mes</em>.</h2>
-      <p class="lede">Suma, por cada turno no cancelado, las personas anotadas por el precio por jugador <span class="chip chip--dashed">a confirmar</span>. El pago se hace en caja y no se registra por turno.</p>
+      <p class="lede">Suma lo que entró por los turnos finalizados: personas anotadas por el precio por jugador <span class="chip chip--dashed">a confirmar</span>. Tocá una barra del gráfico para ver las reservas de ese día, semana o mes.</p>
     </header>
 
     <!-- Resumen de caja -->
@@ -59,21 +59,30 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
       <div class="card mt-4" id="chartCard" aria-busy="true">
         <div class="row between wrap">
           <p class="kicker" id="title" style="margin:0"></p>
-          <span class="chip chip--sky" id="total"></span>
+          <div class="row" style="gap:10px;align-items:center">
+            <div class="chart-nav" role="group" aria-label="Moverse en el tiempo">
+              <button type="button" class="icon-btn" data-act="winPrev" id="winPrev" aria-label="Ver el período anterior" title="Anteriores"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+              <button type="button" class="icon-btn" data-act="winNext" id="winNext" aria-label="Ver el período siguiente" title="Siguientes"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+            </div>
+          </div>
         </div>
         <div class="mt-4" id="chartBody"></div>
       </div>
 
       <!-- Detalle: reservas del día, semana o mes de la barra elegida. Aparece al tocar una barra y no se cierra -->
       <div class="mt-5" id="detail" hidden aria-live="polite">
-        <div class="row between wrap">
-          <p class="kicker" id="dTitle" style="margin:0"></p>
-          <span class="chip chip--soft" id="dCount"></span>
-        </div>
-        <div class="pager pager--top mt-3" id="dPagerTop">
-          <label class="pager-size">Mostrar
-            <select id="dSize" class="select" aria-label="Reservas por página"><option>10</option><option>20</option><option>50</option><option>100</option></select>
-            por página</label>
+        <div class="detail-bar">
+          <div class="detail-tt">
+            <p class="kicker" style="margin:0">Reservas · <span id="pKind">Mes</span></p>
+            <div class="period-nav">
+              <h3 id="dTitle"></h3>
+            </div>
+          </div>
+          <div class="detail-tools">
+            <label class="pager-size detail-size">Mostrar
+              <select id="dSize" class="select" aria-label="Reservas por página"><option>10</option><option>20</option><option>50</option><option>100</option></select>
+              por página</label>
+          </div>
         </div>
         <div class="table-wrap" id="dWrap">
           <table class="table">
@@ -83,13 +92,10 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
           <p id="dEmpty" class="empty" hidden>No hay reservas en este período.</p>
         </div>
         <nav class="pager" id="dPager" aria-label="Paginación de reservas" hidden>
-          <span class="pager-range" id="dRange"></span>
           <div class="pager-nav" id="dPages"></div>
         </nav>
       </div>
     </section>
-
-    <p class="note mt-5"><b>Datos de ejemplo.</b> Es una estimación: personas anotadas en turnos no cancelados × precio por jugador cargado en Configuración (estimado en 7k). Las variaciones comparan con el mismo tramo del período anterior <span class="chip chip--dashed">a confirmar</span>.</p>
   </main>
 </div>
 
@@ -99,7 +105,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
   var $ = function (s) { return document.querySelector(s); };
   var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
   var thisYear = new Date().getFullYear();
-  var S = { gran: 'month', year: thisYear, sel: null, opened: false, keys: [], rows: [], page: 1, size: 10 };
+  var S = { gran: 'month', year: thisYear, sel: null, opened: true, until: null, want: null, edge: null, slide: null, keys: [], rows: [], page: 1, size: 10 };
   /* Ocultar importes: se reemplazan por asteriscos. La preferencia se recuerda en este navegador. */
   var hidden = false;
   try { hidden = localStorage.getItem('pali-hide-amounts') === '1'; } catch (e) {}
@@ -153,16 +159,40 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     showLoading();
     var d;
     try {
-      d = await PaliApi.getIncome({ granularity: S.gran, year: S.year });
+      d = await PaliApi.getIncome({ granularity: S.gran, year: S.year, until: S.until });
       await new Promise(function (ok) { setTimeout(ok, 350); });   // simula la espera de la respuesta (solo prototipo)
     } catch (e) { showError(); return; }
     S.keys = d.keys;
+    if (S.want && S.keys.indexOf(S.want) >= 0) S.sel = S.want;
+    if (S.edge === 'last') S.sel = S.keys[S.keys.length - 1];
+    if (S.edge === 'now') S.sel = S.keys.indexOf(currentPeriodKey()) >= 0 ? currentPeriodKey() : S.keys[0];
+    S.want = null; S.edge = null;
     if (S.opened && S.keys.indexOf(S.sel) < 0) S.sel = currentKey(d);
     lastD = d; paint(d);
     if (S.opened) loadDetail();
   }
 
   /* ---------- Detalle de reservas del período elegido ---------- */
+  /* Nombre de cada período. Semana: de lunes a domingo, con su rango (“24–30 ago”, o “31 ago – 6 sep” si cambia de mes) */
+  var MES_C = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  var MES_L = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  var DIA_C = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'], DIA_L = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  function periodName(key) {
+    var P = PaliApi.util.parseDate, t = PaliApi.util.today();
+    if (S.gran === 'day') { var d = P(key), hoy = key === t;
+      return { top: DIA_C[d.getDay()] + ' ' + d.getDate(), sub: hoy ? 'hoy' : '', now: hoy, long: DIA_L[d.getDay()] + ' ' + d.getDate() + ' de ' + MES_L[d.getMonth()] }; }
+    if (S.gran === 'week') {
+      var a = P(key), e = PaliApi.util.addDays(key, 6), b = P(e), same = a.getMonth() === b.getMonth(), now = key <= t && e >= t;
+      return { top: a.getDate() + (same ? '' : ' ' + MES_C[a.getMonth()]) + ' al ' + b.getDate() + ' ' + MES_C[b.getMonth()], sub: now ? 'esta semana' : '', now: now,
+        long: 'Semana del ' + a.getDate() + (same ? '' : ' de ' + MES_L[a.getMonth()]) + ' al ' + b.getDate() + ' de ' + MES_L[b.getMonth()] };
+    }
+    var m = +key.slice(5, 7) - 1, nowM = key === t.slice(0, 7);
+    return { top: MES_C[m].charAt(0).toUpperCase() + MES_C[m].slice(1), sub: nowM ? 'este mes' : '', now: nowM, long: MES_L[m].charAt(0).toUpperCase() + MES_L[m].slice(1) + ' ' + key.slice(0, 4) };
+  }
+  function mondayOf(dt) { var x = PaliApi.util.parseDate(dt), k = (x.getDay() + 6) % 7; return PaliApi.util.addDays(dt, -k); }
+  function keyOfDate(dt) { return S.gran === 'day' ? dt : S.gran === 'week' ? mondayOf(dt) : dt.slice(0, 7); }
+  function currentPeriodKey() { return keyOfDate(PaliApi.util.today()); }
+  /* Ir a un período: si está en el gráfico se elige; si no, el gráfico se corre para mostrarlo */
   function currentKey(d) {
     var t = PaliApi.util.today();
     var k = S.gran === 'day' ? t : S.gran === 'week' ? null : t.slice(0, 7);
@@ -183,7 +213,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     if (b.state === 'done') return '<span class="chip chip--sky-solid">✓ Finalizado</span>';
     return b.state === 'full' ? '<span class="chip chip--solid">Completo</span>' : '<span class="chip chip--soft" style="border-style:dashed">Reservado</span>';
   }
-  var D = { rows: [], page: 1, size: 10 };
+  var D = { rows: [], page: 1, size: 10, total: 0, pages: 1 };
   function showDetailLoading() {
     $('#dWrap').setAttribute('aria-busy', 'true'); $('#dSize').disabled = true; $('#dEmpty').hidden = true; $('#dPager').hidden = true;
     var sk = ''; for (var i = 0; i < Math.min(D.size, 10); i++) sk += '<tr class="skel-row">' + new Array(6).join('<td><span class="skel"></span></td>') + '</tr>';
@@ -196,9 +226,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     if (c < n - 2) out.push('…'); out.push(n); return out;
   }
   function renderDetail() {
-    var total = D.rows.length, n = Math.max(1, Math.ceil(total / D.size));
-    D.page = Math.min(Math.max(1, D.page), n);
-    var from = (D.page - 1) * D.size, list = D.rows.slice(from, from + D.size);
+    var total = D.total, n = D.pages, list = D.rows;
     $('#dWrap').removeAttribute('aria-busy'); $('#dSize').disabled = false; $('#dSize').value = String(D.size);
     $('#dRows').innerHTML = list.map(function (b) {
       return '<tr><td>' + esc(dayLabel(b)) + '</td><td class="mono">' + b.start + '–' + b.end + '</td><td>' + esc(b.courtName) + '</td><td>' +
@@ -206,7 +234,6 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     }).join('');
     $('#dEmpty').hidden = total > 0;
     $('#dPager').hidden = total === 0;
-    $('#dRange').textContent = (from + 1) + '–' + Math.min(total, from + D.size) + ' de ' + total;
     $('#dPages').innerHTML = '<button type="button" class="pager-btn" data-act="dgoto" data-page="' + (D.page - 1) + '"' + (D.page === 1 ? ' disabled' : '') + ' aria-label="Página anterior">Anterior</button>' +
       pageList(D.page, n).map(function (x) {
         return x === '…' ? '<span class="pager-gap">…</span>' : '<button type="button" class="pager-btn" data-act="dgoto" data-page="' + x + '"' + (x === D.page ? ' aria-current="page"' : '') + ' aria-label="Página ' + x + '">' + x + '</button>';
@@ -216,6 +243,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
   function pick(key) {
     S.sel = key; S.opened = true;
     document.querySelectorAll('#bars .bar').forEach(function (b) { var on = b.dataset.key === key; b.classList.toggle('is-sel', on); b.setAttribute('aria-pressed', on); });
+    document.querySelectorAll('.bar-labels span').forEach(function (l) { l.classList.toggle('is-sel', l.dataset.key === key); });
     var first = $('#detail').hidden;
     loadDetail();
     if (first) $('#detail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -224,25 +252,31 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     var R = rangeOf(S.sel), t = PaliApi.util.today(), i = S.keys.indexOf(S.sel), lab = lastD ? lastD.labels[i] : S.sel;
     var seq = (loadDetail.seq = (loadDetail.seq || 0) + 1);
     $('#detail').hidden = false;
-    $('#dTitle').textContent = S.gran === 'day' ? 'Reservas del ' + lab : S.gran === 'week' ? 'Reservas de la semana del ' + lab : 'Reservas de ' + lab + ' de ' + S.sel.slice(0, 4);
-    showDetailLoading();
-    var rows;
-    try {
-      rows = await PaliApi.listBookings({ from: R.from, to: R.to > t ? t : R.to });
-      await new Promise(function (ok) { setTimeout(ok, 450); });   // simula la espera de la respuesta (solo prototipo)
-    } catch (e) { rows = []; }
-    if (seq !== loadDetail.seq) return;   // llegó una respuesta vieja: se ignora
-    D.rows = rows.filter(function (b) { return b.status === 'active'; });
+    var mLong = S.gran === 'month' ? PaliApi.util.parseDate(S.sel + '-01').toLocaleDateString('es-AR', { month: 'long' }) : '';
+    var pn = periodName(S.sel).long; $('#dTitle').textContent = pn.charAt(0).toUpperCase() + pn.slice(1); $('#pKind').textContent = S.gran === 'day' ? 'Día' : S.gran === 'week' ? 'Semana' : 'Mes';
     D.page = 1;
-    $('#dCount').textContent = D.rows.length + (D.rows.length === 1 ? ' reserva' : ' reservas');
+    await loadDetailPage(seq);
+  }
+  /* Pide al servidor solo la página actual (no toda la lista) y muestra el loader mientras llega */
+  async function loadDetailPage(seq) {
+    seq = seq || (loadDetail.seq = (loadDetail.seq || 0) + 1);
+    var R = rangeOf(S.sel), t = PaliApi.util.today(), res;
+    showDetailLoading();
+    try {
+      res = await PaliApi.listBookings({ from: R.from, to: R.to > t ? t : R.to, activeOnly: true, page: D.page, pageSize: D.size });
+      await new Promise(function (ok) { setTimeout(ok, 450); });   // simula la espera de la respuesta (solo prototipo)
+    } catch (e) { res = { items: [], total: 0, page: 1, totalPages: 1 }; }
+    if (seq !== loadDetail.seq) return;   // llegó una respuesta vieja: se ignora
+    D.rows = res.items; D.total = res.total; D.page = res.page; D.pages = res.totalPages;
     renderDetail();
   }
 
   function paint(d) {
     $('#chartCard').removeAttribute('aria-busy');
     $('#year').disabled = S.gran !== 'month';
-    $('#title').textContent = S.gran === 'day' ? 'Últimos 7 días' : S.gran === 'week' ? 'Últimas 8 semanas (desde el lunes)' : 'Meses de ' + S.year;
-    $('#total').textContent = 'Total ' + money(d.total);
+    var endTxt = S.until ? (function () { var e = PaliApi.util.parseDate(S.gran === 'week' ? PaliApi.util.addDays(d.keys[d.keys.length - 1], 6) : d.keys[d.keys.length - 1]); return ' hasta el ' + e.getDate() + ' de ' + MES_L[e.getMonth()]; })() : '';
+    $('#title').textContent = S.gran === 'day' ? (S.until ? '7 días' + endTxt : 'Últimos 7 días') : S.gran === 'week' ? (S.until ? '8 semanas' + endTxt : 'Últimas 8 semanas') : 'Meses de ' + S.year;
+    $('#winNext').disabled = S.gran === 'month' ? S.year >= thisYear : !S.until;
 
     if (d.total === 0) {
       $('#chartBody').innerHTML = '<div class="state"><span class="state-icon">' + ICON_EMPTY + '</span><p class="state-title">Todavía no hay ingresos en este período</p><p class="state-hint">Cuando haya turnos con personas anotadas, vas a ver acá cuánto entró.</p></div>';
@@ -262,26 +296,28 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     }
     var bars = vals.map(function (v, i) {
       var isPeak = i === peak && v > 0;
-      return '<div class="bar' + (isPeak ? ' is-peak' : '') + (v === 0 ? ' is-empty' : '') + (d.keys[i] === S.sel ? ' is-sel' : '') + '" tabindex="0" role="button" aria-pressed="' + (d.keys[i] === S.sel) + '" data-i="' + i + '" data-key="' + d.keys[i] + '" aria-label="' + esc(d.labels[i]) + ': ' + money(v) + '">' +
-        (isPeak ? '<span class="peak">Pico</span>' : '') + '<div class="fill" style="height:' + (v / max * 100) + '%"></div></div>';
+      return '<div class="bar' + (isPeak ? ' is-peak' : '') + (v === 0 ? ' is-empty' : '') + (d.keys[i] === S.sel ? ' is-sel' : '') + '" tabindex="0" role="button" aria-pressed="' + (d.keys[i] === S.sel) + '" data-i="' + i + '" data-key="' + d.keys[i] + '" aria-label="' + esc(periodName(d.keys[i]).long) + ': ' + money(v) + '">' +
+        '<div class="fill" style="height:' + (v / max * 100) + '%"></div></div>';
     }).join('');
-    var labels = d.labels.map(function (l, i) { return '<span' + (d.keys[i] === nowKey ? ' class="is-now"' : '') + '>' + esc(l) + '</span>'; }).join('');
+    var labels = d.keys.map(function (k) { var n = periodName(k); return '<span class="' + (n.now ? 'is-now' : '') + (k === S.sel ? ' is-sel' : '') + '" data-key="' + k + '" title="' + esc(n.long) + '"><b>' + esc(n.top) + '</b>' + '</span>'; }).join('');
     $('#chartBody').innerHTML =
       '<div class="chart"><div class="chart-y">' + y + '</div>' +
       '<div class="chart-plot" id="plot">' + grid +
       (avg ? '<div class="chart-avg" style="bottom:' + (avg / max * 100) + '%"><span>Promedio ' + short(avg) + '</span></div>' : '') +
-      '<div class="bars" id="bars">' + bars + '</div><div class="chart-tip" id="tip" hidden></div></div>' +
+      '<div class="bars' + (S.slide ? ' slide-' + S.slide : '') + '" id="bars">' + bars + '</div><div class="chart-tip" id="tip" hidden></div></div>' +
       '<div class="bar-labels">' + labels + '</div></div>' +
-      '<div class="chart-legend"><span><i class="k-bar"></i>Ingresos del período</span><span><i class="k-peak"></i>Pico</span><span><i class="k-avg"></i>Promedio de los períodos con datos</span></div>';
+      '<div class="chart-legend"><span><i class="k-bar"></i>Ingresos del período</span><span><i class="k-peak"></i>Pico</span><span><i class="k-avg"></i>Promedio de los períodos con datos</span><span class="chart-cta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1.5a1.5 1.5 0 0 1 3 0V11m0-1a1.5 1.5 0 0 1 3 0v4.5a5.5 5.5 0 0 1-5.5 5.5h-.6a5 5 0 0 1-3.9-1.9L5.3 14.6a1.5 1.5 0 0 1 2.3-1.9L9 14"/></svg>Tocá una barra para ver sus reservas</span></div>';
+    S.slide = null;
 
     /* Tooltip de cada barra (con mouse o teclado) */
     var plot = $('#plot'), tip = $('#tip');
     function showTip(el) {
       var i = Number(el.dataset.i), r = el.getBoundingClientRect(), pr = plot.getBoundingClientRect();
       var p = pct(vals[i], i > 0 ? vals[i - 1] : 0), occ = d.occupancy[i];
-      tip.innerHTML = '<small>' + esc(d.labels[i]) + '</small><b>' + money(vals[i]) + '</b>' +
+      tip.innerHTML = '<small>' + esc(periodName(d.keys[i]).long) + '</small><b>' + money(vals[i]) + '</b>' +
         (i > 0 && p !== null && vals[i] > 0 ? '<small>' + (p >= 0 ? '▲ ' : '▼ ') + Math.abs(p) + ' % vs. anterior</small>' : '') +
-        (occ === null ? '' : '<span class="tip-occ" title="Turnos ocupados sobre turnos disponibles"><i style="--p:' + occ + '%"></i>' + occ + ' %</span>');
+        (occ === null ? '' : '<span class="tip-occ" title="Turnos ocupados sobre turnos disponibles"><i style="--p:' + occ + '%"></i>' + occ + ' %</span>') +
+        (d.keys[i] === S.sel ? '<span class="tip-cta is-sel">Viendo sus reservas abajo</span>' : '<span class="tip-cta">Tocá para ver sus reservas →</span>');
       tip.hidden = false;
       var h = vals[i] / max * pr.height;
       tip.style.left = Math.min(Math.max(r.left + r.width / 2 - pr.left, 70), pr.width - 70) + 'px';
@@ -299,14 +335,34 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     var el = e.target.closest('[data-act]');
     if (!el) return;
     if (el.dataset.act === 'retry') { load(); return; }
-    if (el.dataset.act === 'dgoto') { D.page = Number(el.dataset.page); renderDetail(); return; }
+    if (el.dataset.act === 'dgoto') { var np = Number(el.dataset.page); if (np >= 1 && np <= D.pages && np !== D.page) { D.page = np; loadDetailPage(); } return; }
     if (el.dataset.act !== 'gran') return;
-    S.gran = el.dataset.v;
+    S.gran = el.dataset.v; S.until = null; S.want = currentPeriodKey();
     document.querySelectorAll('#seg button').forEach(function (b) { b.classList.toggle('is-on', b === el); });
     load();
   });
-  $('#dSize').addEventListener('change', function () { D.size = Number(this.value); D.page = 1; renderDetail(); });
+  $('#dSize').addEventListener('change', function () { D.size = Number(this.value); D.page = 1; loadDetailPage(); });
   $('#year').addEventListener('change', function () { S.year = +this.value; load(); });
+  /* Flechas del gráfico: corren la ventana entera (7 días, 8 semanas o un año) y las barras se deslizan */
+  function shiftWindow(dir) {
+    var A = PaliApi.util.addDays, t = PaliApi.util.today(), first = S.keys[0], last = S.keys[S.keys.length - 1];
+    if (S.gran === 'month') {
+      var y = S.year + dir; if (y > thisYear) return;
+      S.year = y; if (!$('#year').querySelector('option[value="' + y + '"]')) $('#year').insertAdjacentHTML('beforeend', '<option value="' + y + '">' + y + '</option>');
+      $('#year').value = String(y);
+    } else if (dir < 0) {
+      S.until = A(first, -1);
+    } else {
+      if (!S.until) return;
+      var end = S.gran === 'week' ? A(last, 6 + 7 * S.keys.length) : A(last, S.keys.length);
+      S.until = end >= t ? null : end;
+    }
+    S.slide = dir < 0 ? 'prev' : 'next';
+    S.edge = dir < 0 ? 'last' : 'now';
+    load();
+  }
+  $('#winPrev').addEventListener('click', function () { shiftWindow(-1); });
+  $('#winNext').addEventListener('click', function () { shiftWindow(1); });
 
   /* El número sube o baja con una animación corta cuando cambió desde la última vez que se vio (por ejemplo, se completó un turno en la Agenda) */
   var LAST_KEY = 'pali-last-income', prevSeen = {};

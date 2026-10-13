@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Personas · Pali backoffice</title>
+<title>Jugadores · Pali backoffice</title>
 <link rel="stylesheet" href="css/main.css">
 <script>/* Tema y barra lateral: se aplican antes de pintar para evitar parpadeos */
 (function(){try{var d=document.documentElement,t=localStorage.getItem('pali-theme');
@@ -19,12 +19,12 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     <p class="brand">Pali <em>· backoffice</em></p>
     <p class="brand-sub">Club de ejemplo</p>
     <script src="js/nav.js"></script>
-    <div class="foot"><a href="index.html">Mapa de flujos</a></div>
+    <div class="foot"><a href="components.html">Componentes</a></div>
   </aside>
 
   <main class="main">
     <header class="page-header">
-      <p class="kicker">Backoffice · Personas</p>
+      <p class="kicker">Backoffice · Jugadores</p>
       <h2>Buscar o crear, <em>desde un solo lugar</em>.</h2>
       <p class="lede">Una tabla de jugadores con filtros. El buscador filtra la tabla mientras escribís. Tocá un jugador para ver su categoría actual, cuántas veces fue y en qué canchas jugó. Si no existe, se crea en el momento y se le piden sus datos.</p>
     </header>
@@ -59,9 +59,12 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
         <label class="pager-size">Mostrar
           <select id="pageSize" class="select" aria-label="Registros por página"><option>10</option><option>20</option><option>50</option><option>100</option></select>
           por página</label>
-      <div class="pop-wrap" id="colsWrap">
-        <button type="button" class="icon-btn" data-act="toggleCols" aria-haspopup="true" aria-expanded="false" id="colsBtn" aria-label="Elegir columnas" title="Elegir columnas"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9.5 4v16M14.5 4v16"/></svg></button>
-        <div class="pop" id="colsPop" role="menu" hidden></div>
+      <div class="row" style="gap:14px;align-items:center">
+        <span class="pager-range" id="range"></span>
+        <div class="pop-wrap" id="colsWrap">
+          <button type="button" class="icon-btn" data-act="toggleCols" aria-haspopup="true" aria-expanded="false" id="colsBtn" aria-label="Elegir columnas" title="Elegir columnas"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9.5 4v16M14.5 4v16"/></svg></button>
+          <div class="pop" id="colsPop" role="menu" hidden></div>
+        </div>
       </div>
       </div>
       <div class="table-wrap" id="tableWrap">
@@ -73,7 +76,6 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
       </div>
       <p class="hint mt-2" id="createHint" hidden></p>
       <nav class="pager" id="pager" aria-label="Paginación" hidden>
-        <span class="pager-range" id="range"></span>
         <div class="pager-nav" id="pages"></div>
       </nav>
     </section>
@@ -85,7 +87,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
 </div>
 
 <script>
-/* Pantalla Personas. Lógica en el HTML; datos siempre vía PaliApi. */
+/* Pantalla Jugadores (archivo personas.html). Lógica en el HTML; datos siempre vía PaliApi. */
 (function () {
   var $ = function (s) { return document.querySelector(s); };
   var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
@@ -144,7 +146,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
     $('#pager').hidden = S.total === 0;
     $('#pageSize').value = String(S.pageSize); $('#pageSize').disabled = false; $('#tableWrap').removeAttribute('aria-busy');
     var from = (S.page - 1) * S.pageSize + 1, to = Math.min(S.total, S.page * S.pageSize);
-    $('#range').textContent = from + '–' + to + ' de ' + S.total;
+    $('#range').textContent = S.total ? from + '–' + to + ' de ' + S.total : '';
     $('#pages').innerHTML = '<button type="button" class="pager-btn" data-act="goto" data-page="' + (S.page - 1) + '"' + (S.page === 1 ? ' disabled' : '') + ' aria-label="Página anterior">Anterior</button>' +
       pageList().map(function (x) {
         return x === '…' ? '<span class="pager-gap">…</span>' : '<button type="button" class="pager-btn" data-act="goto" data-page="' + x + '"' + (x === S.page ? ' aria-current="page"' : '') + ' aria-label="Página ' + x + '">' + x + '</button>';
@@ -182,10 +184,9 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
   /* ---------- ficha del jugador ---------- */
   async function openPlayer(id) {
     var p = await PaliApi.getPerson(id);
-    S.person = p; S.history = (await PaliApi.getPersonHistory(id, { playedOnly: true }));
-    var h = S.history, sum = await PaliApi.getPersonSummary(id);   // totales históricos; la lista solo muestra la ventana de 4 meses
+    S.person = p; var sum = await PaliApi.getPersonSummary(id);   // totales históricos; la lista solo muestra la ventana de 4 meses
     var chips = sum.courts.map(function (c) { return '<span class="chip chip--sky">' + esc(c.courtName) + ' · ' + c.count + (c.count === 1 ? ' vez' : ' veces') + '</span>'; }).join(' ');
-    S.hist = { rows: h, page: 1, size: 10 };
+    S.hist = { id: id, rows: [], page: 1, size: 10, total: 0, pages: 1, loading: true };
     var since = PaliApi.util.parseDate(PaliApi.util.historyFrom()).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' });
     $('#modal').innerHTML = '<div class="player-modal">' +
       '<div class="modal-head"><div><h3>' + esc(pname(p)) + '</h3><p class="sub">Tel. ' + esc(p.phone || 'sin cargar') + '</p></div>' +
@@ -199,19 +200,27 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
         '<div><p class="callout-t">Historial de los últimos 4 meses</p><p class="callout-s">La lista muestra los turnos desde el ' + esc(since) + '. Los números de arriba cuentan todo el historial.</p></div></div>' +
       '<div class="hist" id="hBlock"></div>' +
       '<div class="modal-foot"><button class="btn btn--dark" data-act="closePlayer">Aceptar</button></div></div>';
-    renderHist();
+    loadHist();
     $('#scrim').hidden = false;
   }
   /* Lista de turnos de la ventana de 4 meses, de a 10 por página. Si no hay turnos no se muestra nada */
+  /* Historial de la ficha: se pide de a una página al servidor, con loader en cada cambio */
+  async function loadHist() {
+    var H = S.hist; H.loading = true; renderHist();
+    var seq = (loadHist.seq = (loadHist.seq || 0) + 1);
+    var res = await PaliApi.getPersonHistory(H.id, { playedOnly: true, page: H.page, pageSize: H.size });
+    await new Promise(function (ok) { setTimeout(ok, 450); });   // simula la espera de la respuesta (solo prototipo)
+    if (seq !== loadHist.seq || !S.hist || S.hist.id !== H.id) return;
+    H.rows = res.items; H.total = res.total; H.page = res.page; H.pages = res.totalPages; H.loading = false; renderHist();
+  }
   function renderHist() {
     var H = S.hist, el = $('#hBlock'); if (!el) return;
-    if (!H.rows.length) { el.innerHTML = ''; return; }
-    var n = Math.max(1, Math.ceil(H.rows.length / H.size)); H.page = Math.min(Math.max(1, H.page), n);
-    var from = (H.page - 1) * H.size, list = H.rows.slice(from, from + H.size);
-    el.innerHTML = '<div class="modal-scroll"><table class="table"><thead><tr><th>Día</th><th>Hora</th><th>Cancha</th></tr></thead><tbody>' +
-      list.map(function (b) { return '<tr><td>' + esc(day(b.date, true)) + '</td><td class="mono">' + b.start + '–' + b.end + '</td><td>' + esc(b.courtName) + '</td></tr>'; }).join('') + '</tbody></table></div>' +
-      (n > 1 ? '<nav class="pager pager--mini" aria-label="Paginación del historial"><span class="pager-range">' + (from + 1) + '–' + Math.min(H.rows.length, from + H.size) + ' de ' + H.rows.length + '</span>' +
-        '<div class="pager-nav"><button type="button" class="pager-btn" data-act="hgoto" data-page="' + (H.page - 1) + '"' + (H.page === 1 ? ' disabled' : '') + '>Anterior</button><button type="button" class="pager-btn" data-act="hgoto" data-page="' + (H.page + 1) + '"' + (H.page === n ? ' disabled' : '') + '>Siguiente</button></div></nav>' : '');
+    var head = '<div class="modal-scroll"' + (H.loading ? ' aria-busy="true"' : '') + '><table class="table"><thead><tr><th>Día</th><th>Hora</th><th>Cancha</th></tr></thead><tbody>';
+    if (H.loading) { var sk = ''; for (var i = 0; i < 6; i++) sk += '<tr class="skel-row"><td><span class="skel"></span></td><td><span class="skel"></span></td><td><span class="skel"></span></td></tr>'; el.innerHTML = head + sk + '</tbody></table></div>'; return; }
+    if (!H.total) { el.innerHTML = ''; return; }
+    var n = H.pages;
+    el.innerHTML = head + H.rows.map(function (b) { return '<tr><td>' + esc(day(b.date, true)) + '</td><td class="mono">' + b.start + '–' + b.end + '</td><td>' + esc(b.courtName) + '</td></tr>'; }).join('') + '</tbody></table></div>' +
+      (n > 1 ? '<nav class="pager pager--mini" aria-label="Paginación del historial"><div class="pager-nav"><button type="button" class="pager-btn" data-act="hgoto" data-page="' + (H.page - 1) + '"' + (H.page === 1 ? ' disabled' : '') + '>Anterior</button><button type="button" class="pager-btn" data-act="hgoto" data-page="' + (H.page + 1) + '"' + (H.page === n ? ' disabled' : '') + '>Siguiente</button></div></nav>' : '');
   }
   function closePlayer() { $('#scrim').hidden = true; S.person = null; }
 
@@ -263,7 +272,7 @@ if(localStorage.getItem('pali-sidebar')==='hidden')d.setAttribute('data-sidebar'
   var actions = {
     open: function (d) { colsOpen(false); openPlayer(d.id); },
     closePlayer: closePlayer,
-    hgoto: function (d) { S.hist.page = Number(d.page); renderHist(); },
+    hgoto: function (d) { var n = Number(d.page); if (n >= 1 && n <= S.hist.pages && n !== S.hist.page) { S.hist.page = n; loadHist(); } },
     scrim: function (d, e) { if (e.target.id === 'scrim') closePlayer(); },
     goto: function (d) { var n = Number(d.page); if (n >= 1 && n <= S.totalPages && n !== S.page) { S.page = n; load(); } },
     toggleCols: function () { colsOpen($('#colsPop').hidden); },

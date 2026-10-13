@@ -1,4 +1,8 @@
-<!-- Turno de la agenda. Estados: slot--free (libre) · slot--booked (reservado, incompleto) · slot--full (completo, 4 personas). -->
+<!-- Turno de la agenda: 4 estados (“frío, firme y sellado”).
+     slot--free: Libre, sin personas · slot--booked: Reservado, hay personas pero sin confirmar (verde suave, borde punteado)
+     slot--full: Completo, confirmado (verde bosque) · slot--done: Finalizado, ya se jugó y se cobró (azul cielo, con ✓).
+     El texto muestra solo la cantidad de personas, nunca “x de 4”. -->
 <button class="slot slot--free"><span class="t">Libre · 18:00–19:30</span><span class="s">Tocá para reservar</span></button>
-<button class="slot slot--booked"><span class="t">Reservado · 19:30–21:00</span><span class="s">2 de 4 personas</span></button>
-<button class="slot slot--full"><span class="t">Completo · 21:00–22:30</span><span class="s">4 de 4 personas</span></button>
+<button class="slot slot--booked"><span class="t">Reservado · 19:30–21:00</span><span class="s">2 personas · sin confirmar</span></button>
+<button class="slot slot--full"><span class="t">Completo · 21:00–22:30</span><span class="s">5 personas</span></button>
+<button class="slot slot--done"><span class="t">Finalizado · 22:30–00:00</span><span class="s">6 personas · cobrado</span></button>

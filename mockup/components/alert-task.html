@@ -1,0 +1,14 @@
+<!-- Alerta desplegable de turnos pasados en Reservado (Agenda). Toda la franja es el botón: alterna is-open y aria-expanded.
+     Adentro, una tabla con Día, Hora y Personas, y en Estado dos botones unidos (state-seg): Libre | Finalizado, al toque. -->
+<section class="alert-task">
+  <button type="button" class="alert-task-head" aria-expanded="false" aria-controls="pendBody">
+    <span class="alert-task-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/></svg></span>
+    <span class="alert-task-tx"><span class="alert-task-t">3 turnos pasados quedaron en Reservado</span><span class="alert-task-s">No se facturaron. <span class="alert-task-hint">Tocá para revisarlos.</span></span></span>
+    <span class="alert-task-chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
+  </button>
+  <div class="alert-task-body" id="pendBody"><div class="alert-task-inner">
+    <table class="table pend-table"><thead><tr><th>Día</th><th>Hora</th><th>Personas</th><th>Estado</th></tr></thead><tbody>
+      <tr><td><b>Jue, 8 oct</b></td><td class="mono">15:00–16:30</td><td class="pend-names">Martín Acosta</td><td class="pend-state"><div class="state-seg"><button type="button">Libre</button><button type="button">Finalizado</button></div></td></tr>
+    </tbody></table>
+  </div></div>
+</section>

@@ -11,6 +11,9 @@ Markup de referencia de cada componente. Son fragmentos HTML para copiar a una p
 | `slot.html` | Turno de la agenda | `css/components/slot-grid.css` |
 | `kpi.html` | Card de indicador | `css/components/card.css` |
 | `table.html` | Tabla | `css/components/table.css` |
-| `modal.html` | Modal | `css/components/modal.css` |
+| `modal.html` | Modal de turno y alerta de confirmación | `css/components/modal.css` |
+| `alert-task.html` | Alerta desplegable de turnos pendientes | `css/components/slot-grid.css` |
+| `callout.html` | Nota informativa con ícono | `css/components/modal.css` |
+| `warn.html` | Advertencia en durazno tenue | `css/components/modal.css` |
 
 Ver todos renderizados en `../components.html`.

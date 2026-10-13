@@ -52,14 +52,18 @@
 /* Alerta de tarea desplegable: turnos pasados que quedaron en Reservado (lavanda de atención, con reloj).
    "Revisar turnos" estira la sección hacia abajo con la lista; no abre un modal */
 .alert-task { margin-bottom: var(--s-4); border-radius: 12px; background: var(--lav-50); border: 1px solid var(--lav-500); overflow: hidden; }
-.alert-task-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 14px 16px; }
+.alert-task-head { display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px 16px; background: transparent; border: 0; font: inherit; text-align: left; cursor: pointer; transition: background .15s; }
+.alert-task-head:hover { background: color-mix(in srgb, var(--lav-500) 10%, transparent); }
+.alert-task-head:focus-visible { outline: 2px solid var(--lav-700); outline-offset: -2px; border-radius: 12px; }
+.alert-task-chev { width: 32px; height: 32px; flex: none; border-radius: 50%; border: 1px solid var(--lav-500); display: grid; place-items: center; color: var(--lav-700); transition: background .15s; }
+.alert-task-chev svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .18s ease-out; }
+.alert-task-head:hover .alert-task-chev { background: var(--lav-100); }
+.alert-task.is-open .alert-task-chev svg { transform: rotate(180deg); }
 .alert-task-ico { width: 34px; height: 34px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--lav-500); color: #0d1f18; }
 .alert-task-ico svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .alert-task-tx { flex: 1; min-width: 220px; }
-.alert-task-t { font-weight: 600; font-size: var(--fs-md); color: var(--lav-700); line-height: 1.3; }
-.alert-task-s { margin-top: 2px; font-size: var(--fs-sm); color: var(--ink-2); }
-.alert-task-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .18s ease-out; }
-.alert-task.is-open .alert-task-btn svg { transform: rotate(180deg); }
+.alert-task-t { display: block; font-weight: 600; font-size: var(--fs-md); color: var(--lav-700); line-height: 1.3; }
+.alert-task-s { display: block; margin-top: 2px; font-size: var(--fs-sm); color: var(--ink-2); }
 /* Se abre al instante (sin animar la altura, que obliga a recalcular toda la página en cada cuadro).
    Solo el contenido aparece con un fundido corto, que la placa de video resuelve sin costo */
 .alert-task-body { display: none; }
@@ -83,7 +87,7 @@
 .pend-ask { display: inline-flex; gap: 6px; align-items: center; }
 .pend-ask span { font-size: var(--fs-sm); color: var(--ink-2); margin-right: 2px; }
 @media (max-width: 720px) { .pend-table thead { display: none; } .pend-table tr { display: grid; grid-template-columns: 1fr auto; } .pend-table td { border-top: 0; padding: 6px 16px; } .pend-table tr { border-top: 1px solid var(--lav-100); padding: 8px 0; } .pend-names { grid-column: 1 / -1; } .pend-state { text-align: left; } }
-@media (prefers-reduced-motion: reduce) { .alert-task-btn svg { transition: none; } .alert-task.is-open .alert-task-inner { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .alert-task-chev svg { transition: none; } .alert-task.is-open .alert-task-inner { animation: none; } }
 
 /* Barra de la grilla: la leyenda va pegada a la agenda, arriba a la derecha, chica y en un solo renglón.
    La descripción de cada estado va en el tooltip para no cargar la línea */
